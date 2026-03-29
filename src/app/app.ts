@@ -172,10 +172,12 @@ export class App implements OnInit {
     return this.currentVoterIndex + 1;
   }
 
-  // Getter to decide what the maximum numbers of rounds is.
+  // Getter to decide what the maximum number of rounds is.
+  // Falls back to contestants.length if voterOrder isn't
+  // populated yet (e.g. during devMode initial render).
   get totalRounds(): number {
-    return this.voterOrder.length > 0 
-      ? this.voterOrder.length 
+    return this.voterOrder.length > 0
+      ? this.voterOrder.length
       : this.contestants.length;
   }
 
@@ -217,6 +219,14 @@ export class App implements OnInit {
   // Set to true after the last voter's reveal completes.
   // Shows the Contest Over screen.
   contestOver = this.devModeContestOver;
+
+  // Tracks whether the voter who just submitted was the last one.
+  // Set in submitVotes() BEFORE nextVoter() increments the index.
+  // Read in nextReveal() to trigger contestOver at the right moment.
+  // This is necessary because nextVoter() deliberately does NOT
+  // increment past the last index, so currentVoterIndex can never
+  // reach voterOrder.length — we need this flag to know we're done.
+  isLastRound = false;
 
   // =====================================================
   // INITIALISATION
@@ -334,6 +344,8 @@ export class App implements OnInit {
   }
 
   // Advances to the next voter in the locked order.
+  // Deliberately does NOT increment past the last index —
+  // this is why we need isLastRound to detect the end.
   nextVoter() {
     this.usedPoints = [];
     if (this.currentVoterIndex < this.voterOrder.length - 1) {
@@ -367,7 +379,12 @@ export class App implements OnInit {
       .map(([points, contestant]) => ({ contestant, points: Number(points) }))
       .sort((a, b) => a.points - b.points);
 
-    // Reset round state and advance voter.
+    // Check if this is the last voter BEFORE advancing the index.
+    // nextVoter() will not increment past the last position,
+    // so we must capture this here while we still know for sure.
+    this.isLastRound = this.currentVoterIndex === this.voterOrder.length - 1;
+
+    // Reset round state, clear snapshot, and advance voter.
     this.currentRoundVotes  = {};
     this.usedPoints         = [];
     this.scoreSnapshot      = [];
@@ -448,8 +465,10 @@ export class App implements OnInit {
   // =====================================================
 
   // Opens the reveal bar, starting from the first point.
+  // If the reveal has already been opened for this round,
+  // reverts the scoreboard to its pre-reveal snapshot first.
   openReveal() {
-    // Revert scoreboard to pre-reveal state if reveal has already started
+    // Revert scoreboard to pre-reveal state if reveal has already started.
     if (this.scoreSnapshot.length > 0) {
       this.contestants.forEach(c => {
         const snap = this.scoreSnapshot.find(s => s.name === c.name);
@@ -461,7 +480,7 @@ export class App implements OnInit {
       this.sortContestants();
     }
 
-    // Take a fresh snapshot of current scores
+    // Take a fresh snapshot of current scores before any points are awarded.
     this.scoreSnapshot = this.contestants.map(c => ({
       name:        c.name,
       points:      c.points,
@@ -474,9 +493,8 @@ export class App implements OnInit {
 
   // Awards the current point to the contestant,
   // animates the scoreboard, then advances the reveal.
-  // After the last point, checks if the contest is over.
+  // After the last point in the last round, triggers contestOver.
   nextReveal() {
-
     const now = Date.now();
     if (now - this.lastRevealClick < 700) return;
     this.lastRevealClick = now;
@@ -505,11 +523,18 @@ export class App implements OnInit {
     // After animation completes, advance or close the reveal.
     setTimeout(() => {
       if (this.revealIndex < this.lastRoundVotes.length - 1) {
+        // More points to reveal in this round — advance to the next.
         this.revealIndex++;
       } else {
+        // All points for this round have been revealed.
         this.showReveal  = false;
         this.revealIndex = 0;
-        if (this.currentVoterIndex >= this.voterOrder.length) {
+
+        // If this was the last voter's round, the contest is over.
+        // We use isLastRound (set in submitVotes) rather than checking
+        // currentVoterIndex, because nextVoter() never increments past
+        // the final index — so the index alone can't tell us we're done.
+        if (this.isLastRound) {
           this.contestOver = true;
         }
       }
