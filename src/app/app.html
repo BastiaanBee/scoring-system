@@ -90,7 +90,7 @@
         <!-- Disabled until the minimum contestant count is reached -->
         <button class="btn-start"
                 (click)="setupComplete = true; lockVoterOrder()"
-                [disabled]="contestants.length < minContestants">
+                [disabled]="contestants.length < minContestants || !customPointsValid">
           Start Contest
         </button>
       </div>

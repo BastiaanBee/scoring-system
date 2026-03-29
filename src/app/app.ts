@@ -92,7 +92,16 @@ export class App implements OnInit {
   // Minimum contestants needed = number of point positions + 1.
   // (+1 because a contestant cannot vote for themselves.)
   get minContestants(): number {
+    if (this.scoringPreset === 'custom') {
+      return Number(this.customPointsCount) + 1;
+    }
     return this.availablePoints.length + 1;
+  }
+
+  get customPointsValid(): boolean {
+    if (this.scoringPreset !== 'custom') return true;
+    if (!this.customPointsCount || this.customPoints.length === 0) return false;
+    return this.customPoints.every(p => p !== null && p > 0);
   }
 
   // Called when the host switches scoring preset.
