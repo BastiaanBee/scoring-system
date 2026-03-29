@@ -1,0 +1,933 @@
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&display=swap');
+
+/* ─────────────────────────────────────────
+   VARIABLES
+   Central colour and spacing tokens used
+   throughout the app.
+───────────────────────────────────────── */
+:root {
+  --gold:       #F5C800;
+  --gold-dim:   #B89200;
+  --teal:       #00C4A8;
+  --teal-lt:    #00E0C0;
+  --navy:       #0B1A2E;
+  --navy-mid:   #112240;
+  --navy-lt:    #1A3358;
+  --text:       #F0F4FF;
+  --text-2:     #C0CFEA;
+  --muted:      #7888AA;
+  --silver:     #A8BCCF;
+  --bronze:     #C07830;
+  --rule:       rgba(255, 255, 255, 0.08);
+}
+
+/* ─────────────────────────────────────────
+   RESET
+   Removes all browser default margins,
+   padding and borders.
+───────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  background: #0B1A2E;
+  margin: 0;
+  padding: 0;
+  border: none;
+  outline: none;
+}
+
+body {
+  background: #0B1A2E;
+  margin: 0;
+  padding: 0;
+  border: none;
+  outline: none;
+  min-height: 100vh;
+}
+
+/* ─────────────────────────────────────────
+   PAGE
+   The root container for both the setup
+   and contest pages.
+───────────────────────────────────────── */
+.page {
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+  background: linear-gradient(175deg, #0E2244 0%, #0B1A2E 45%, #091828 100%);
+  font-family: 'Inter', sans-serif;
+  color: var(--text);
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* Animated rainbow stripe at the very top of the page */
+.page::before {
+  content: '';
+  display: block;
+  height: 3px;
+  background: linear-gradient(90deg, var(--teal), var(--gold), #E03050, var(--teal));
+  background-size: 300% 100%;
+  animation: stripe 5s linear infinite;
+}
+
+@keyframes stripe {
+  0%   { background-position: 0% 0%; }
+  100% { background-position: 300% 0%; }
+}
+
+/* ─────────────────────────────────────────
+   HEADER
+   Shared between the setup page and the
+   contest page. Shows the contest title.
+───────────────────────────────────────── */
+.header {
+  text-align: center;
+  padding: 1.1rem 2rem 0.9rem;
+  border-bottom: 1px solid var(--rule);
+}
+
+.header-eyebrow {
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.5em;
+  text-transform: uppercase;
+  color: var(--teal);
+  margin-bottom: 0.2rem;
+}
+
+.header h1 {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(2.4rem, 5vw, 4rem);
+  font-weight: 400;
+  letter-spacing: 0.14em;
+  color: var(--gold);
+  line-height: 1;
+  text-shadow: 0 0 40px rgba(245, 200, 0, 0.30);
+}
+
+.header-subtitle {
+  font-size: 0.62rem;
+  color: var(--muted);
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  margin-top: 0.2rem;
+}
+
+.header-divider { display: none; }
+
+/* ─────────────────────────────────────────
+   SETUP PAGE
+   Form for entering the contest title,
+   scoring system, and contestants.
+───────────────────────────────────────── */
+
+/* Centred form container */
+.setup-form {
+  width: 480px;
+  margin: 3rem auto;
+}
+
+/* All inputs and selects inside the setup form */
+.setup-form select,
+.setup-form input {
+  display: block;
+  width: 100%;
+  margin-bottom: 0.6rem;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 6px;
+  color: var(--text);
+  font-family: 'Inter', sans-serif;
+  font-size: 0.88rem;
+  font-weight: 500;
+  padding: 0.55rem 0.75rem;
+  transition: border-color 0.15s, background 0.15s;
+  appearance: none;
+  -webkit-appearance: none;
+  outline: none;
+}
+
+/* Custom chevron arrow on select dropdowns */
+.setup-form select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%2300C4A8' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  padding-right: 2rem;
+  cursor: pointer;
+}
+
+.setup-form select option {
+  background: #0B1A2E;
+  color: var(--text);
+}
+
+.setup-form input::placeholder {
+  color: var(--muted);
+}
+
+.setup-form select:focus,
+.setup-form input:focus {
+  border-color: var(--teal);
+  background-color: rgba(0, 196, 168, 0.08);
+}
+
+/* Row containing Add Contestant + Start Contest buttons */
+.setup-form-buttons {
+  display: flex;
+  gap: 0.6rem;
+  margin-top: 0.4rem;
+  align-items: center;
+}
+
+/* Small uppercase section label above form groups */
+.setup-section-label {
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 0.4rem;
+  margin-top: 0.8rem;
+}
+
+/* Warning shown when not enough contestants are added */
+.setup-warning {
+  font-size: 0.78rem;
+  color: #FFA0A8;
+  background: rgba(224, 48, 80, 0.12);
+  border: 1px solid rgba(224, 48, 80, 0.30);
+  border-radius: 5px;
+  padding: 0.45rem 0.7rem;
+  margin-bottom: 0.5rem;
+  flex: 1;
+}
+
+/* ── Custom scoring system ── */
+
+/* Row with the count input + ✓ confirm button */
+.custom-count-row {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  margin-bottom: 0.6rem;
+}
+
+.custom-count-row input {
+  flex: 1;
+  margin-bottom: 0;
+}
+
+/* ✓ confirm button next to the count input */
+.btn-apply {
+  padding: 0.55rem 0.8rem;
+  background: var(--teal);
+  border: none;
+  border-radius: 6px;
+  color: #061018;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.18s;
+  flex-shrink: 0;
+}
+
+.btn-apply:hover {
+  background: var(--teal-lt);
+}
+
+/* Space below the custom point inputs before the country dropdown */
+.custom-points-section {
+  margin-bottom: 2.8rem;
+}
+
+/* ── Buttons ── */
+
+/* "Add Contestant" button — secondary style */
+.btn-add {
+  flex: 1;
+  padding: 0.58rem 1rem;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 6px;
+  color: var(--text);
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1rem;
+  letter-spacing: 0.12em;
+  cursor: pointer;
+  transition: background 0.18s, border-color 0.18s;
+}
+
+.btn-add:hover {
+  background: rgba(255, 255, 255, 0.13);
+  border-color: rgba(255, 255, 255, 0.30);
+}
+
+/* Primary teal button — used for "Start Contest" and "Show Reveal" */
+.btn-start {
+  flex: 1;
+  padding: 0.58rem 1rem;
+  background: var(--teal);
+  border: none;
+  border-radius: 6px;
+  color: #061018;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1rem;
+  letter-spacing: 0.12em;
+  cursor: pointer;
+  transition: background 0.18s, transform 0.15s, box-shadow 0.18s;
+}
+
+.btn-start:hover:not(:disabled) {
+  background: var(--teal-lt);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 18px rgba(0, 196, 168, 0.38);
+}
+
+.btn-start:disabled {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--muted);
+  cursor: not-allowed;
+}
+
+/* Show Reveal button variant — overrides flex:1 and centres
+   it absolutely within the voter bar */
+.btn-reveal {
+  flex: none;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 0.40rem 1.2rem;
+  font-size: 0.88rem;
+  white-space: nowrap;
+}
+
+.btn-start.btn-reveal:hover {
+  transform: translateX(-50%) translateY(-1px);
+}
+
+/* ── Contestant preview list ── */
+
+.contestant-preview {
+  margin-top: 1.5rem;
+  border-top: 1px solid var(--rule);
+  padding-top: 1rem;
+}
+
+.contestant-preview-header {
+  font-size: 0.60rem;
+  font-weight: 700;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 0.5rem;
+}
+
+.contestant-preview-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.42rem 0.6rem;
+  border-radius: 5px;
+  border-bottom: 1px solid var(--rule);
+  font-size: 0.85rem;
+  color: var(--text-2);
+  transition: background 0.12s;
+}
+
+.contestant-preview-row:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.contestant-preview-row span {
+  color: var(--text);
+}
+
+/* ✕ remove button on each preview row */
+.contestant-preview-row button {
+  background: none;
+  border: none;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 0.85rem;
+  padding: 0 0.25rem;
+  line-height: 1;
+  transition: color 0.15s;
+  flex-shrink: 0;
+}
+
+.contestant-preview-row button:hover {
+  color: #FF8090;
+}
+
+/* ─────────────────────────────────────────
+   VOTER BAR
+   Strip below the header showing the
+   current voter, reveal button, and last
+   submission info.
+───────────────────────────────────────── */
+.voter-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.55rem 1.5rem;
+  background: rgba(0, 196, 168, 0.10);
+  border-bottom: 1px solid rgba(0, 196, 168, 0.18);
+  gap: 1rem;
+  position: relative;
+}
+
+.voter-info {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.voter-label {
+  font-size: 0.58rem;
+  font-weight: 600;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  color: var(--teal);
+}
+
+.voter-name {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.15rem;
+  letter-spacing: 0.08em;
+  color: #fff;
+}
+
+/* Animated sonar pulse dot next to the voter name */
+.voter-pulse {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--teal-lt);
+  flex-shrink: 0;
+  animation: sonar 2s ease-out infinite;
+}
+
+@keyframes sonar {
+  0%   { box-shadow: 0 0 0 0   rgba(0, 224, 192, 0.65); }
+  70%  { box-shadow: 0 0 0 8px rgba(0, 224, 192, 0); }
+  100% { box-shadow: 0 0 0 0   rgba(0, 224, 192, 0); }
+}
+
+.last-voter {
+  font-size: 0.70rem;
+  color: var(--text-2);
+}
+
+.last-voter span {
+  color: var(--gold);
+  font-weight: 700;
+}
+
+/* ─────────────────────────────────────────
+   MAIN LAYOUT
+   Two-column grid: scoreboard | voting panel
+───────────────────────────────────────── */
+.container {
+  display: grid;
+  grid-template-columns: 1fr 280px;
+  align-items: start;
+  min-height: calc(100vh - 130px);
+}
+
+/* ─────────────────────────────────────────
+   SCOREBOARD
+   Left column of the main layout.
+───────────────────────────────────────── */
+.scoreboard {
+  border-right: 1px solid var(--rule);
+  padding: 1.2rem 1.4rem;
+  padding-bottom: 6rem;
+}
+
+.scoreboard-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.55rem;
+  border-bottom: 1px solid var(--rule);
+}
+
+.scoreboard-icon { font-size: 0.95rem; }
+
+.scoreboard-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1rem;
+  letter-spacing: 0.15em;
+  color: var(--gold);
+}
+
+/* Column header row */
+.score-header {
+  display: grid;
+  grid-template-columns: 44px 130px 1fr 1fr 1fr 78px;
+  gap: 0.5rem;
+  padding: 0 0.5rem 0.45rem;
+  font-size: 0.57rem;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--muted);
+  border-bottom: 1px solid var(--rule);
+  margin-bottom: 0.2rem;
+}
+
+/* Each contestant row */
+.score-row {
+  display: grid;
+  grid-template-columns: 44px 130px 1fr 1fr 1fr 78px;
+  gap: 0.5rem;
+  padding: 0.44rem 0.5rem;
+  align-items: center;
+  border-radius: 5px;
+  border-bottom: 1px solid var(--rule);
+  transition: background 0.12s ease;
+  font-size: 0.88rem;
+}
+
+.score-row:last-child { border-bottom: none; }
+.score-row:hover { background: rgba(255, 255, 255, 0.04); }
+
+/* Medal row highlights for positions 1, 2, 3 */
+.score-row.gold-row {
+  background: rgba(245, 200, 0, 0.09);
+  border-left: 3px solid var(--gold);
+  padding-left: calc(0.5rem - 3px);
+  border-bottom: 1px solid rgba(245, 200, 0, 0.10);
+}
+.score-row.silver-row {
+  background: rgba(168, 188, 207, 0.07);
+  border-left: 3px solid var(--silver);
+  padding-left: calc(0.5rem - 3px);
+}
+.score-row.bronze-row {
+  background: rgba(192, 120, 48, 0.07);
+  border-left: 3px solid var(--bronze);
+  padding-left: calc(0.5rem - 3px);
+}
+
+/* Rank number / medal emoji */
+.rank {
+  font-size: 0.80rem;
+  font-weight: 600;
+  color: var(--muted);
+  line-height: 1;
+}
+
+/* Scoreboard columns */
+/* Country: truncates with ellipsis if too long */
+.country-col {
+  color: rgb(114, 163, 255);
+  font-size: 0.80rem;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+.participant-col { color: var(--text);    font-size: 0.90rem; font-weight: 700; }
+.artist-col      { color: var(--text-2);  font-size: 0.82rem; }
+.song-col        { color: var(--teal-lt); font-size: 0.82rem; font-style: italic; }
+
+.points-col {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.05rem;
+  letter-spacing: 0.05em;
+  text-align: right;
+  color: var(--text-2);
+}
+
+/* Medal colour overrides for the points column */
+.gold-row   .points-col { color: var(--gold);   }
+.silver-row .points-col { color: var(--silver); }
+.bronze-row .points-col { color: var(--bronze); }
+
+/* ─────────────────────────────────────────
+   VOTING PANEL
+   Right column of the main layout.
+   Sticky so it stays visible while scrolling.
+───────────────────────────────────────── */
+.voting-panel {
+  position: sticky;
+  top: 0;
+  padding: 1.2rem 1.1rem;
+  background: rgba(0, 0, 0, 0.15);
+  border-left: 1px solid var(--rule);
+  min-height: calc(100vh - 130px);
+}
+
+.voting-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.55rem;
+  border-bottom: 1px solid var(--rule);
+}
+
+.voting-icon { font-size: 0.95rem; }
+
+.voting-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1rem;
+  letter-spacing: 0.15em;
+  color: var(--teal-lt);
+}
+
+/* One row per point value in the voting panel */
+.vote-row {
+  display: grid;
+  grid-template-columns: 46px 1fr;
+  align-items: center;
+  gap: 0.45rem;
+  margin-bottom: 0.28rem;
+}
+
+/* Point value label (e.g. "12 pts") */
+.vote-points-badge {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 0.85rem;
+  letter-spacing: 0.06em;
+  color: var(--gold);
+  text-align: right;
+  white-space: nowrap;
+  opacity: 0.80;
+}
+
+/* Slightly larger / brighter for top point values */
+.vote-points-badge.pts-12 { font-size: 1rem; opacity: 1; }
+.vote-points-badge.pts-10 { opacity: 0.90; }
+
+/* Voting panel dropdowns */
+select {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 5px;
+  color: var(--text);
+  font-family: 'Inter', sans-serif;
+  font-size: 0.80rem;
+  font-weight: 500;
+  padding: 0.28rem 1.6rem 0.28rem 0.5rem;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%2300C4A8' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.5rem center;
+}
+
+select:focus {
+  outline: none;
+  border-color: var(--teal);
+  background-color: rgba(0, 196, 168, 0.09);
+}
+
+select option {
+  background: #0B1A2E;
+  color: var(--text);
+}
+
+select:disabled {
+  opacity: 0.22;
+  cursor: not-allowed;
+}
+
+/* Teal border highlight when a vote has been assigned */
+.vote-row.vote-set select {
+  border-color: rgba(0, 196, 168, 0.50);
+  color: #fff;
+}
+
+/* Divider between vote rows and submit area */
+.vote-divider {
+  height: 1px;
+  background: var(--rule);
+  margin: 0.65rem 0;
+}
+
+/* Progress bar showing how many votes have been assigned */
+.progress-bar-wrap {
+  height: 3px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 99px;
+  margin-bottom: 0.55rem;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--teal), var(--teal-lt));
+  border-radius: 99px;
+  transition: width 0.3s ease;
+}
+
+/* "X / Y votes assigned" label above the progress bar */
+.vote-count-label {
+  font-size: 0.62rem;
+  color: var(--text-2);
+  text-align: center;
+  margin-bottom: 0.45rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.vote-count-label em {
+  color: var(--teal-lt);
+  font-style: normal;
+  font-weight: 700;
+}
+
+/* Submit Votes button */
+.submit-btn {
+  width: 100%;
+  padding: 0.65rem 1rem;
+  background: var(--teal);
+  border: none;
+  border-radius: 6px;
+  color: #061018;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.05rem;
+  letter-spacing: 0.15em;
+  cursor: pointer;
+  transition: background 0.18s ease, transform 0.15s ease, box-shadow 0.18s ease;
+}
+
+.submit-btn:hover:not(:disabled) {
+  background: var(--teal-lt);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 18px rgba(0, 196, 168, 0.38);
+}
+
+.submit-btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.submit-btn:disabled {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--muted);
+  cursor: not-allowed;
+}
+
+/* Error message shown when a voting rule is violated */
+.error-message {
+  margin-top: 0.5rem;
+  padding: 0.45rem 0.7rem;
+  background: rgba(224, 48, 80, 0.12);
+  border: 1px solid rgba(224, 48, 80, 0.30);
+  border-radius: 5px;
+  color: #FFA0A8;
+  font-size: 0.75rem;
+  line-height: 1.45;
+}
+
+/* ─────────────────────────────────────────
+   REVEAL BAR
+   Fixed strip at the bottom of the viewport.
+   Visible during the reveal phase.
+   Shows: voter name | point value | recipient | Next button
+───────────────────────────────────────── */
+.reveal-overlay {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.9rem 2rem;
+  background: #0B1A2E;
+  border-top: 2px solid var(--teal);
+  z-index: 100;
+  gap: 2rem;
+}
+
+/* "X gives..." label on the left */
+.reveal-voter {
+  font-size: 0.70rem;
+  font-weight: 600;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--teal);
+  white-space: nowrap;
+}
+
+/* Large point number in the centre-left */
+.reveal-points-value {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 2.8rem;
+  line-height: 1;
+  color: var(--gold);
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
+}
+
+/* "pts" label next to the number */
+.reveal-points-value span {
+  font-size: 1rem;
+  letter-spacing: 0.2em;
+  color: var(--text-2);
+}
+
+/* Recipient name, centred */
+.reveal-recipient {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 2rem;
+  letter-spacing: 0.08em;
+  color: var(--text);
+  flex: 1;
+  text-align: center;
+}
+
+/* "Next →" / "✓ Done" button on the right */
+.reveal-next-btn {
+  padding: 0.5rem 1.5rem;
+  background: var(--teal);
+  border: none;
+  border-radius: 6px;
+  color: #061018;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1rem;
+  letter-spacing: 0.15em;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.18s, transform 0.15s;
+}
+
+.reveal-next-btn:hover {
+  background: var(--teal-lt);
+  transform: translateY(-1px);
+}
+
+.reveal-close { display: none; }
+
+/* ─────────────────────────────────────────
+   CONTEST OVER SCREEN
+   Full-screen overlay shown after the final
+   voter's reveal completes.
+   Shows a top-3 podium and the full standings.
+───────────────────────────────────────── */
+.contest-over-overlay {
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(175deg, #0E2244 0%, #0B1A2E 50%, #091828 100%);
+  z-index: 200;
+  overflow-y: auto;
+  padding: 2rem;
+}
+
+/* Header section of the contest over screen */
+.contest-over-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.contest-over-header h1 {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  color: var(--gold);
+  letter-spacing: 0.12em;
+  text-shadow: 0 0 40px rgba(245, 200, 0, 0.35);
+}
+
+/* ── Podium ── */
+
+/* Three podium places laid out in a row, aligned to their base */
+.podium {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 3rem;
+}
+
+/* Each podium place: info above, block below */
+.podium-place {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+/* Country flag emoji */
+.podium-flag {
+  font-size: 1.5rem;
+}
+
+/* Contestant name */
+.podium-name {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.4rem;
+  letter-spacing: 0.08em;
+  color: var(--text);
+}
+
+/* Song title in italics */
+.podium-song {
+  font-size: 0.78rem;
+  font-style: italic;
+  color: var(--teal-lt);
+}
+
+/* Total points */
+.podium-points {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1rem;
+  color: var(--text-2);
+  margin-bottom: 0.5rem;
+}
+
+/* The physical podium block itself */
+.podium-block {
+  width: 140px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 2rem;
+  letter-spacing: 0.1em;
+  border-radius: 6px 6px 0 0;
+}
+
+/* Gold block is tallest */
+.gold-block {
+  height: 120px;
+  background: linear-gradient(180deg, rgba(245,200,0,0.25), rgba(245,200,0,0.10));
+  border-top: 3px solid var(--gold);
+  color: var(--gold);
+}
+
+/* Silver block is medium height */
+.silver-block {
+  height: 90px;
+  background: linear-gradient(180deg, rgba(168,188,207,0.20), rgba(168,188,207,0.08));
+  border-top: 3px solid var(--silver);
+  color: var(--silver);
+}
+
+/* Bronze block is shortest */
+.bronze-block {
+  height: 70px;
+  background: linear-gradient(180deg, rgba(192,120,48,0.20), rgba(192,120,48,0.08));
+  border-top: 3px solid var(--bronze);
+  color: var(--bronze);
+}
+
+/* ── Final standings table ── */
+/* Reuses the same .score-header and .score-row classes as the scoreboard */
+.final-standings {
+  max-width: 1000px;
+  margin: 0 auto;
+}
