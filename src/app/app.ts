@@ -23,7 +23,7 @@ export class App implements OnInit {
   // Set both to false for normal use.
   // =====================================================
 
-  devMode            = true;
+  devMode            = false;
   devModeContestOver = false;
 
   // =====================================================
