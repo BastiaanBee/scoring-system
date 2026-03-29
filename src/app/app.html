@@ -52,6 +52,7 @@
               type="number"
               [placeholder]="'Points for position ' + (i + 1)"
               [(ngModel)]="customPoints[i]"
+              (change)="customPoints = [...customPoints]"
               min="1">
           </div>
         </div>
