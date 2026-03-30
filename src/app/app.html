@@ -158,6 +158,10 @@
     <div class="container">
 
       <!-- ── SCOREBOARD ── -->
+      <!-- Uses displayContestants[] — the visual copy updated during reveal.
+           This is intentionally separate from contestants[] (the source of truth)
+           so that points can be revealed one at a time with animation,
+           without affecting the underlying data. -->
       <div class="scoreboard">
         <div class="scoreboard-header">
           <span class="scoreboard-icon">🏆</span>
@@ -174,10 +178,10 @@
           <span style="text-align:right">Points</span>
         </div>
 
-        <!-- One row per contestant, sorted by points (highest first) -->
+        <!-- One row per contestant from displayContestants[] -->
         <!-- trackBy prevents DOM destruction on re-sort (needed for FLIP animation) -->
         <!-- data-name attribute identifies each row for the animation -->
-        <div *ngFor="let c of contestants; let i = index; trackBy: trackByName"
+        <div *ngFor="let c of displayContestants; let i = index; trackBy: trackByName"
              class="score-row"
              [attr.data-name]="c.name"
              [ngClass]="{
@@ -275,8 +279,9 @@
          REVEAL BAR
          Fixed to the bottom of the viewport during the reveal.
          Shows the voter, current point value, and recipient.
-         Host clicks "Next →" to award each point one by one.
-         The scoreboard animates live as each point is awarded.
+         Host clicks "Next →" to reveal each point one by one.
+         The scoreboard (displayContestants) animates live.
+         contestants[] (the truth) is never touched here.
     ====================================================== -->
     <div *ngIf="showReveal" class="reveal-overlay">
       <div class="reveal-voter">
@@ -289,9 +294,10 @@
       <div class="reveal-recipient">
         {{ lastRoundVotes[revealIndex].contestant }}
       </div>
-      <button class="reveal-next-btn" 
-              (click)="nextReveal()">
-        {{ revealIndex < lastRoundVotes.length - 1 ? 'Next →' : '✓ Done' }}
+      <button class="reveal-next-btn"
+              (click)="nextReveal()"
+              *ngIf="revealIndex < lastRoundVotes.length - 1">
+        Next →
       </button>
     </div>
 
@@ -301,6 +307,7 @@
          Shown as a fullscreen overlay after the final voter's
          reveal completes. Displays a podium for the top 3
          and a full final standings table.
+         Uses contestants[] — the source of truth.
          Triggered by contestOver = true.
     ====================================================== -->
     <div *ngIf="contestOver" class="contest-over-overlay">
@@ -343,7 +350,7 @@
 
       </div>
 
-      <!-- Full final standings table (same structure as the scoreboard) -->
+      <!-- Full final standings table — uses contestants[] (source of truth) -->
       <div class="final-standings">
         <div class="scoreboard-header">
           <span class="scoreboard-icon">🏆</span>

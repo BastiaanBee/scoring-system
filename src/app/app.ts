@@ -13,7 +13,6 @@ import { CommonModule } from '@angular/common';
 export class App implements OnInit {
 
   lastRevealClick = 0;
-  scoreSnapshot: { name: string, points: number, scoreCounts: { [points: number]: number } }[] = [];
 
   // =====================================================
   // DEV MODE
@@ -23,25 +22,23 @@ export class App implements OnInit {
   // Set both to false for normal use.
   // =====================================================
 
-  devMode            = false;
+  devMode            = true;
   devModeContestOver = false;
 
   // =====================================================
   // SETUP PAGE STATE
-  // Variables used during the setup phase.
   // =====================================================
 
   // Whether setup is complete and the contest page is shown.
-  // Set to true immediately if devMode is on.
   setupComplete = this.devMode;
 
   // Contest title entered by the host, shown in the header.
   contestTitle = this.devMode ? 'MU Worldvision Song Contest 47' : '';
 
-  // Full country list, loaded from REST Countries API + custom extras.
+  // Full country list loaded from REST Countries API + custom extras.
   countries: { name: string, flag: string }[] = [];
 
-  // Form fields for adding a new contestant during setup.
+  // Form fields for adding a new contestant.
   newCountry = '';
   newName    = '';
   newArtist  = '';
@@ -49,21 +46,13 @@ export class App implements OnInit {
 
   // =====================================================
   // SCORING SYSTEM
-  // scoringPreset:    which preset is active ('eurovision',
-  //                   'formula1', or 'custom').
-  // scoringPresets:   the built-in presets, stored lowest
-  //                   to highest (reveal order).
-  // customPointsCount: how many positions the host wants
-  //                   in a custom scoring system.
-  // customPoints:     the actual point values for each
-  //                   custom position, entered by the host.
-  //
-  // availablePoints:  computed getter — returns the active
-  //                   point values. Drives the voting panel,
-  //                   the reveal, the tiebreaker, and the
-  //                   minimum contestant count check.
-  // pointsDescending: availablePoints reversed, used by
-  //                   the tiebreaker sort.
+  // scoringPreset:     active preset ('eurovision', 'formula1', 'custom').
+  // scoringPresets:    built-in presets stored lowest to highest.
+  // customPointsCount: how many positions the host wants.
+  // customPoints:      the actual point values per position.
+  // availablePoints:   computed getter — drives the voting panel,
+  //                    reveal, tiebreaker, and minimum count check.
+  // pointsDescending:  availablePoints reversed for tiebreaker.
   // =====================================================
 
   scoringPreset     = 'eurovision';
@@ -84,12 +73,12 @@ export class App implements OnInit {
     return this.scoringPresets[this.scoringPreset] ?? this.scoringPresets['eurovision'];
   }
 
-  // Used by the tiebreaker: highest point value compared first.
+  // Used by the tiebreaker: compare highest point value first.
   get pointsDescending(): number[] {
     return [...this.availablePoints].reverse();
   }
 
-  // Minimum contestants needed = number of point positions + 1.
+  // Minimum contestants = point positions + 1
   // (+1 because a contestant cannot vote for themselves.)
   get minContestants(): number {
     if (this.scoringPreset === 'custom') {
@@ -98,6 +87,7 @@ export class App implements OnInit {
     return this.availablePoints.length + 1;
   }
 
+  // Whether all custom point values have been filled in.
   get customPointsValid(): boolean {
     if (this.scoringPreset !== 'custom') return true;
     if (!this.customPointsCount || this.customPoints.length === 0) return false;
@@ -105,14 +95,12 @@ export class App implements OnInit {
   }
 
   // Called when the host switches scoring preset.
-  // Resets any custom values so they don't carry over.
   onScoringPresetChange() {
     this.customPointsCount = '';
     this.customPoints      = [];
   }
 
-  // Called when the host confirms how many custom positions they want.
-  // Builds the customPoints array, preserving any already-entered values.
+  // Called when the host confirms the custom point position count.
   // Capped at 20 positions.
   onCustomCountChange() {
     const count = Math.min(Number(this.customPointsCount ?? 0), 20);
@@ -126,14 +114,24 @@ export class App implements OnInit {
 
   // =====================================================
   // CONTESTANTS
-  // The main contestant list.
-  // Pre-loaded with dummy data if devMode is on,
-  // otherwise starts empty and is filled during setup.
   //
-  // scoreCounts: frequency map tracking how many times
-  // each point value has been awarded to this contestant.
-  // Example: { 12: 3, 10: 2 } = received 12pts 3 times,
-  // 10pts twice. Used for tiebreaking.
+  // TWO-ARRAY SYSTEM:
+  //
+  // contestants[] — SOURCE OF TRUTH.
+  //   Points are awarded here once in submitVotes().
+  //   Never modified during the reveal.
+  //   Used for all logic and the Contest Over screen.
+  //
+  // displayContestants[] — WHAT THE SCOREBOARD SHOWS.
+  //   Reset to preRoundSnapshot[] at the start of each reveal.
+  //   Updated one point at a time during nextReveal().
+  //   Synced back to contestants[] when the reveal completes.
+  //
+  // preRoundSnapshot[] — STATE BEFORE THIS ROUND'S POINTS.
+  //   Saved in submitVotes() before points are awarded.
+  //   Used by openReveal() to reset displayContestants[]
+  //   to the correct pre-reveal state every time, cleanly.
+  //   This eliminates any subtraction logic or state confusion.
   // =====================================================
 
   contestants: {
@@ -157,34 +155,54 @@ export class App implements OnInit {
     { name: 'Djurovski',  country: '🇨🇱 Chile',       artist: 'De Saloon',                song: 'Me Vuelves A Herir',               points: 0,  scoreCounts: {}        },
   ] : [];
 
+  // What the scoreboard shows — updated during the reveal.
+  displayContestants: {
+    name:        string,
+    country:     string,
+    artist:      string,
+    song:        string,
+    points:      number,
+    scoreCounts: { [points: number]: number }
+  }[] = this.contestants.map(c => ({ ...c, scoreCounts: { ...c.scoreCounts } }));
+
+  // Snapshot of contestants[] taken BEFORE points are awarded.
+  // Used to reset displayContestants[] at the start of the reveal.
+  preRoundSnapshot: {
+    name:        string,
+    country:     string,
+    artist:      string,
+    song:        string,
+    points:      number,
+    scoreCounts: { [points: number]: number }
+  }[] = [];
+
   // =====================================================
   // VOTING STATE
   // =====================================================
 
-  // Point values used in the current round (tracks duplicates).
+  // Point values used in the current round.
   usedPoints: number[] = [];
 
   // Index into voterOrder — which voter's turn it is.
   currentVoterIndex = 0;
 
-  // Getter to decide what the current round number is.
+  // Current round number shown in the header.
   get currentRound(): number {
     return this.currentVoterIndex + 1;
   }
 
-  // Getter to decide what the maximum number of rounds is.
-  // Falls back to contestants.length if voterOrder isn't
-  // populated yet (e.g. during devMode initial render).
+  // Total rounds — falls back to contestants.length if
+  // voterOrder isn't populated yet (e.g. on first render).
   get totalRounds(): number {
     return this.voterOrder.length > 0
       ? this.voterOrder.length
       : this.contestants.length;
   }
 
-  // Full log of every vote cast, across all rounds.
+  // Full log of every vote cast across all rounds.
   votes: { voter: string; contestant: string; points: number }[] = [];
 
-  // The votes being built in the current round (points → contestant name).
+  // Votes being built in the current round (points → contestant name).
   currentRoundVotes: { [points: number]: string } = {};
 
   // Error message shown when a voting rule is violated.
@@ -194,22 +212,21 @@ export class App implements OnInit {
   lastSubmittedVoter = 'none';
 
   // Alphabetical voter order, locked in at contest start.
-  // Never changes after lockVoterOrder() is called.
-  // Ensures scoreboard re-sorting never affects voting order.
+  // Never changes — scoreboard sorting cannot affect voting order.
   voterOrder: string[] = [];
 
   // =====================================================
   // REVEAL STATE
   // =====================================================
 
-  // The votes from the last submitted round, sorted lowest to highest.
-  // Drives the reveal bar one point at a time.
+  // The round's votes sorted lowest to highest.
+  // Drives the reveal bar display only — no point logic here.
   lastRoundVotes: { contestant: string; points: number }[] = [];
 
-  // Whether the reveal bar is currently visible.
+  // Whether the reveal bar is visible.
   showReveal = false;
 
-  // Which point in lastRoundVotes is currently being revealed.
+  // Which entry in lastRoundVotes is currently being revealed.
   revealIndex = 0;
 
   // =====================================================
@@ -217,23 +234,15 @@ export class App implements OnInit {
   // =====================================================
 
   // Set to true after the last voter's reveal completes.
-  // Shows the Contest Over screen.
   contestOver = this.devModeContestOver;
 
-  // Tracks whether the voter who just submitted was the last one.
-  // Set in submitVotes() BEFORE nextVoter() increments the index.
-  // Read in nextReveal() to trigger contestOver at the right moment.
-  // This is necessary because nextVoter() deliberately does NOT
-  // increment past the last index, so currentVoterIndex can never
-  // reach voterOrder.length — we need this flag to know we're done.
+  // Whether the voter who just submitted was the last one.
+  // Set in submitVotes() before nextVoter() increments the index,
+  // because nextVoter() never goes past the last index.
   isLastRound = false;
 
   // =====================================================
   // INITIALISATION
-  // Runs once on app load.
-  // Fetches countries from REST Countries API,
-  // appends custom non-sovereign territories,
-  // and sets up devMode state if applicable.
   // =====================================================
 
   ngOnInit() {
@@ -256,11 +265,9 @@ export class App implements OnInit {
         this.countries = [...fetched, ...extras]
           .sort((a, b) => a.name.localeCompare(b.name));
 
-        // DevMode setup: lock voter order from dummy data.
+        // DevMode: lock voter order and sync display array.
         if (this.devMode) {
           this.lockVoterOrder();
-
-          // If devModeContestOver, jump straight to the end state.
           if (this.devModeContestOver) {
             this.contestOver       = true;
             this.currentVoterIndex = this.voterOrder.length;
@@ -273,8 +280,7 @@ export class App implements OnInit {
   // SETUP METHODS
   // =====================================================
 
-  // Adds a contestant to the list.
-  // Validates all fields are filled and country isn't already used.
+  // Adds a contestant. Validates all fields and no duplicate country.
   addContestant() {
     if (!this.newCountry || !this.newName || !this.newArtist || !this.newSong) return;
 
@@ -293,27 +299,29 @@ export class App implements OnInit {
       scoreCounts: {}
     });
 
-    // Clear form fields after adding.
     this.newCountry = '';
     this.newName    = '';
     this.newArtist  = '';
     this.newSong    = '';
   }
 
-  // Returns true if a country value is already in the contestant list.
+  // Returns true if a country is already in the contestant list.
   // Used to grey out already-chosen countries in the dropdown.
   isCountryTaken(value: string): boolean {
     return this.contestants.some(c => c.country === value);
   }
 
-  // Locks in the voter order alphabetically by contestant name.
-  // Called once when "Start Contest" is clicked.
-  // voterOrder never changes after this — scoreboard sorting
-  // cannot influence who votes next.
+  // Locks voter order alphabetically. Called once on "Start Contest".
+  // Also initialises displayContestants[] to match contestants[].
   lockVoterOrder() {
     this.voterOrder = [...this.contestants]
       .sort((a, b) => a.name.localeCompare(b.name))
       .map(c => c.name);
+
+    this.displayContestants = this.contestants.map(c => ({
+      ...c,
+      scoreCounts: { ...c.scoreCounts }
+    }));
   }
 
   // =====================================================
@@ -337,15 +345,14 @@ export class App implements OnInit {
     this.currentRoundVotes[points] = contestantName;
   }
 
-  // How many point slots have been filled this round.
+  // How many point slots are filled this round.
   // Drives the progress bar and Submit button state.
   get selectedVoteCount(): number {
     return Object.keys(this.currentRoundVotes).length;
   }
 
-  // Advances to the next voter in the locked order.
-  // Deliberately does NOT increment past the last index —
-  // this is why we need isLastRound to detect the end.
+  // Advances to the next voter. Deliberately does NOT go past
+  // the last index — that's why isLastRound exists.
   nextVoter() {
     this.usedPoints = [];
     if (this.currentVoterIndex < this.voterOrder.length - 1) {
@@ -353,9 +360,13 @@ export class App implements OnInit {
     }
   }
 
-  // Validates and submits the current round's votes.
-  // Points are NOT added here — they are awarded one by
-  // one during the reveal via nextReveal().
+  // Validates and submits votes.
+  //
+  // KEY DESIGN:
+  // 1. Save preRoundSnapshot[] BEFORE awarding points —
+  //    this is the clean pre-round state used by openReveal().
+  // 2. Award points to contestants[] immediately and permanently.
+  // 3. Never touch contestants[] again until next submitVotes().
   submitVotes() {
     this.errorMessage = '';
 
@@ -374,21 +385,49 @@ export class App implements OnInit {
       return;
     }
 
-    // Save sorted lowest to highest for the reveal sequence.
+    // Build the round votes list, sorted lowest to highest for the reveal.
     this.lastRoundVotes = Object.entries(this.currentRoundVotes)
       .map(([points, contestant]) => ({ contestant, points: Number(points) }))
       .sort((a, b) => a.points - b.points);
 
-    // Check if this is the last voter BEFORE advancing the index.
-    // nextVoter() will not increment past the last position,
-    // so we must capture this here while we still know for sure.
+    // STEP 1: Save pre-round snapshot BEFORE awarding any points.
+    // openReveal() uses this to reset displayContestants[] cleanly.
+    this.preRoundSnapshot = this.contestants.map(c => ({
+      ...c,
+      scoreCounts: { ...c.scoreCounts }
+    }));
+
+    // STEP 2: Award points to contestants[] — the source of truth.
+    // This happens exactly once per round, right here.
+    for (const { points, contestant: name } of this.lastRoundVotes) {
+      const c = this.contestants.find(c => c.name === name);
+      if (c) {
+        c.points += points;
+        c.scoreCounts[points] = (c.scoreCounts[points] ?? 0) + 1;
+        this.votes.push({ voter: this.currentVoter, contestant: name, points });
+      }
+    }
+
+    // Sort contestants[] to reflect the new standings.
+    this.sortContestants();
+
+    // Capture whether this is the last voter before advancing.
     this.isLastRound = this.currentVoterIndex === this.voterOrder.length - 1;
 
-    // Reset round state, clear snapshot, and advance voter.
     this.currentRoundVotes  = {};
     this.usedPoints         = [];
-    this.scoreSnapshot      = [];
     this.lastSubmittedVoter = this.currentVoter;
+    
+    // Close any previous reveal bar
+    this.showReveal  = false;
+    this.revealIndex = 0;
+
+    // Sync display to truth before starting new reveal
+    this.displayContestants = this.contestants.map(c => ({
+      ...c,
+      scoreCounts: { ...c.scoreCounts }
+    }));
+
     this.nextVoter();
   }
 
@@ -397,46 +436,52 @@ export class App implements OnInit {
   // Primary: total points, highest first.
   // Tiebreaker: compare how many times each contestant
   // received each point value, from highest to lowest.
-  // e.g. who received 12pts most often? Then 10pts? Etc.
   // =====================================================
 
   sortContestants() {
     this.contestants.sort((a, b) => {
       if (b.points !== a.points) return b.points - a.points;
-
       for (const pts of this.pointsDescending) {
         const aCount = a.scoreCounts[pts] ?? 0;
         const bCount = b.scoreCounts[pts] ?? 0;
         if (bCount !== aCount) return bCount - aCount;
       }
+      return 0;
+    });
+  }
 
+  // Same sort logic applied to displayContestants[].
+  sortDisplayContestants() {
+    this.displayContestants.sort((a, b) => {
+      if (b.points !== a.points) return b.points - a.points;
+      for (const pts of this.pointsDescending) {
+        const aCount = a.scoreCounts[pts] ?? 0;
+        const bCount = b.scoreCounts[pts] ?? 0;
+        if (bCount !== aCount) return bCount - aCount;
+      }
       return 0;
     });
   }
 
   // =====================================================
   // ANIMATION
-  // Uses the FLIP technique:
-  // 1. Record Y positions of all rows before sorting.
-  // 2. Sort (rows jump instantly in the DOM).
-  // 3. Record new Y positions after Angular re-renders.
-  // 4. Animate each row from its old position to its new one.
+  // FLIP technique applied to displayContestants[].
+  // Records positions before sort, sorts instantly,
+  // then animates rows from old to new positions.
   // =====================================================
 
   animateSort() {
     const rows   = document.querySelectorAll('.score-row');
     const before = new Map<string, number>();
 
-    // Record positions before sort.
     rows.forEach(row => {
       const name = (row as HTMLElement).dataset['name'];
       if (name) before.set(name, row.getBoundingClientRect().top);
     });
 
-    // Sort instantly.
-    this.sortContestants();
+    // Sort the display array — NOT contestants[].
+    this.sortDisplayContestants();
 
-    // Animate from old to new positions after re-render.
     setTimeout(() => {
       const rowsAfter = document.querySelectorAll('.score-row');
       rowsAfter.forEach(row => {
@@ -464,79 +509,52 @@ export class App implements OnInit {
   // REVEAL METHODS
   // =====================================================
 
-  // Opens the reveal bar, starting from the first point.
-  // If the reveal has already been opened for this round,
-  // reverts the scoreboard to its pre-reveal snapshot first.
+  // Opens the reveal bar.
+  // Resets displayContestants[] to preRoundSnapshot[] —
+  // the state from before this round's points were awarded.
+  // This is clean and reliable: no subtraction, no flags,
+  // just a direct copy of the pre-round state.
+  // Can be called multiple times safely — always resets correctly.
   openReveal() {
-    // Revert scoreboard to pre-reveal state if reveal has already started.
-    if (this.scoreSnapshot.length > 0) {
-      this.contestants.forEach(c => {
-        const snap = this.scoreSnapshot.find(s => s.name === c.name);
-        if (snap) {
-          c.points      = snap.points;
-          c.scoreCounts = { ...snap.scoreCounts };
-        }
-      });
-      this.sortContestants();
-    }
-
-    // Take a fresh snapshot of current scores before any points are awarded.
-    this.scoreSnapshot = this.contestants.map(c => ({
-      name:        c.name,
-      points:      c.points,
+    // Reset displayContestants to the pre-round state.
+    this.displayContestants = this.preRoundSnapshot.map(c => ({
+      ...c,
       scoreCounts: { ...c.scoreCounts }
     }));
 
-    this.revealIndex = 0;
-    this.showReveal  = true;
+    // Sort to reflect pre-round standings.
+    this.sortDisplayContestants();
+
+    this.revealIndex     = 0;
+    this.showReveal      = true;
+    this.lastRevealClick = 0;
   }
 
-  // Awards the current point to the contestant,
-  // animates the scoreboard, then advances the reveal.
-  // After the last point in the last round, triggers contestOver.
+  // Steps through the reveal one point at a time.
+  // Only modifies displayContestants[] — never contestants[].
+  // contestants[] was updated once in submitVotes() and is the truth.
   nextReveal() {
     const now = Date.now();
     if (now - this.lastRevealClick < 700) return;
     this.lastRevealClick = now;
 
-    const current    = this.lastRoundVotes[this.revealIndex];
-    const contestant = this.contestants.find(c => c.name === current.contestant);
+    const current = this.lastRoundVotes[this.revealIndex];
 
-    if (contestant) {
-      // Add to total points.
-      contestant.points += current.points;
-
-      // Increment frequency count for this point value (used in tiebreaker).
-      contestant.scoreCounts[current.points] =
-        (contestant.scoreCounts[current.points] ?? 0) + 1;
-
-      this.votes.push({
-        voter:      this.lastSubmittedVoter,
-        contestant: contestant.name,
-        points:     current.points
-      });
+    const d = this.displayContestants.find(d => d.name === current.contestant);
+    if (d) {
+      d.points += current.points;
+      d.scoreCounts[current.points] = (d.scoreCounts[current.points] ?? 0) + 1;
     }
 
-    // Animate the scoreboard re-sort.
     this.animateSort();
 
-    // After animation completes, advance or close the reveal.
     setTimeout(() => {
       if (this.revealIndex < this.lastRoundVotes.length - 1) {
-        // More points to reveal in this round — advance to the next.
         this.revealIndex++;
-      } else {
-        // All points for this round have been revealed.
+      } else if (this.isLastRound) {
+        // Last round, last point revealed — contest is over
+        this.contestOver = true;
         this.showReveal  = false;
-        this.revealIndex = 0;
-
-        // If this was the last voter's round, the contest is over.
-        // We use isLastRound (set in submitVotes) rather than checking
-        // currentVoterIndex, because nextVoter() never increments past
-        // the final index — so the index alone can't tell us we're done.
-        if (this.isLastRound) {
-          this.contestOver = true;
-        }
       }
     }, 700);
   }
@@ -545,15 +563,14 @@ export class App implements OnInit {
   // UTILITY
   // =====================================================
 
-  // Used by *ngFor trackBy on the scoreboard rows.
-  // Prevents Angular from destroying/recreating DOM elements
-  // when the array re-sorts, which is required for FLIP animation.
+  // trackBy for the scoreboard *ngFor — prevents DOM destruction
+  // on re-sort, which is required for the FLIP animation.
   trackByName(index: number, contestant: { name: string }): string {
     return contestant.name;
   }
 
-  // Used by *ngFor trackBy on the custom points inputs.
-  // Prevents input focus from being lost when the array updates.
+  // trackBy for the custom points *ngFor — prevents input
+  // focus from being lost when the array updates.
   trackByIndex(index: number): number {
     return index;
   }
