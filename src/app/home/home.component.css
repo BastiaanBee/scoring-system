@@ -12,15 +12,15 @@ html, body {
 /* Background with subtle geometric grid */
 .home-page {
   min-height: 100vh;
-  background-color: #0B1A2E;
+  background-color: #0b1a2e;
   background-image:
-    linear-gradient(rgba(0, 245, 172, 0.1) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0, 245, 172, 0.1) 1px, transparent 1px);
+    linear-gradient(rgba(0, 245, 172, 0.02) 1px, transparent 5px),
+    linear-gradient(90deg, rgba(0, 245, 172, 0.02) 1px, transparent 5px);
   background-size: 64px 64px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  animation: grid-scroll 20s linear infinite;
+  animation: grid-scroll 10s linear infinite;
 }
 
 @keyframes grid-scroll {
@@ -52,8 +52,8 @@ html, body {
   user-select: none;
   pointer-events: none;
   text-shadow:
-    0 0 40px rgba(245, 200, 0, 0.25),
-    0 0 80px rgba(245, 200, 0, 0.15);
+    0 0 25px rgba(245, 200, 0, 0.4),
+    0 0 25px rgba(245, 200, 0, 0.4);
 }
 
 /* Subtitle */
@@ -66,6 +66,9 @@ html, body {
   margin: 0 0 3rem 0;
   user-select: none;
   pointer-events: none;
+  text-shadow:
+    0 0 10px rgba(0, 212, 245, 0.6),
+    0 0 10px rgba(0, 212, 245, 0.6);
 }
 
 /* Tiles grid */
@@ -79,7 +82,7 @@ html, body {
 
 /* Individual tile */
 .home-tile {
-  background: rgba(17, 34, 64, 0.75);
+  background: rgba(17, 34, 64, 0.64);
   border: 1px solid rgba(255,255,255,0.08);
   border-radius: 12px;
   padding: 2rem;
@@ -87,14 +90,16 @@ html, body {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 1rem;
+  gap: 1.5rem;
   cursor: pointer;
   transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+  box-shadow: 0 0 25px rgba(245, 200, 0, 0.25);
 }
 
 .home-tile:hover {
-  background: #1A3358;
-  border-color: #F5C800;
+  background: #0c1a2e;
+  border-color: rgba(245, 200, 0, 0.25);
+  border-width: 2px;
   transform: translateY(-4px);
 }
 
