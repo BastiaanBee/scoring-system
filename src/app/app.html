@@ -189,7 +189,10 @@
              [ngClass]="{
                'gold-row':   i === 0,
                'silver-row': i === 1,
-               'bronze-row': i === 2
+               'bronze-row': i === 2, 
+               'current-voter-row':   showReveal && isCurrentVoter(c.name),
+               'received-points-row': showReveal && !isCurrentVoter(c.name) && hasReceivedPointsInReveal(c.name),
+               'already-voted-row':   showReveal && !isCurrentVoter(c.name) && !hasReceivedPointsInReveal(c.name) && hasAlreadyVoted(c.name)
              }">
 
           <!-- Medal emoji for top 3, rank number for the rest -->

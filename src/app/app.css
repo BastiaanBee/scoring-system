@@ -537,6 +537,24 @@ body {
   padding-left: calc(0.5rem - 3px);
 }
 
+.score-row.current-voter-row {
+  border-left: 3px solid #00C4A8;
+  background: rgba(0, 196, 168, 0.08);
+  padding-left: calc(0.5rem - 3px);
+}
+
+.score-row.already-voted-row {
+  border-left: 3px solid #7888AA;
+  background: rgba(120, 136, 170, 0.06);
+  padding-left: calc(0.5rem - 3px);
+}
+
+.score-row.received-points-row {
+  border-left: 3px solid #F5C800;
+  background: rgba(245, 200, 0, 0.08);
+  padding-left: calc(0.5rem - 3px);
+}
+
 /* Rank number / medal emoji */
 .rank {
   font-size: 0.80rem;
@@ -572,6 +590,24 @@ body {
 .gold-row   .points-col { color: var(--gold);   }
 .silver-row .points-col { color: var(--silver); }
 .bronze-row .points-col { color: var(--bronze); }
+
+/* Current voter highlight */
+.current-voter-row {
+  border-left: 3px solid #00C4A8;
+  background: rgba(0, 196, 168, 0.08);
+}
+
+/* Already voted this round */
+.already-voted-row {
+  border-left: 3px solid #7888AA;
+  background: rgba(120, 136, 170, 0.06);
+}
+
+/* Received points this round */
+.received-points-row {
+  border-left: 3px solid #F5C800;
+  background: rgba(245, 200, 0, 0.08);
+}
 
 /* ─────────────────────────────────────────
    VOTING PANEL

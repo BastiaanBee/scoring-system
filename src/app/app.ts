@@ -29,7 +29,7 @@ export class App implements OnInit {
   // Set both to false for normal use.
   // =====================================================
 
-  devMode            = false;
+  devMode            = true;
   devModeContestOver = false;
 
   // =====================================================
@@ -235,6 +235,9 @@ export class App implements OnInit {
 
   // Which entry in lastRoundVotes is currently being revealed.
   revealIndex = 0;
+
+  // Names of contestants who have received points so far in this reveal
+  revealedContestants: Set<string> = new Set();
 
   // =====================================================
   // CONTEST OVER STATE
@@ -533,8 +536,10 @@ export class App implements OnInit {
     this.sortDisplayContestants();
 
     this.revealIndex     = 0;
+    this.revealedContestants = new Set();
     this.showReveal      = true;
     this.lastRevealClick = 0;
+    this.revealVoter = this.lastSubmittedVoter;
   }
 
   // Steps through the reveal one point at a time.
@@ -554,6 +559,7 @@ export class App implements OnInit {
     }
 
     this.animateSort();
+    this.revealedContestants.add(current.contestant);
 
     setTimeout(() => {
       if (this.revealIndex < this.lastRoundVotes.length - 1) {
@@ -562,6 +568,8 @@ export class App implements OnInit {
         // Last round, last point revealed — contest is over
         this.contestOver = true;
         this.showReveal  = false;
+        this.revealVoter = '';
+        this.revealedContestants = new Set();
       }
     }, 700);
   }
@@ -570,11 +578,30 @@ export class App implements OnInit {
   // UTILITY
   // =====================================================
 
+
+  // Returns true if this contestant is the current voter
+  isCurrentVoter(name: string): boolean {
+    return name === this.revealVoter;
+  }
+
+  // Returns true if this contestant has already voted in a previous round
+  hasAlreadyVoted(name: string): boolean {
+    return this.voterOrder.indexOf(name) < this.currentVoterIndex;
+  }
+
+  // Returns true only if this contestant has already been revealed this round
+  hasReceivedPointsInReveal(name: string): boolean {
+    return this.revealedContestants.has(name);
+  }
+
   // trackBy for the scoreboard *ngFor — prevents DOM destruction
   // on re-sort, which is required for the FLIP animation.
   trackByName(index: number, contestant: { name: string }): string {
     return contestant.name;
   }
+
+  // The voter whose round is currently being revealed
+  revealVoter = '';
 
   // trackBy for the custom points *ngFor — prevents input
   // focus from being lost when the array updates.
