@@ -1,4 +1,5 @@
 import { Component, OnInit, ViewEncapsulation } from '@angular/core';
+import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 
@@ -12,6 +13,12 @@ import { CommonModule } from '@angular/common';
 
 export class App implements OnInit {
 
+  constructor(private router: Router) {}
+
+  goHome() {
+    this.router.navigate(['/']);
+  }
+
   lastRevealClick = 0;
 
   // =====================================================
@@ -22,7 +29,7 @@ export class App implements OnInit {
   // Set both to false for normal use.
   // =====================================================
 
-  devMode            = false;
+  devMode            = true;
   devModeContestOver = false;
 
   // =====================================================

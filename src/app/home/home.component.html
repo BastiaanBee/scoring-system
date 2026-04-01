@@ -1,0 +1,26 @@
+<!-- home.component.html — homepage template -->
+<div class="home-page">
+
+  <!-- Main content -->
+  <main class="home-main">
+    <h1 class="home-title">Platina32</h1>
+    <p class="home-subtitle">Pick an app to get started</p>
+
+    <!-- App tiles -->
+    <div class="home-tiles">
+      <div class="home-tile" (click)="start()">
+        <div class="tile-icon">🏆</div>
+        <div class="tile-body">
+          <h2 class="tile-title">Song Contest</h2>
+          <p class="tile-desc">Eurovision-style voting and live scoreboard</p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="home-footer">
+    <span>Made by Bastiaan van Dijk &mdash; &copy; {{ currentYear }}</span>
+  </footer>
+
+</div>

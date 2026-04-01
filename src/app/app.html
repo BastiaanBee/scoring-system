@@ -10,6 +10,7 @@
 
     <!-- Header -->
     <div class="header">
+      <button class="home-btn" (click)="goHome()">← Home</button>
       <div class="header-eyebrow">✦ Made by Platina32 ✦</div>
       <h1>MU Worldvision Song Contest</h1>
     </div>
@@ -121,7 +122,8 @@
 
     <!-- Header: shows the customised contest title -->
     <div class="header">
-      <div class="header-eyebrow">✦ Made by Platina32 ✦</div>
+      <button class="home-btn" (click)="goHome()">← Home</button>
+      <div class="header-eyebrow">✦ Made by Bastiaan van Dijk ✦</div>
       <h1>{{ contestTitle || 'MU Worldvision Song Contest' }}</h1>
       <div class="header-subtitle">Round {{ currentRound }} / {{ totalRounds }}</div>
       <div class="header-divider"></div>

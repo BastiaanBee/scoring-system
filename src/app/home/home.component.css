@@ -1,0 +1,139 @@
+/* home.component.css — homepage styles */
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&display=swap');
+
+/* Reset */
+html, body {
+  margin: 0;
+  padding: 0;
+  background: #0B1A2E;
+}
+
+/* Background with subtle geometric grid */
+.home-page {
+  min-height: 100vh;
+  background-color: #0B1A2E;
+  background-image:
+    linear-gradient(rgba(0, 245, 172, 0.1) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 245, 172, 0.1) 1px, transparent 1px);
+  background-size: 64px 64px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  animation: grid-scroll 20s linear infinite;
+}
+
+@keyframes grid-scroll {
+  from { background-position: 0 0; }
+  to   { background-position: 500px 500px; }
+}
+
+/* Main content area */
+.home-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 1.5rem;
+  width: 100%;
+  max-width: 900px;
+  box-sizing: border-box;
+}
+
+/* Title */
+.home-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 7rem;
+  color: #F5C800;
+  margin: 0 0 0.5rem 0;
+  line-height: 1;
+  letter-spacing: 4px;
+  user-select: none;
+  pointer-events: none;
+  text-shadow:
+    0 0 40px rgba(245, 200, 0, 0.25),
+    0 0 80px rgba(245, 200, 0, 0.15);
+}
+
+/* Subtitle */
+.home-subtitle {
+  font-family: 'Inter', sans-serif;
+  color: rgba(0, 245, 172, 0.75);
+  text-transform: uppercase;
+  font-size: 0.8rem;
+  letter-spacing: 2px;
+  margin: 0 0 3rem 0;
+  user-select: none;
+  pointer-events: none;
+}
+
+/* Tiles grid */
+.home-tiles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  justify-content: center;
+  width: 100%;
+}
+
+/* Individual tile */
+.home-tile {
+  background: rgba(17, 34, 64, 0.75);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px;
+  padding: 2rem;
+  width: 260px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1rem;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+}
+
+.home-tile:hover {
+  background: #1A3358;
+  border-color: #F5C800;
+  transform: translateY(-4px);
+}
+
+/* Tile icon */
+.tile-icon {
+  font-size: 2.5rem;
+  line-height: 1;
+}
+
+/* Tile text */
+.tile-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.6rem;
+  color: #F5C800;
+  margin: 0;
+  letter-spacing: 1px;
+  text-shadow:
+    0 0 10px rgba(245, 200, 0, 0.25),
+    0 0 10px rgba(245, 200, 0, 0.15);
+}
+
+.tile-desc {
+  font-family: 'Inter', sans-serif;
+  color: #838383;
+  font-size: 1rem;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Footer */
+.home-footer {
+  width: 100%;
+  text-align: center;
+  padding: 1.25rem;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.75rem;
+  color: rgba(0, 245, 172, 0.75);
+  border-top: 2px solid rgba(245, 200, 0, 0.2);
+  box-sizing: border-box;
+  user-select: none;
+  pointer-events: none;
+  background: rgba(245, 200, 0, 0.15);
+}
