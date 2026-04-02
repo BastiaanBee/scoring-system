@@ -192,7 +192,7 @@
                'bronze-row': i === 2, 
                'current-voter-row':   showReveal && isCurrentVoter(c.name),
                'received-points-row': showReveal && !isCurrentVoter(c.name) && hasReceivedPointsInReveal(c.name),
-               'already-voted-row':   showReveal && !isCurrentVoter(c.name) && !hasReceivedPointsInReveal(c.name) && hasAlreadyVoted(c.name)
+               'already-voted-row':   !isCurrentVoter(c.name) && !hasReceivedPointsInReveal(c.name) && hasAlreadyVoted(c.name)
              }">
 
           <!-- Medal emoji for top 3, rank number for the rest -->
@@ -303,6 +303,12 @@
               (click)="nextReveal()"
               *ngIf="revealIndex < lastRoundVotes.length - 1">
         Next →
+      </button>
+      <!-- Done button — shown after the last point is revealed -->
+      <button class="reveal-next-btn"
+              (click)="endReveal()"
+              *ngIf="revealIndex === lastRoundVotes.length - 1">
+        Done ✓
       </button>
     </div>
 

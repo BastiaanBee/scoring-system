@@ -567,11 +567,17 @@ export class App implements OnInit {
       } else if (this.isLastRound) {
         // Last round, last point revealed — contest is over
         this.contestOver = true;
-        this.showReveal  = false;
         this.revealVoter = '';
         this.revealedContestants = new Set();
       }
     }, 700);
+  }
+
+  // Closes the reveal bar and clears all reveal state.
+  endReveal() {
+    this.showReveal          = false;
+    this.revealVoter         = '';
+    this.revealedContestants = new Set();
   }
 
   // =====================================================
