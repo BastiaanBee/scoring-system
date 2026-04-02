@@ -217,6 +217,8 @@ export class App implements OnInit {
 
   // Name of the last voter to submit, shown in the voter bar.
   lastSubmittedVoter = 'none';
+  
+  canUndo = false;
 
   // Alphabetical voter order, locked in at contest start.
   // Never changes — scoreboard sorting cannot affect voting order.
@@ -439,6 +441,7 @@ export class App implements OnInit {
     }));
 
     this.nextVoter();
+    this.canUndo = true;
   }
 
   // =====================================================
@@ -578,6 +581,50 @@ export class App implements OnInit {
     this.showReveal          = false;
     this.revealVoter         = '';
     this.revealedContestants = new Set();
+  }
+
+  // Undoes the last submitted round.
+  // Restores contestants[] and displayContestants[] to preRoundSnapshot[],
+  // steps back the voter index, and clears all round state.
+  undoLastRound() {
+    if (this.preRoundSnapshot.length === 0) return;
+
+    // Restore source of truth and display array to pre-round state
+    this.contestants = this.preRoundSnapshot.map(c => ({
+      ...c,
+      scoreCounts: { ...c.scoreCounts }
+    }));
+    this.displayContestants = this.preRoundSnapshot.map(c => ({
+      ...c,
+      scoreCounts: { ...c.scoreCounts }
+    }));
+
+    // Remove votes cast in the last round from the vote log
+    const voterName = this.lastSubmittedVoter;
+    const roundVoteCount = this.lastRoundVotes.length;
+    this.votes.splice(this.votes.length - roundVoteCount, roundVoteCount);
+
+    // Step back the voter index
+    if (this.currentVoterIndex > 0) {
+      this.currentVoterIndex--;
+    }
+
+    // Clear all round state
+    this.lastRoundVotes     = [];
+    this.lastSubmittedVoter = 'none';
+    this.currentRoundVotes  = {};
+    this.preRoundSnapshot   = [];
+    this.isLastRound        = false;
+
+    // Close reveal bar if open
+    this.showReveal          = false;
+    this.revealVoter         = '';
+    this.revealedContestants = new Set();
+
+    // Re-sort the scoreboard
+    this.sortContestants();
+    this.sortDisplayContestants();
+    this.canUndo = false;
   }
 
   // =====================================================

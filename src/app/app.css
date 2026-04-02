@@ -550,7 +550,7 @@ body {
 }
 
 .score-row.already-voted-row {
-  border-left: 3px solid #7888AA;
+  border-left: 3px solid #333539;
   background: rgba(120, 136, 170, 0.06);
   padding-left: calc(0.5rem - 3px);
 }
@@ -605,7 +605,7 @@ body {
 
 /* Already voted this round */
 .already-voted-row {
-  border-left: 3px solid #7888AA;
+  border-left: 3px solid #48494d;
   background: rgba(120, 136, 170, 0.06);
 }
 
@@ -781,6 +781,26 @@ select:disabled {
   background: rgba(255, 255, 255, 0.08);
   color: var(--muted);
   cursor: not-allowed;
+}
+
+/* Undo button */
+.undo-btn {
+  width: 100%;
+  margin-top: 0.5rem;
+  padding: 0.5rem;
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 6px;
+  color: #7888AA;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s;
+}
+
+.undo-btn:hover {
+  border-color: #7888AA;
+  color: #C0CFEA;
 }
 
 /* Error message shown when a voting rule is violated */

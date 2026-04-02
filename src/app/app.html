@@ -275,6 +275,13 @@
             ⚠ {{ errorMessage }}
           </div>
 
+          <!-- Undo last round — only shown after at least one round has been submitted -->
+          <button class="undo-btn"
+                  (click)="undoLastRound()"
+                  *ngIf="canUndo">
+            ↩ Undo Last Round
+          </button>
+
         </div>
       </div>
 
