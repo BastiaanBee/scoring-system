@@ -512,6 +512,7 @@ export class App implements OnInit {
 
     this.nextVoter();
     this.canUndo = true;
+    this.snapshotGenerated = false;
     this.saveState();
   }
 
