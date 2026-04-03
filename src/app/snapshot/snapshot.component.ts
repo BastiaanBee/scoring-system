@@ -157,8 +157,6 @@ export class SnapshotComponent implements OnInit {
     setTimeout(() => {
       if (this.revealIndex < this.lastRoundVotes.length - 1) {
         this.revealIndex++;
-      } else {
-        this.revealComplete = true;
       }
     }, 700);
   }
