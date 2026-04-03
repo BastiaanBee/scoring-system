@@ -1051,6 +1051,7 @@ select:disabled {
   background: linear-gradient(180deg, rgba(245,200,0,0.25), rgba(245,200,0,0.10));
   border-top: 3px solid var(--gold);
   color: var(--gold);
+  width: 200px;
 }
 
 /* Silver block is medium height */
@@ -1059,6 +1060,7 @@ select:disabled {
   background: linear-gradient(180deg, rgba(168,188,207,0.20), rgba(168,188,207,0.08));
   border-top: 3px solid var(--silver);
   color: var(--silver);
+  width: 180px;
 }
 
 /* Bronze block is shortest */
@@ -1067,6 +1069,7 @@ select:disabled {
   background: linear-gradient(180deg, rgba(192,120,48,0.20), rgba(192,120,48,0.08));
   border-top: 3px solid var(--bronze);
   color: var(--bronze);
+  width: 160px;
 }
 
 /* ── Final standings table ── */
