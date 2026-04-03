@@ -1,7 +1,9 @@
-import { Component, OnInit, ViewEncapsulation } from '@angular/core';
+import { Component, OnInit, ViewEncapsulation, ChangeDetectorRef } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { collection, addDoc } from 'firebase/firestore';
+import { db } from './firebase.config';
 
 @Component({
   selector: 'app-root',
@@ -13,7 +15,7 @@ import { CommonModule } from '@angular/common';
 
 export class App implements OnInit {
 
-  constructor(private router: Router) {}
+  constructor(private router: Router, private cdr: ChangeDetectorRef) {}
 
   goHome() {
     this.router.navigate(['/']);
@@ -253,6 +255,13 @@ export class App implements OnInit {
   lastSubmittedVoter = 'none';
 
   canUndo = false;
+
+  // Whether a snapshot is currently being generated.
+  snapshotGenerating = false;
+  snapshotGenerated = false;
+
+  // Error message shown if snapshot generation fails.
+  snapshotError = '';
 
   // Alphabetical voter order, locked in at contest start.
   // Never changes — scoreboard sorting cannot affect voting order.
@@ -694,6 +703,7 @@ export class App implements OnInit {
     this.sortContestants();
     this.sortDisplayContestants();
     this.canUndo = false;
+    this.snapshotGenerated = false;
     this.saveState();
   }
 
@@ -796,6 +806,34 @@ export class App implements OnInit {
     this.hasFinishedContest = true;
     this.resultsSaved       = true;
     setTimeout(() => this.resultsSaved = false, 3000);
+  }
+
+  // Generates a snapshot of the current round's reveal sequence and
+  // writes it to Firestore. Opens the snapshot page in a new tab.
+  async generateSnapshot() {
+    this.snapshotGenerating = true;
+    this.snapshotError      = '';
+    try {
+      const snapshotData = {
+        contestTitle:    this.contestTitle,
+        voter:           this.lastSubmittedVoter,
+        preRoundSnapshot: this.preRoundSnapshot,
+        lastRoundVotes:  this.lastRoundVotes,
+        scoringPreset:   this.scoringPreset,
+        maxPointValue:   this.maxPointValue,
+        createdAt:       new Date().toISOString()
+      };
+      const docRef = await addDoc(collection(db, 'snapshots'), snapshotData);
+      const url    = `${window.location.origin}/snapshot/${docRef.id}`;
+      window.open(url, '_blank');
+      this.snapshotGenerated = true;
+    } catch (err) {
+      console.error('Snapshot generation failed:', err);
+      this.snapshotError = 'Failed to generate snapshot. Please try again.';
+    } finally {
+      this.snapshotGenerating = false;
+      this.cdr.detectChanges();
+    }
   }
 
   // Returns to the setup page and resets all contest state.

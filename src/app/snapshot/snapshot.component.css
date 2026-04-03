@@ -1,0 +1,63 @@
+/* snapshot.component.css — styles for the snapshot page */
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+  --gold:       #F5C800;
+  --gold-dim:   #B89200;
+  --teal:       #00C4A8;
+  --teal-lt:    #00E0C0;
+  --navy:       #0B1A2E;
+  --navy-mid:   #112240;
+  --navy-lt:    #1A3358;
+  --text:       #F0F4FF;
+  --text-2:     #C0CFEA;
+  --muted:      #7888AA;
+  --silver:     #A8BCCF;
+  --bronze:     #C07830;
+  --rule:       rgba(255, 255, 255, 0.08);
+}
+
+/* Reset */
+html, body {
+  margin: 0;
+  padding: 0;
+  background: #0B1A2E;
+}
+
+/* Scoreboard takes full width since there's no voting panel */
+.snapshot-scoreboard {
+  padding: 1.2rem 1.4rem;
+  padding-bottom: 8rem;
+}
+
+/* Loading and error states */
+.snapshot-loading,
+.snapshot-error {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  font-family: 'Inter', sans-serif;
+  color: #7888AA;
+  font-size: 1rem;
+  user-select: none;
+  pointer-events: none;
+}
+
+.snapshot-error {
+  color: #FFA0A8;
+}
+
+.reveal-voter {
+  user-select: none;
+}
+
+.reveal-recipient {
+  user-select: none;
+  pointer-events: none;
+}
+
+.reveal-points-value {
+  user-select: none;
+  pointer-events: none;
+}

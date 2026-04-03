@@ -1,0 +1,103 @@
+<!-- snapshot.component.html — read-only reveal page for a voting round snapshot -->
+<div class="page">
+
+  <!-- Loading state -->
+  <div *ngIf="loading" class="snapshot-loading">
+    <p>Loading snapshot...</p>
+  </div>
+
+  <!-- Error state -->
+  <div *ngIf="!loading && error" class="snapshot-error">
+    <p>⚠ {{ error }}</p>
+  </div>
+
+  <!-- Snapshot content -->
+  <div *ngIf="!loading && !error">
+
+    <!-- Header -->
+    <div class="header">
+      <div class="header-eyebrow">✦ Platina32.com ✦</div>
+      <h1>{{ contestTitle || 'Song Contest' }}</h1>
+      <div class="header-subtitle">{{ voter }}'s votes</div>
+    </div>
+
+    <!-- Scoreboard -->
+    <div class="snapshot-scoreboard">
+
+      <div class="scoreboard-header">
+        <span class="scoreboard-icon">🏆</span>
+        <span class="scoreboard-title">Live Rankings</span>
+      </div>
+
+      <!-- Column headers -->
+      <div class="score-header">
+        <span>#</span>
+        <span>Country</span>
+        <span>Participant</span>
+        <span>Artist</span>
+        <span>Song</span>
+        <span class="max-pts-col-header">★</span>
+        <span style="text-align:right">Points</span>
+      </div>
+
+      <!-- One row per contestant -->
+      <div *ngFor="let c of displayContestants; let i = index; trackBy: trackByName"
+           class="score-row"
+           [attr.data-name]="c.name"
+           [ngClass]="{
+             'gold-row':            i === 0,
+             'silver-row':          i === 1,
+             'bronze-row':          i === 2,
+             'received-points-row': revealedContestants.has(c.name)
+           }">
+
+        <span class="rank">
+          <ng-container [ngSwitch]="i">
+            <ng-container *ngSwitchCase="0">🥇</ng-container>
+            <ng-container *ngSwitchCase="1">🥈</ng-container>
+            <ng-container *ngSwitchCase="2">🥉</ng-container>
+            <ng-container *ngSwitchDefault>#{{ i + 1 }}</ng-container>
+          </ng-container>
+        </span>
+        <span class="country-col">{{ c.country }}</span>
+        <span class="participant-col">{{ c.name }}</span>
+        <span class="artist-col">{{ c.artist }}</span>
+        <span class="song-col">{{ c.song }}</span>
+        <span class="max-pts-col">
+          <span *ngIf="c.maxPointVoters.length > 0"
+                class="max-pts-dot"
+                [title]="getMaxPointVotersTooltip(c.maxPointVoters)">
+            ● {{ c.maxPointVoters.length }}
+          </span>
+        </span>
+        <span class="points-col">{{ c.points }} pts</span>
+      </div>
+
+    </div>
+
+    <!-- Reveal bar -->
+    <div class="reveal-overlay" *ngIf="!revealComplete">
+      <div class="reveal-voter">{{ voter }} gives...</div>
+      <div class="reveal-points-value">
+        {{ lastRoundVotes[revealIndex].points }}
+        <span>{{ lastRoundVotes[revealIndex].points === 1 ? 'pt' : 'pts' }}</span>
+      </div>
+      <div class="reveal-recipient">
+        {{ lastRoundVotes[revealIndex].contestant }}
+      </div>
+      <button class="reveal-next-btn" (click)="nextReveal()">
+        Next →
+      </button>
+    </div>
+
+    <!-- Reveal complete state -->
+    <div class="reveal-overlay" *ngIf="revealComplete">
+      <div class="reveal-voter">That's all from {{ voter }}!</div>
+      <div class="reveal-recipient" style="flex:1; text-align:center;">
+        All points revealed ✓
+      </div>
+    </div>
+
+  </div>
+
+</div>

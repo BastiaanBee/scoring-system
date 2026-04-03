@@ -1163,3 +1163,29 @@ select:disabled {
 .max-pts-dot:hover {
   opacity: 1;
 }
+/* Generate Snapshot button */
+.snapshot-btn {
+  width: 100%;
+  margin-top: 0.5rem;
+  padding: 0.5rem;
+  background: transparent;
+  border: 1px solid rgba(245, 200, 0, 0.25);
+  border-radius: 6px;
+  color: #F5C800;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s, background 0.2s;
+}
+
+.snapshot-btn:hover {
+  border-color: #F5C800;
+  background: rgba(245, 200, 0, 0.06);
+}
+
+.snapshot-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  border-color: rgba(245, 200, 0, 0.1);
+  color: #7888AA;
+}

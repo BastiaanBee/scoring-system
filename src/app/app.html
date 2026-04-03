@@ -310,6 +310,22 @@
             ↩ Undo Last Round
           </button>
 
+          <!-- Generate Snapshot button — shown after a round has been submitted -->
+          <!-- Writes the current round's reveal data to Firestore and opens the snapshot page -->
+          <button class="snapshot-btn"
+                  (click)="generateSnapshot()"
+                  *ngIf="canUndo"
+                  [disabled]="snapshotGenerating || snapshotGenerated">
+            <span *ngIf="!snapshotGenerating && !snapshotGenerated">🔗 Generate Snapshot Link</span>
+            <span *ngIf="snapshotGenerating">Generating...</span>
+            <span *ngIf="snapshotGenerated">✓ Snapshot Generated</span>
+          </button>
+
+          <!-- Error shown if snapshot generation fails -->
+          <div class="error-message" *ngIf="snapshotError">
+            ⚠ {{ snapshotError }}
+          </div>
+
         </div>
       </div>
 
