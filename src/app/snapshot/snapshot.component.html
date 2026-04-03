@@ -85,7 +85,9 @@
       <div class="reveal-recipient">
         {{ lastRoundVotes[revealIndex].contestant }}
       </div>
-      <button class="reveal-next-btn" (click)="nextReveal()">
+      <button class="reveal-next-btn"
+              (click)="nextReveal()"
+              *ngIf="revealIndex < lastRoundVotes.length - 1">
         Next →
       </button>
     </div>
