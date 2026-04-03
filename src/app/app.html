@@ -6,13 +6,20 @@
        Host enters the contest title, scoring system,
        and all contestants here.
   ====================================================== -->
-  <div *ngIf="!setupComplete" class="page">
+  <div *ngIf="!setupComplete">
 
     <!-- Header -->
     <div class="header">
       <button class="home-btn" (click)="goHome()">← Home</button>
       <div class="header-eyebrow">✦ Made by Platina32 ✦</div>
       <h1>MU Worldvision Song Contest</h1>
+    </div>
+
+    <!-- Resume banner — shown if a saved contest exists -->
+    <div class="resume-banner" *ngIf="hasSavedState">
+      <span>⚠ A saved contest was found</span>
+      <button class="resume-btn" (click)="resumeContest()">Resume Contest</button>
+      <button class="discard-btn" (click)="discardSavedContest()">Discard & Start Fresh</button>
     </div>
 
     <div class="setup-form">
@@ -91,7 +98,7 @@
         <button class="btn-add" (click)="addContestant()">Add Contestant</button>
         <!-- Disabled until the minimum contestant count is reached -->
         <button class="btn-start"
-                (click)="setupComplete = true; lockVoterOrder()"
+                (click)="startContest()"
                 [disabled]="contestants.length < minContestants || !customPointsValid">
           Start Contest
         </button>
@@ -104,11 +111,17 @@
         <!-- Each row shows contestant info with an ✕ remove button -->
         <div *ngFor="let c of contestants; let i = index" class="contestant-preview-row">
           <span>{{ c.country }} — {{ c.name }} — {{ c.artist }} — {{ c.song }}</span>
-          <button (click)="contestants.splice(i, 1)">✕</button>
+          <button (click)="contestants.splice(i, 1); saveState()">✕</button>
         </div>
       </div>
 
     </div>
+
+    <!-- View previous contest banner — shown if a finished contest exists -->
+    <div class="prev-contest-banner" *ngIf="hasFinishedContest">
+      <button class="resume-btn" (click)="viewPreviousContest()">📋 View Previous Contest</button>
+    </div>
+
   </div>
 
 
@@ -405,6 +418,106 @@
         </div>
       </div>
 
+      <!-- Action buttons at the bottom of the final results screen -->
+      <div class="contest-over-actions">
+        <button class="contest-over-btn save-btn" (click)="saveFinishedContest()">
+          💾 Save Results
+        </button>
+        <span class="save-confirmation" *ngIf="resultsSaved">Results saved!</span>
+        <button class="contest-over-btn back-btn" (click)="backToSetup()">
+          ← Back to Setup
+        </button>
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- =====================================================
+       PREVIOUS CONTEST OVERLAY
+       Shown when host clicks "View Previous Contest" on
+       the setup page. Read-only view of the last saved
+       finished contest.
+  ====================================================== -->
+  <div *ngIf="showPreviousContest" class="contest-over-overlay">
+
+    <!-- Header -->
+    <div class="contest-over-header">
+      <div class="header-eyebrow">✦ Previous Results ✦</div>
+      <h1>{{ previousContest?.contestTitle || 'Previous Contest' }}</h1>
+    </div>
+
+    <!-- Podium -->
+    <div class="podium">
+
+      <div class="podium-place silver-place">
+        <div class="podium-flag">{{ previousContest?.contestants[1]?.country }}</div>
+        <div class="podium-name">{{ previousContest?.contestants[1]?.name }}</div>
+        <div class="podium-song">{{ previousContest?.contestants[1]?.song }}</div>
+        <div class="podium-points">{{ previousContest?.contestants[1]?.points }} pts</div>
+        <div class="podium-block silver-block">#2</div>
+      </div>
+
+      <div class="podium-place gold-place">
+        <div class="podium-flag">{{ previousContest?.contestants[0]?.country }}</div>
+        <div class="podium-name">{{ previousContest?.contestants[0]?.name }}</div>
+        <div class="podium-song">{{ previousContest?.contestants[0]?.song }}</div>
+        <div class="podium-points">{{ previousContest?.contestants[0]?.points }} pts</div>
+        <div class="podium-block gold-block">#1</div>
+      </div>
+
+      <div class="podium-place bronze-place">
+        <div class="podium-flag">{{ previousContest?.contestants[2]?.country }}</div>
+        <div class="podium-name">{{ previousContest?.contestants[2]?.name }}</div>
+        <div class="podium-song">{{ previousContest?.contestants[2]?.song }}</div>
+        <div class="podium-points">{{ previousContest?.contestants[2]?.points }} pts</div>
+        <div class="podium-block bronze-block">#3</div>
+      </div>
+
+    </div>
+
+    <!-- Full standings table -->
+    <div class="final-standings">
+      <div class="scoreboard-header">
+        <span class="scoreboard-icon">🏆</span>
+        <span class="scoreboard-title">Final Standings</span>
+      </div>
+      <div class="score-header">
+        <span>#</span>
+        <span>Country</span>
+        <span>Participant</span>
+        <span>Artist</span>
+        <span>Song</span>
+        <span style="text-align:right">Points</span>
+      </div>
+      <div *ngFor="let c of previousContest?.contestants; let i = index"
+           class="score-row"
+           [ngClass]="{
+             'gold-row':   i === 0,
+             'silver-row': i === 1,
+             'bronze-row': i === 2
+           }">
+        <span class="rank">
+          <ng-container [ngSwitch]="i">
+            <ng-container *ngSwitchCase="0">🥇</ng-container>
+            <ng-container *ngSwitchCase="1">🥈</ng-container>
+            <ng-container *ngSwitchCase="2">🥉</ng-container>
+            <ng-container *ngSwitchDefault>#{{ i + 1 }}</ng-container>
+          </ng-container>
+        </span>
+        <span class="country-col">{{ c.country }}</span>
+        <span class="participant-col">{{ c.name }}</span>
+        <span class="artist-col">{{ c.artist }}</span>
+        <span class="song-col">{{ c.song }}</span>
+        <span class="points-col">{{ c.points }} pts</span>
+      </div>
+    </div>
+
+    <!-- Back button -->
+    <div class="contest-over-actions">
+      <button class="contest-over-btn back-btn" (click)="showPreviousContest = false">
+        ← Back
+      </button>
     </div>
 
   </div>

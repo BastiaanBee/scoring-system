@@ -391,6 +391,49 @@ body {
   color: #FF8090;
 }
 
+/* Resume banner shown when a saved contest is detected */
+.resume-banner {
+  background: rgba(245, 200, 0, 0.08);
+  border: 1px solid rgba(245, 200, 0, 0.2);
+  border-radius: 8px;
+  padding: 1rem 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.9rem;
+  color: #F5C800;
+}
+
+.resume-btn {
+  padding: 0.4rem 1rem;
+  background: #F5C800;
+  color: #0B1A2E;
+  border: none;
+  border-radius: 6px;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.85rem;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.discard-btn {
+  padding: 0.4rem 1rem;
+  background: transparent;
+  color: #7888AA;
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 6px;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.discard-btn:hover {
+  border-color: #7888AA;
+  color: #C0CFEA;
+}
+
 /* ─────────────────────────────────────────
    VOTER BAR
    Strip below the header showing the
@@ -420,6 +463,8 @@ body {
   letter-spacing: 0.4em;
   text-transform: uppercase;
   color: var(--teal);
+  user-select: none;
+  pointer-events: none;
 }
 
 .voter-name {
@@ -427,6 +472,8 @@ body {
   font-size: 1.15rem;
   letter-spacing: 0.08em;
   color: #fff;
+  user-select: none;
+  pointer-events: none;
 }
 
 /* Animated sonar pulse dot next to the voter name */
@@ -485,13 +532,18 @@ body {
   border-bottom: 1px solid var(--rule);
 }
 
-.scoreboard-icon { font-size: 0.95rem; }
+.scoreboard-icon { font-size: 0.95rem; 
+  user-select: none;
+  pointer-events: none;  
+}
 
 .scoreboard-title {
   font-family: 'Bebas Neue', sans-serif;
   font-size: 1rem;
   letter-spacing: 0.15em;
   color: var(--gold);
+  user-select: none;
+  pointer-events: none;
 }
 
 /* Column header row */
@@ -645,6 +697,8 @@ body {
   font-size: 1rem;
   letter-spacing: 0.15em;
   color: var(--teal-lt);
+  user-select: none;
+  pointer-events: none;
 }
 
 /* One row per point value in the voting panel */
@@ -744,6 +798,8 @@ select:disabled {
   margin-bottom: 0.45rem;
   letter-spacing: 0.12em;
   text-transform: uppercase;
+  user-select: none;
+  pointer-events: none;
 }
 
 .vote-count-label em {
@@ -915,6 +971,8 @@ select:disabled {
 .contest-over-header {
   text-align: center;
   margin-bottom: 2rem;
+  user-select: none;
+  pointer-events: none;
 }
 
 .contest-over-header h1 {
@@ -923,6 +981,8 @@ select:disabled {
   color: var(--gold);
   letter-spacing: 0.12em;
   text-shadow: 0 0 40px rgba(245, 200, 0, 0.35);
+  user-select: none;
+  pointer-events: none;
 }
 
 /* ── Podium ── */
@@ -932,7 +992,7 @@ select:disabled {
   display: flex;
   align-items: flex-end;
   justify-content: center;
-  gap: 1rem;
+  gap: 3rem;
   margin-bottom: 3rem;
 }
 
@@ -942,6 +1002,7 @@ select:disabled {
   flex-direction: column;
   align-items: center;
   gap: 0.3rem;
+  min-width: 250px;
 }
 
 /* Country flag emoji */
@@ -1013,4 +1074,58 @@ select:disabled {
 .final-standings {
   max-width: 1000px;
   margin: 0 auto;
+}
+
+/* Contest over action buttons */
+.contest-over-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 2rem;
+  padding-bottom: 2rem;
+}
+
+.contest-over-btn {
+  padding: 0.65rem 1.5rem;
+  border-radius: 8px;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s, color 0.2s;
+}
+
+.save-btn {
+  background: #F5C800;
+  color: #0B1A2E;
+  border: none;
+  font-weight: 600;
+}
+
+.save-btn:hover {
+  background: #ffd700;
+}
+
+.back-btn {
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.1);
+  color: #7888AA;
+}
+
+.back-btn:hover {
+  border-color: #7888AA;
+  color: #C0CFEA;
+}
+
+.save-confirmation {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.85rem;
+  color: #00C4A8;
+}
+
+/* Previous contest banner on setup page */
+.prev-contest-banner {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1rem;
 }

@@ -39,6 +39,21 @@ export class App implements OnInit {
   // Whether setup is complete and the contest page is shown.
   setupComplete = this.devMode;
 
+  // Whether a saved contest state exists in localStorage.
+  hasSavedState = false;
+
+  // Whether a finished contest exists in localStorage.
+  hasFinishedContest = false;
+
+  // Whether the previous contest overlay is shown.
+  showPreviousContest = false;
+
+  // Whether the save confirmation message is shown.
+  resultsSaved = false;
+
+  // The loaded previous contest data.
+  previousContest: any = null;
+
   // Contest title entered by the host, shown in the header.
   contestTitle = this.devMode ? 'MU Worldvision Song Contest 47' : '';
 
@@ -258,6 +273,12 @@ export class App implements OnInit {
   // =====================================================
 
   ngOnInit() {
+    // Attempt to restore a saved contest state.
+    // Only runs if devMode is off, to avoid interfering with testing.
+    if (!this.devMode) {
+      this.hasSavedState      = localStorage.getItem('contestState') !== null;
+      this.hasFinishedContest = localStorage.getItem('finishedContest') !== null;
+    }
     fetch('https://restcountries.com/v3.1/all?fields=name,flag')
       .then(res => res.json())
       .then(data => {
@@ -276,7 +297,7 @@ export class App implements OnInit {
 
         this.countries = [...fetched, ...extras]
           .sort((a, b) => a.name.localeCompare(b.name));
-
+        
         // DevMode: lock voter order and sync display array.
         if (this.devMode) {
           this.lockVoterOrder();
@@ -315,6 +336,7 @@ export class App implements OnInit {
     this.newName    = '';
     this.newArtist  = '';
     this.newSong    = '';
+    if (!this.devMode) this.saveState();
   }
 
   // Returns true if a country is already in the contestant list.
@@ -334,6 +356,15 @@ export class App implements OnInit {
       ...c,
       scoreCounts: { ...c.scoreCounts }
     }));
+    if (!this.devMode) this.saveState();
+  }
+
+  // Called by the Start Contest button.
+  // Locks voter order, marks setup as complete, and saves state.
+  startContest() {
+    this.lockVoterOrder();
+    this.setupComplete = true;
+    if (!this.devMode) this.saveState();
   }
 
   // =====================================================
@@ -442,6 +473,7 @@ export class App implements OnInit {
 
     this.nextVoter();
     this.canUndo = true;
+    this.saveState();
   }
 
   // =====================================================
@@ -570,6 +602,7 @@ export class App implements OnInit {
       } else if (this.isLastRound) {
         // Last round, last point revealed — contest is over
         this.contestOver = true;
+        this.clearState();
         this.revealVoter = '';
         this.revealedContestants = new Set();
       }
@@ -625,6 +658,7 @@ export class App implements OnInit {
     this.sortContestants();
     this.sortDisplayContestants();
     this.canUndo = false;
+    this.saveState();
   }
 
   // =====================================================
@@ -645,6 +679,123 @@ export class App implements OnInit {
   // Returns true only if this contestant has already been revealed this round
   hasReceivedPointsInReveal(name: string): boolean {
     return this.revealedContestants.has(name);
+  }
+
+  // =====================================================
+  // LOCAL STORAGE
+  // Saves and restores full contest state so the host
+  // can close the browser and resume later.
+  // =====================================================
+
+  // Saves the current contest state to localStorage.
+  saveState() {
+    const state = {
+      contestTitle:       this.contestTitle,
+      scoringPreset:      this.scoringPreset,
+      customPointsCount:  this.customPointsCount,
+      customPoints:       this.customPoints,
+      contestants:        this.contestants,
+      displayContestants: this.displayContestants,
+      preRoundSnapshot:   this.preRoundSnapshot,
+      voterOrder:         this.voterOrder,
+      currentVoterIndex:  this.currentVoterIndex,
+      votes:              this.votes,
+      lastRoundVotes:     this.lastRoundVotes,
+      lastSubmittedVoter: this.lastSubmittedVoter,
+      setupComplete:      this.setupComplete,
+      contestOver:        this.contestOver,
+      isLastRound:        this.isLastRound,
+      canUndo:            this.canUndo,
+    };
+    localStorage.setItem('contestState', JSON.stringify(state));
+  }
+
+  // Restores contest state from localStorage.
+  // Returns true if a saved state was found and loaded.
+  loadState(): boolean {
+    const raw = localStorage.getItem('contestState');
+    if (!raw) return false;
+    try {
+      const s = JSON.parse(raw);
+      this.contestTitle       = s.contestTitle;
+      this.scoringPreset      = s.scoringPreset;
+      this.customPointsCount  = s.customPointsCount;
+      this.customPoints       = s.customPoints;
+      this.contestants        = s.contestants;
+      this.displayContestants = s.displayContestants;
+      this.preRoundSnapshot   = s.preRoundSnapshot;
+      this.voterOrder         = s.voterOrder;
+      this.currentVoterIndex  = s.currentVoterIndex;
+      this.votes              = s.votes;
+      this.lastRoundVotes     = s.lastRoundVotes;
+      this.lastSubmittedVoter = s.lastSubmittedVoter;
+      this.setupComplete      = s.setupComplete;
+      this.contestOver        = s.contestOver;
+      this.isLastRound        = s.isLastRound;
+      this.canUndo            = s.canUndo;
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  // Clears the saved contest state from localStorage.
+  clearState() {
+    localStorage.removeItem('contestState');
+  }
+
+  // Saves the finished contest results to a separate localStorage slot.
+  saveFinishedContest() {
+    const data = {
+      contestTitle: this.contestTitle,
+      contestants:  this.contestants
+    };
+    localStorage.setItem('finishedContest', JSON.stringify(data));
+    this.hasFinishedContest = true;
+    this.resultsSaved = true;
+    setTimeout(() => this.resultsSaved = false, 3000);
+  }
+
+  // Returns to the setup page and resets contest state.
+  backToSetup() {
+    this.contestOver    = false;
+    this.setupComplete  = false;
+    this.contestants    = [];
+    this.displayContestants = [];
+    this.voterOrder     = [];
+    this.currentVoterIndex = 0;
+    this.votes          = [];
+    this.lastRoundVotes = [];
+    this.lastSubmittedVoter = 'none';
+    this.preRoundSnapshot   = [];
+    this.contestTitle   = '';
+    this.isLastRound    = false;
+    this.canUndo        = false;
+    this.clearState();
+  }
+
+  // Opens the previous contest overlay.
+  viewPreviousContest() {
+    const raw = localStorage.getItem('finishedContest');
+    if (!raw) return;
+    try {
+      this.previousContest    = JSON.parse(raw);
+      this.showPreviousContest = true;
+    } catch {
+      console.error('Failed to load previous contest');
+    }
+  }
+
+  // Resumes a saved contest — loads state and hides the banner.
+  resumeContest() {
+    this.loadState();
+    this.hasSavedState = false;
+  }
+
+  // Discards the saved contest and starts fresh.
+  discardSavedContest() {
+    this.clearState();
+    this.hasSavedState = false;
   }
 
   // trackBy for the scoreboard *ngFor — prevents DOM destruction
