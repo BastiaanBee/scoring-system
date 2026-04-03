@@ -474,6 +474,7 @@ body {
   color: #fff;
   user-select: none;
   pointer-events: none;
+  font-weight: 10;
 }
 
 /* Animated sonar pulse dot next to the voter name */
@@ -493,8 +494,10 @@ body {
 }
 
 .last-voter {
-  font-size: 0.70rem;
+  font-size: 0.85rem;
   color: var(--text-2);
+  user-select: none;
+  pointer-events: none;
 }
 
 .last-voter span {

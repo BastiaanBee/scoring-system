@@ -163,8 +163,8 @@
       </button>
 
       <!-- Last submission label: only shown after at least one round -->
-      <div class="last-voter" *ngIf="lastSubmittedVoter !== 'none'">
-        Last submission by <span>{{ lastSubmittedVoter }}</span>
+      <div class="voter-label" *ngIf="lastSubmittedVoter !== 'none'">
+        Previous round's voter <div class="voter-name">{{ lastSubmittedVoter }}</div>
       </div>
 
     </div>
