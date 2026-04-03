@@ -828,6 +828,41 @@ export class App implements OnInit {
     }
   }
 
+  // Loads the participants from the previous finished contest into the
+  // setup page with a clean scoreboard, so the host can start a new
+  // contest with the same contestants without re-entering them.
+  reuseParticipants() {
+    if (!this.previousContest?.contestants) return;
+
+    // Copy contestants, resetting all score data to zero.
+    this.contestants = this.previousContest.contestants.map((c: any) => ({
+      name:           c.name,
+      country:        c.country,
+      artist:         c.artist,
+      song:           c.song,
+      points:         0,
+      scoreCounts:    {},
+      maxPointVoters: []
+    }));
+
+    // Close the overlay and return to setup page.
+    this.showPreviousContest = false;
+    this.setupComplete       = false;
+    this.contestOver         = false;
+    this.voterOrder          = [];
+    this.currentVoterIndex   = 0;
+    this.votes               = [];
+    this.lastRoundVotes      = [];
+    this.lastSubmittedVoter  = 'none';
+    this.preRoundSnapshot    = [];
+    this.contestTitle        = '';
+    this.isLastRound         = false;
+    this.canUndo             = false;
+    this.displayContestants  = [];
+
+    if (!this.devMode) this.saveState();
+  }
+
   // Resumes a saved contest — loads state and hides the banner.
   resumeContest() {
     this.loadState();

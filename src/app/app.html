@@ -262,7 +262,8 @@
             </label>
             <select
               [ngModel]="currentRoundVotes[p] || ''"
-              (ngModelChange)="setVote(p, $event)">
+              (ngModelChange)="setVote(p, $event)"
+              [disabled]="isLastRound && canUndo">
               <option value="">— Select —</option>
               <option *ngFor="let c of sortedContestants"
                       [value]="c.name"
@@ -293,7 +294,7 @@
           <!-- Disabled until all point slots are filled -->
           <button class="submit-btn"
                   (click)="submitVotes()"
-                  [disabled]="selectedVoteCount < availablePoints.length">
+                  [disabled]="selectedVoteCount < availablePoints.length || (isLastRound && canUndo)" >
             Submit Votes ✦
           </button>
 
@@ -543,10 +544,13 @@
       </div>
     </div>
 
-    <!-- Back button -->
+    <!-- Back button + reuse participants button -->
     <div class="contest-over-actions">
       <button class="contest-over-btn back-btn" (click)="showPreviousContest = false">
         ← Back
+      </button>
+      <button class="contest-over-btn save-btn" (click)="reuseParticipants()">
+        ↺ Start New Contest with Same Participants
       </button>
     </div>
 
