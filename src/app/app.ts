@@ -100,6 +100,13 @@ export class App implements OnInit {
     return [...this.availablePoints].reverse();
   }
 
+  // The maximum point value in the current scoring system.
+  // Used to determine which votes count as "max points" for the dot column.
+  get maxPointValue(): number {
+    const pts = this.availablePoints;
+    return pts.length > 0 ? pts[pts.length - 1] : 0;
+  }
+
   // Minimum contestants = point positions + 1
   // (+1 because a contestant cannot vote for themselves.)
   get minContestants(): number {
@@ -154,48 +161,60 @@ export class App implements OnInit {
   //   Used by openReveal() to reset displayContestants[]
   //   to the correct pre-reveal state every time, cleanly.
   //   This eliminates any subtraction logic or state confusion.
+  //
+  // maxPointVoters[] — WHO AWARDED THE MAX POINTS.
+  //   A list of voter names who gave this contestant the
+  //   maximum point value in the current scoring system.
+  //   Drives the gold dot column on the scoreboard.
   // =====================================================
 
   contestants: {
-    name:        string,
-    country:     string,
-    artist:      string,
-    song:        string,
-    points:      number,
-    scoreCounts: { [points: number]: number }
+    name:           string,
+    country:        string,
+    artist:         string,
+    song:           string,
+    points:         number,
+    scoreCounts:    { [points: number]: number },
+    maxPointVoters: string[]
   }[] = this.devMode ? [
-    { name: 'Vreven',     country: '🇳🇱 Netherlands', artist: 'Scram C Baby',            song: 'Elephant',                         points: 12, scoreCounts: { 12: 1 } },
-    { name: 'Whitewolf',  country: '🇩🇪 Germany',     artist: 'Orden Ogan',               song: 'Fields of Sorrow',                 points: 8,  scoreCounts: { 8: 1  } },
-    { name: 'Aron24',     country: '🇸🇪 Sweden',      artist: 'Mondo',                    song: 'Feeling Myself',                   points: 5,  scoreCounts: { 5: 1  } },
-    { name: 'Keko',       country: '🇫🇷 France',      artist: 'Tiger Finkel',             song: 'Brighter Days',                    points: 3,  scoreCounts: { 3: 1  } },
-    { name: 'Urbeto',     country: '🇯🇵 Japan',       artist: 'The Fin',                  song: 'Night Time',                       points: 0,  scoreCounts: {}        },
-    { name: 'Platina32',  country: '🇧🇪 Belgium',     artist: 'Melanie de Biasio',        song: 'No Deal',                          points: 0,  scoreCounts: {}        },
-    { name: 'Copywriter', country: '🇦🇹 Austria',     artist: 'Eela Craig',               song: 'Carry On',                         points: 0,  scoreCounts: {}        },
-    { name: 'Satyr',      country: '🇳🇴 Norway',      artist: 'Ulver',                    song: 'Machine Guns and Peacock Feathers', points: 0,  scoreCounts: {}        },
-    { name: 'Nasje',      country: '🇿🇦 South Africa',artist: 'Roan Ash',                 song: 'Poets and Silhouettes',            points: 0,  scoreCounts: {}        },
-    { name: 'Tim\'',      country: '🇮🇪 Ireland',     artist: 'Sprints',                  song: 'Literary Mind',                    points: 0,  scoreCounts: {}        },
-    { name: 'Djurovski',  country: '🇨🇱 Chile',       artist: 'De Saloon',                song: 'Me Vuelves A Herir',               points: 0,  scoreCounts: {}        },
+    { name: 'Vreven',     country: '🇳🇱 Netherlands',  artist: 'Scram C Baby',            song: 'Elephant',                         points: 12, scoreCounts: { 12: 1 }, maxPointVoters: ['Aron24'] },
+    { name: 'Whitewolf',  country: '🇩🇪 Germany',      artist: 'Orden Ogan',               song: 'Fields of Sorrow',                 points: 8,  scoreCounts: { 8: 1  }, maxPointVoters: []        },
+    { name: 'Aron24',     country: '🇸🇪 Sweden',       artist: 'Mondo',                    song: 'Feeling Myself',                   points: 5,  scoreCounts: { 5: 1  }, maxPointVoters: []        },
+    { name: 'Keko',       country: '🇫🇷 France',       artist: 'Tiger Finkel',             song: 'Brighter Days',                    points: 3,  scoreCounts: { 3: 1  }, maxPointVoters: []        },
+    { name: 'Urbeto',     country: '🇯🇵 Japan',        artist: 'The Fin',                  song: 'Night Time',                       points: 0,  scoreCounts: {},         maxPointVoters: []        },
+    { name: 'Platina32',  country: '🇧🇪 Belgium',      artist: 'Melanie de Biasio',        song: 'No Deal',                          points: 0,  scoreCounts: {},         maxPointVoters: []        },
+    { name: 'Copywriter', country: '🇦🇹 Austria',      artist: 'Eela Craig',               song: 'Carry On',                         points: 0,  scoreCounts: {},         maxPointVoters: []        },
+    { name: 'Satyr',      country: '🇳🇴 Norway',       artist: 'Ulver',                    song: 'Machine Guns and Peacock Feathers', points: 0,  scoreCounts: {},         maxPointVoters: []        },
+    { name: 'Nasje',      country: '🇿🇦 South Africa', artist: 'Roan Ash',                 song: 'Poets and Silhouettes',            points: 0,  scoreCounts: {},         maxPointVoters: []        },
+    { name: 'Tim\'',      country: '🇮🇪 Ireland',      artist: 'Sprints',                  song: 'Literary Mind',                    points: 0,  scoreCounts: {},         maxPointVoters: []        },
+    { name: 'Djurovski',  country: '🇨🇱 Chile',        artist: 'De Saloon',                song: 'Me Vuelves A Herir',               points: 0,  scoreCounts: {},         maxPointVoters: []        },
   ] : [];
 
   // What the scoreboard shows — updated during the reveal.
   displayContestants: {
-    name:        string,
-    country:     string,
-    artist:      string,
-    song:        string,
-    points:      number,
-    scoreCounts: { [points: number]: number }
-  }[] = this.contestants.map(c => ({ ...c, scoreCounts: { ...c.scoreCounts } }));
+    name:           string,
+    country:        string,
+    artist:         string,
+    song:           string,
+    points:         number,
+    scoreCounts:    { [points: number]: number },
+    maxPointVoters: string[]
+  }[] = this.contestants.map(c => ({
+    ...c,
+    scoreCounts:    { ...c.scoreCounts },
+    maxPointVoters: [...c.maxPointVoters]
+  }));
 
   // Snapshot of contestants[] taken BEFORE points are awarded.
   // Used to reset displayContestants[] at the start of the reveal.
   preRoundSnapshot: {
-    name:        string,
-    country:     string,
-    artist:      string,
-    song:        string,
-    points:      number,
-    scoreCounts: { [points: number]: number }
+    name:           string,
+    country:        string,
+    artist:         string,
+    song:           string,
+    points:         number,
+    scoreCounts:    { [points: number]: number },
+    maxPointVoters: string[]
   }[] = [];
 
   // =====================================================
@@ -232,7 +251,7 @@ export class App implements OnInit {
 
   // Name of the last voter to submit, shown in the voter bar.
   lastSubmittedVoter = 'none';
-  
+
   canUndo = false;
 
   // Alphabetical voter order, locked in at contest start.
@@ -253,8 +272,11 @@ export class App implements OnInit {
   // Which entry in lastRoundVotes is currently being revealed.
   revealIndex = 0;
 
-  // Names of contestants who have received points so far in this reveal
+  // Names of contestants who have received points so far in this reveal.
   revealedContestants: Set<string> = new Set();
+
+  // The voter whose round is currently being revealed.
+  revealVoter = '';
 
   // =====================================================
   // CONTEST OVER STATE
@@ -273,12 +295,12 @@ export class App implements OnInit {
   // =====================================================
 
   ngOnInit() {
-    // Attempt to restore a saved contest state.
-    // Only runs if devMode is off, to avoid interfering with testing.
+    // Check for saved state before the fetch so banners appear immediately.
     if (!this.devMode) {
       this.hasSavedState      = localStorage.getItem('contestState') !== null;
       this.hasFinishedContest = localStorage.getItem('finishedContest') !== null;
     }
+
     fetch('https://restcountries.com/v3.1/all?fields=name,flag')
       .then(res => res.json())
       .then(data => {
@@ -297,7 +319,7 @@ export class App implements OnInit {
 
         this.countries = [...fetched, ...extras]
           .sort((a, b) => a.name.localeCompare(b.name));
-        
+
         // DevMode: lock voter order and sync display array.
         if (this.devMode) {
           this.lockVoterOrder();
@@ -324,12 +346,13 @@ export class App implements OnInit {
     }
 
     this.contestants.push({
-      name:        this.newName,
-      country:     this.newCountry,
-      artist:      this.newArtist,
-      song:        this.newSong,
-      points:      0,
-      scoreCounts: {}
+      name:           this.newName,
+      country:        this.newCountry,
+      artist:         this.newArtist,
+      song:           this.newSong,
+      points:         0,
+      scoreCounts:    {},
+      maxPointVoters: []
     });
 
     this.newCountry = '';
@@ -354,7 +377,8 @@ export class App implements OnInit {
 
     this.displayContestants = this.contestants.map(c => ({
       ...c,
-      scoreCounts: { ...c.scoreCounts }
+      scoreCounts:    { ...c.scoreCounts },
+      maxPointVoters: [...c.maxPointVoters]
     }));
     if (!this.devMode) this.saveState();
   }
@@ -437,7 +461,8 @@ export class App implements OnInit {
     // openReveal() uses this to reset displayContestants[] cleanly.
     this.preRoundSnapshot = this.contestants.map(c => ({
       ...c,
-      scoreCounts: { ...c.scoreCounts }
+      scoreCounts:    { ...c.scoreCounts },
+      maxPointVoters: [...c.maxPointVoters]
     }));
 
     // STEP 2: Award points to contestants[] — the source of truth.
@@ -447,6 +472,10 @@ export class App implements OnInit {
       if (c) {
         c.points += points;
         c.scoreCounts[points] = (c.scoreCounts[points] ?? 0) + 1;
+        // If this is the maximum point value, record who awarded it.
+        if (points === this.maxPointValue) {
+          c.maxPointVoters.push(this.currentVoter);
+        }
         this.votes.push({ voter: this.currentVoter, contestant: name, points });
       }
     }
@@ -460,15 +489,16 @@ export class App implements OnInit {
     this.currentRoundVotes  = {};
     this.usedPoints         = [];
     this.lastSubmittedVoter = this.currentVoter;
-    
-    // Close any previous reveal bar
+
+    // Close any previous reveal bar.
     this.showReveal  = false;
     this.revealIndex = 0;
 
-    // Sync display to truth before starting new reveal
+    // Sync display to truth before starting new reveal.
     this.displayContestants = this.contestants.map(c => ({
       ...c,
-      scoreCounts: { ...c.scoreCounts }
+      scoreCounts:    { ...c.scoreCounts },
+      maxPointVoters: [...c.maxPointVoters]
     }));
 
     this.nextVoter();
@@ -564,17 +594,18 @@ export class App implements OnInit {
     // Reset displayContestants to the pre-round state.
     this.displayContestants = this.preRoundSnapshot.map(c => ({
       ...c,
-      scoreCounts: { ...c.scoreCounts }
+      scoreCounts:    { ...c.scoreCounts },
+      maxPointVoters: [...c.maxPointVoters]
     }));
 
     // Sort to reflect pre-round standings.
     this.sortDisplayContestants();
 
-    this.revealIndex     = 0;
+    this.revealIndex         = 0;
     this.revealedContestants = new Set();
-    this.showReveal      = true;
-    this.lastRevealClick = 0;
-    this.revealVoter = this.lastSubmittedVoter;
+    this.showReveal          = true;
+    this.lastRevealClick     = 0;
+    this.revealVoter         = this.lastSubmittedVoter;
   }
 
   // Steps through the reveal one point at a time.
@@ -591,6 +622,10 @@ export class App implements OnInit {
     if (d) {
       d.points += current.points;
       d.scoreCounts[current.points] = (d.scoreCounts[current.points] ?? 0) + 1;
+      // Update maxPointVoters live during reveal so dot column animates.
+      if (current.points === this.maxPointValue) {
+        d.maxPointVoters = [...d.maxPointVoters, this.revealVoter];
+      }
     }
 
     this.animateSort();
@@ -600,10 +635,10 @@ export class App implements OnInit {
       if (this.revealIndex < this.lastRoundVotes.length - 1) {
         this.revealIndex++;
       } else if (this.isLastRound) {
-        // Last round, last point revealed — contest is over
-        this.contestOver = true;
+        // Last round, last point revealed — contest is over.
+        this.contestOver         = true;
         this.clearState();
-        this.revealVoter = '';
+        this.revealVoter         = '';
         this.revealedContestants = new Set();
       }
     }, 700);
@@ -622,39 +657,40 @@ export class App implements OnInit {
   undoLastRound() {
     if (this.preRoundSnapshot.length === 0) return;
 
-    // Restore source of truth and display array to pre-round state
+    // Restore source of truth and display array to pre-round state.
     this.contestants = this.preRoundSnapshot.map(c => ({
       ...c,
-      scoreCounts: { ...c.scoreCounts }
+      scoreCounts:    { ...c.scoreCounts },
+      maxPointVoters: [...c.maxPointVoters]
     }));
     this.displayContestants = this.preRoundSnapshot.map(c => ({
       ...c,
-      scoreCounts: { ...c.scoreCounts }
+      scoreCounts:    { ...c.scoreCounts },
+      maxPointVoters: [...c.maxPointVoters]
     }));
 
-    // Remove votes cast in the last round from the vote log
-    const voterName = this.lastSubmittedVoter;
+    // Remove votes cast in the last round from the vote log.
     const roundVoteCount = this.lastRoundVotes.length;
     this.votes.splice(this.votes.length - roundVoteCount, roundVoteCount);
 
-    // Step back the voter index
+    // Step back the voter index.
     if (this.currentVoterIndex > 0) {
       this.currentVoterIndex--;
     }
 
-    // Clear all round state
+    // Clear all round state.
     this.lastRoundVotes     = [];
     this.lastSubmittedVoter = 'none';
     this.currentRoundVotes  = {};
     this.preRoundSnapshot   = [];
     this.isLastRound        = false;
 
-    // Close reveal bar if open
+    // Close reveal bar if open.
     this.showReveal          = false;
     this.revealVoter         = '';
     this.revealedContestants = new Set();
 
-    // Re-sort the scoreboard
+    // Re-sort the scoreboard.
     this.sortContestants();
     this.sortDisplayContestants();
     this.canUndo = false;
@@ -665,20 +701,26 @@ export class App implements OnInit {
   // UTILITY
   // =====================================================
 
-
-  // Returns true if this contestant is the current voter
+  // Returns true if this contestant is the current voter.
   isCurrentVoter(name: string): boolean {
     return name === this.revealVoter;
   }
 
-  // Returns true if this contestant has already voted in a previous round
+  // Returns true if this contestant has already voted in a previous round.
   hasAlreadyVoted(name: string): boolean {
     return this.voterOrder.indexOf(name) < this.currentVoterIndex;
   }
 
-  // Returns true only if this contestant has already been revealed this round
+  // Returns true only if this contestant has already been revealed this round.
   hasReceivedPointsInReveal(name: string): boolean {
     return this.revealedContestants.has(name);
+  }
+
+  // Returns the tooltip string for the max point voters dot column.
+  // Lists all voters who awarded the maximum point value to this contestant.
+  getMaxPointVotersTooltip(voters: string[]): string {
+    if (!voters || voters.length === 0) return '';
+    return voters.join(', ');
   }
 
   // =====================================================
@@ -752,25 +794,25 @@ export class App implements OnInit {
     };
     localStorage.setItem('finishedContest', JSON.stringify(data));
     this.hasFinishedContest = true;
-    this.resultsSaved = true;
+    this.resultsSaved       = true;
     setTimeout(() => this.resultsSaved = false, 3000);
   }
 
-  // Returns to the setup page and resets contest state.
+  // Returns to the setup page and resets all contest state.
   backToSetup() {
-    this.contestOver    = false;
-    this.setupComplete  = false;
-    this.contestants    = [];
+    this.contestOver        = false;
+    this.setupComplete      = false;
+    this.contestants        = [];
     this.displayContestants = [];
-    this.voterOrder     = [];
-    this.currentVoterIndex = 0;
-    this.votes          = [];
-    this.lastRoundVotes = [];
+    this.voterOrder         = [];
+    this.currentVoterIndex  = 0;
+    this.votes              = [];
+    this.lastRoundVotes     = [];
     this.lastSubmittedVoter = 'none';
     this.preRoundSnapshot   = [];
-    this.contestTitle   = '';
-    this.isLastRound    = false;
-    this.canUndo        = false;
+    this.contestTitle       = '';
+    this.isLastRound        = false;
+    this.canUndo            = false;
     this.clearState();
   }
 
@@ -779,7 +821,7 @@ export class App implements OnInit {
     const raw = localStorage.getItem('finishedContest');
     if (!raw) return;
     try {
-      this.previousContest    = JSON.parse(raw);
+      this.previousContest     = JSON.parse(raw);
       this.showPreviousContest = true;
     } catch {
       console.error('Failed to load previous contest');
@@ -803,9 +845,6 @@ export class App implements OnInit {
   trackByName(index: number, contestant: { name: string }): string {
     return contestant.name;
   }
-
-  // The voter whose round is currently being revealed
-  revealVoter = '';
 
   // trackBy for the custom points *ngFor — prevents input
   // focus from being lost when the array updates.

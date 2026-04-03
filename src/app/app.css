@@ -549,7 +549,7 @@ body {
 /* Column header row */
 .score-header {
   display: grid;
-  grid-template-columns: 44px 130px 1fr 1fr 1fr 78px;
+  grid-template-columns: 44px 130px 1fr 1fr 1fr 50px 78px;
   gap: 0.5rem;
   padding: 0 0.5rem 0.45rem;
   font-size: 0.57rem;
@@ -564,7 +564,7 @@ body {
 /* Each contestant row */
 .score-row {
   display: grid;
-  grid-template-columns: 44px 130px 1fr 1fr 1fr 78px;
+  grid-template-columns: 44px 130px 1fr 1fr 1fr 50px 78px;
   gap: 0.5rem;
   padding: 0.44rem 0.5rem;
   align-items: center;
@@ -1131,4 +1131,35 @@ select:disabled {
   display: flex;
   justify-content: center;
   margin-bottom: 1rem;
+}
+/* ── Max point voters dot column ── */
+
+/* Column header star — subtle, muted */
+.max-pts-col-header {
+  color: var(--gold);
+  opacity: 0.5;
+  font-size: 0.7rem;
+  text-align: center;
+}
+
+/* Cell in each row */
+.max-pts-col {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* The gold dot + count — only shown when voters exist */
+.max-pts-dot {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 0.85rem;
+  color: var(--gold);
+  letter-spacing: 0.05em;
+  cursor: default;
+  white-space: nowrap;
+  opacity: 0.9;
+}
+
+.max-pts-dot:hover {
+  opacity: 1;
 }

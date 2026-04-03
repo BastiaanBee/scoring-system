@@ -190,6 +190,8 @@
           <span>Participant</span>
           <span>Artist</span>
           <span>Song</span>
+          <!-- ★ column header — tooltip shows what max point value is -->
+          <span class="max-pts-col-header" [title]="'Times awarded ' + maxPointValue + ' pts'">★</span>
           <span style="text-align:right">Points</span>
         </div>
 
@@ -202,7 +204,7 @@
              [ngClass]="{
                'gold-row':   i === 0,
                'silver-row': i === 1,
-               'bronze-row': i === 2, 
+               'bronze-row': i === 2,
                'current-voter-row':   showReveal && isCurrentVoter(c.name),
                'received-points-row': showReveal && !isCurrentVoter(c.name) && hasReceivedPointsInReveal(c.name),
                'already-voted-row':   !isCurrentVoter(c.name) && !hasReceivedPointsInReveal(c.name) && hasAlreadyVoted(c.name)
@@ -221,6 +223,18 @@
           <span class="participant-col">{{ c.name }}</span>
           <span class="artist-col">{{ c.artist }}</span>
           <span class="song-col">{{ c.song }}</span>
+
+          <!-- Max point voters dot column -->
+          <!-- Gold dot + count shown when contestant has received max points -->
+          <!-- Hover to see tooltip listing who gave those points -->
+          <span class="max-pts-col">
+            <span *ngIf="c.maxPointVoters.length > 0"
+                  class="max-pts-dot"
+                  [title]="getMaxPointVotersTooltip(c.maxPointVoters)">
+              ● {{ c.maxPointVoters.length }}
+            </span>
+          </span>
+
           <span class="points-col">{{ c.points }} pts</span>
         </div>
       </div>
@@ -393,6 +407,7 @@
           <span>Participant</span>
           <span>Artist</span>
           <span>Song</span>
+          <span class="max-pts-col-header">★</span>
           <span style="text-align:right">Points</span>
         </div>
         <div *ngFor="let c of contestants; let i = index"
@@ -414,6 +429,13 @@
           <span class="participant-col">{{ c.name }}</span>
           <span class="artist-col">{{ c.artist }}</span>
           <span class="song-col">{{ c.song }}</span>
+          <span class="max-pts-col">
+            <span *ngIf="c.maxPointVoters.length > 0"
+                  class="max-pts-dot"
+                  [title]="getMaxPointVotersTooltip(c.maxPointVoters)">
+              ● {{ c.maxPointVoters.length }}
+            </span>
+          </span>
           <span class="points-col">{{ c.points }} pts</span>
         </div>
       </div>
@@ -488,6 +510,7 @@
         <span>Participant</span>
         <span>Artist</span>
         <span>Song</span>
+        <span class="max-pts-col-header">★</span>
         <span style="text-align:right">Points</span>
       </div>
       <div *ngFor="let c of previousContest?.contestants; let i = index"
@@ -509,6 +532,13 @@
         <span class="participant-col">{{ c.name }}</span>
         <span class="artist-col">{{ c.artist }}</span>
         <span class="song-col">{{ c.song }}</span>
+        <span class="max-pts-col">
+          <span *ngIf="c.maxPointVoters?.length > 0"
+                class="max-pts-dot"
+                [title]="getMaxPointVotersTooltip(c.maxPointVoters)">
+            ● {{ c.maxPointVoters.length }}
+          </span>
+        </span>
         <span class="points-col">{{ c.points }} pts</span>
       </div>
     </div>
