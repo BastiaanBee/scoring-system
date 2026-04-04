@@ -259,6 +259,8 @@ export class App implements OnInit {
   // Whether a snapshot is currently being generated.
   snapshotGenerating = false;
   snapshotGenerated = false;
+  finalSnapshotGenerated = false;
+  previousSnapshotGenerated = false;
 
   // Error message shown if snapshot generation fails.
   snapshotError = '';
@@ -646,8 +648,6 @@ export class App implements OnInit {
         this.revealIndex++;
       } else if (this.isLastRound) {
         // Last round, last point revealed — contest is over.
-        this.contestOver         = true;
-        this.clearState();
         this.revealVoter         = '';
         this.revealedContestants = new Set();
       }
@@ -836,6 +836,64 @@ export class App implements OnInit {
       this.cdr.detectChanges();
     }
   }
+
+  // Generates a snapshot of the final results and opens it in a new tab.
+  async generateFinalSnapshot() {
+    this.snapshotGenerating = true;
+    this.snapshotError      = '';
+    try {
+      const snapshotData = {
+        type:          'final',
+        contestTitle:  this.contestTitle,
+        contestants:   this.contestants,
+        createdAt:     new Date().toISOString()
+      };
+      const docRef = await addDoc(collection(db, 'snapshots'), snapshotData);
+      const url    = `${window.location.origin}/snapshot/${docRef.id}`;
+      window.open(url, '_blank');
+      this.finalSnapshotGenerated = true;
+    } catch (err) {
+      console.error('Final snapshot generation failed:', err);
+      this.snapshotError = 'Failed to generate snapshot. Please try again.';
+    } finally {
+      this.snapshotGenerating = false;
+      this.cdr.detectChanges();
+    }
+  }
+
+  // Generates a shareable final results snapshot from the previous contest data.
+  async generatePreviousContestSnapshot() {
+    this.snapshotGenerating = true;
+    this.snapshotError      = '';
+    try {
+      const snapshotData = {
+        type:         'final',
+        contestTitle: this.previousContest?.contestTitle || '',
+        contestants:  this.previousContest?.contestants || [],
+        createdAt:    new Date().toISOString()
+      };
+      const docRef = await addDoc(collection(db, 'snapshots'), snapshotData);
+      const url    = `${window.location.origin}/snapshot/${docRef.id}`;
+      window.open(url, '_blank');
+      this.previousSnapshotGenerated = true;
+    } catch (err) {
+      console.error('Snapshot generation failed:', err);
+      this.snapshotError = 'Failed to generate snapshot. Please try again.';
+    } finally {
+      this.snapshotGenerating = false;
+      this.cdr.detectChanges();
+    }
+  }
+
+  // Ends the contest and shows the final results screen.
+  // Called by the host after the last round has been submitted.
+  // Shows a confirmation dialog before proceeding.
+  endContest() {
+    const confirmed = window.confirm('End the contest and show the final results page?');
+    if (!confirmed) return;
+    this.contestOver = true;
+    this.clearState();
+}
 
   // Returns to the setup page and resets all contest state.
   backToSetup() {

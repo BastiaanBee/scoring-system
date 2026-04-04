@@ -725,8 +725,8 @@ body {
 }
 
 /* Slightly larger / brighter for top point values */
-.vote-points-badge.pts-12 { font-size: 1rem; opacity: 1; }
-.vote-points-badge.pts-10 { opacity: 0.90; }
+.vote-points-badge.pts-highest { font-size: 1rem; opacity: 1; }
+.vote-points-badge.pts-second  { opacity: 0.90; }
 
 /* Voting panel dropdowns */
 select {
@@ -1101,6 +1101,10 @@ select:disabled {
   transition: background 0.2s, border-color 0.2s, color 0.2s;
 }
 
+.contest-over-btn.snapshot-btn {
+  width: auto;
+}
+
 .save-btn {
   background: #F5C800;
   color: #0B1A2E;
@@ -1191,4 +1195,25 @@ select:disabled {
   cursor: not-allowed;
   border-color: rgba(245, 200, 0, 0.1);
   color: #7888AA;
+}
+
+/* End Contest button — shown after last round is submitted */
+.end-contest-btn {
+  width: 100%;
+  margin-top: 0.5rem;
+  padding: 0.65rem;
+  background: rgba(245, 200, 0, 0.1);
+  border: 1px solid rgba(245, 200, 0, 0.4);
+  border-radius: 6px;
+  color: #F5C800;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1rem;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+}
+ 
+.end-contest-btn:hover {
+  background: rgba(245, 200, 0, 0.18);
+  border-color: #F5C800;
 }

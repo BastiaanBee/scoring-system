@@ -83,6 +83,12 @@ export class SnapshotComponent implements OnInit {
   // Throttle clicks to prevent double-reveals.
   lastRevealClick = 0;
 
+  // Whether this is a final results snapshot (no reveal sequence).
+  isFinalSnapshot = false;
+
+  // Final standings for a final results snapshot.
+  finalContestants: any[] = [];
+
   // =====================================================
   // INITIALISATION
   // =====================================================
@@ -107,6 +113,17 @@ export class SnapshotComponent implements OnInit {
       }
 
       const data = docSnap.data();
+
+      // Check if this is a final results snapshot.
+      if (data['type'] === 'final') {
+        this.isFinalSnapshot  = true;
+        this.finalContestants = data['contestants'] || [];
+        this.contestTitle     = data['contestTitle'] || '';
+        this.loading          = false;
+        this.cdr.detectChanges();
+        return;
+      }
+
       this.contestTitle      = data['contestTitle'] || '';
       this.voter             = data['voter'] || '';
       this.maxPointValue     = data['maxPointValue'] || 0;

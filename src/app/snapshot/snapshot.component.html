@@ -18,11 +18,11 @@
     <div class="header">
       <div class="header-eyebrow">✦ Platina32.com ✦</div>
       <h1>{{ contestTitle || 'Song Contest' }}</h1>
-      <div class="header-subtitle">{{ voter }}'s votes</div>
+      <div class="header-subtitle" *ngIf="!isFinalSnapshot">{{ voter }}'s votes</div>
     </div>
 
     <!-- Scoreboard -->
-    <div class="snapshot-scoreboard">
+    <div class="snapshot-scoreboard" *ngIf="!isFinalSnapshot">
 
       <div class="scoreboard-header">
         <span class="scoreboard-icon">🏆</span>
@@ -76,7 +76,7 @@
     </div>
 
     <!-- Reveal bar -->
-    <div class="reveal-overlay" *ngIf="!revealComplete">
+    <div class="reveal-overlay" *ngIf="!isFinalSnapshot && !revealComplete">
       <div class="reveal-voter">{{ voter }} gives...</div>
       <div class="reveal-points-value">
         {{ lastRoundVotes[revealIndex].points }}
@@ -91,6 +91,80 @@
         Next →
       </button>
     </div>
+
+    <!-- Final results snapshot — podium and standings, no reveal sequence -->
+    <div *ngIf="isFinalSnapshot">
+      <div class="podium">
+        <div class="podium-place silver-place">
+          <div class="podium-flag">{{ finalContestants[1]?.country }}</div>
+          <div class="podium-name">{{ finalContestants[1]?.name }}</div>
+          <div class="podium-song">{{ finalContestants[1]?.song }}</div>
+          <div class="podium-points">{{ finalContestants[1]?.points }} pts</div>
+          <div class="podium-block silver-block">#2</div>
+        </div>
+        <div class="podium-place gold-place">
+          <div class="podium-flag">{{ finalContestants[0]?.country }}</div>
+          <div class="podium-name">{{ finalContestants[0]?.name }}</div>
+          <div class="podium-song">{{ finalContestants[0]?.song }}</div>
+          <div class="podium-points">{{ finalContestants[0]?.points }} pts</div>
+          <div class="podium-block gold-block">#1</div>
+        </div>
+        <div class="podium-place bronze-place">
+          <div class="podium-flag">{{ finalContestants[2]?.country }}</div>
+          <div class="podium-name">{{ finalContestants[2]?.name }}</div>
+          <div class="podium-song">{{ finalContestants[2]?.song }}</div>
+          <div class="podium-points">{{ finalContestants[2]?.points }} pts</div>
+          <div class="podium-block bronze-block">#3</div>
+        </div>
+      </div>
+
+      <div class="final-standings">
+        <div class="scoreboard-header">
+          <span class="scoreboard-icon">🏆</span>
+          <span class="scoreboard-title">Final Standings</span>
+        </div>
+        <div class="score-header">
+          <span>#</span>
+          <span>Country</span>
+          <span>Participant</span>
+          <span>Artist</span>
+          <span>Song</span>
+          <span class="max-pts-col-header">★</span>
+          <span style="text-align:right">Points</span>
+        </div>
+        <div *ngFor="let c of finalContestants; let i = index"
+            class="score-row"
+            [ngClass]="{
+              'gold-row':   i === 0,
+              'silver-row': i === 1,
+              'bronze-row': i === 2
+            }">
+          <span class="rank">
+            <ng-container [ngSwitch]="i">
+              <ng-container *ngSwitchCase="0">🥇</ng-container>
+              <ng-container *ngSwitchCase="1">🥈</ng-container>
+              <ng-container *ngSwitchCase="2">🥉</ng-container>
+              <ng-container *ngSwitchDefault>#{{ i + 1 }}</ng-container>
+            </ng-container>
+          </span>
+          <span class="country-col">{{ c.country }}</span>
+          <span class="participant-col">{{ c.name }}</span>
+          <span class="artist-col">{{ c.artist }}</span>
+          <span class="song-col">{{ c.song }}</span>
+          <span class="max-pts-col">
+            <span *ngIf="c.maxPointVoters?.length > 0"
+                  class="max-pts-dot"
+                  [title]="getMaxPointVotersTooltip(c.maxPointVoters)">
+              ● {{ c.maxPointVoters.length }}
+            </span>
+          </span>
+          <span class="points-col">{{ c.points }} pts</span>
+        </div>
+      </div>
+    </div>
+
+<!-- Regular reveal snapshot — only shown if not a final snapshot -->
+<div *ngIf="!isFinalSnapshot">
 
   </div>
 

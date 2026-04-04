@@ -61,3 +61,7 @@ html, body {
   user-select: none;
   pointer-events: none;
 }
+
+.podium {
+  margin-top: 2rem;
+}

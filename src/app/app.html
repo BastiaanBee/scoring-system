@@ -146,7 +146,8 @@
     <div class="voter-bar">
 
       <!-- Current voter info with animated pulse dot -->
-      <div class="voter-info">
+      <!-- Hidden after the last round has been submitted -->
+      <div class="voter-info" *ngIf="!(isLastRound && canUndo)">
         <div class="voter-pulse"></div>
         <div>
           <div class="voter-label">Now Voting</div>
@@ -255,9 +256,9 @@
                class="vote-row"
                [class.vote-set]="currentRoundVotes[p]">
             <label class="vote-points-badge"
-                   [class.pts-12]="p === 12"
-                   [class.pts-10]="p === 10"
-                   [class.pts-8]="p === 8">
+                  [class.pts-highest]="p === availablePoints[availablePoints.length - 1]"
+                  [class.pts-second]="p === availablePoints[availablePoints.length - 2]"
+                  [class.pts-8]="p === 8">
               {{ p }} pts
             </label>
             <select
@@ -325,6 +326,13 @@
           <div class="error-message" *ngIf="snapshotError">
             ⚠ {{ snapshotError }}
           </div>
+
+          <!-- End Contest button — only shown after the last round has been submitted -->
+          <button class="end-contest-btn"
+                  (click)="endContest()"
+                  *ngIf="isLastRound && canUndo">
+            🏆 End Contest & Show Results
+          </button>
 
         </div>
       </div>
@@ -463,6 +471,12 @@
           💾 Save Results
         </button>
         <span class="save-confirmation" *ngIf="resultsSaved">Results saved!</span>
+        <button class="contest-over-btn snapshot-btn" (click)="generateFinalSnapshot()"
+                [disabled]="snapshotGenerating || finalSnapshotGenerated">
+          <span *ngIf="!snapshotGenerating && !finalSnapshotGenerated">🔗 Share Final Results</span>
+          <span *ngIf="snapshotGenerating">Generating...</span>
+          <span *ngIf="finalSnapshotGenerated">✓ Link Generated</span>
+        </button>
         <button class="contest-over-btn back-btn" (click)="backToSetup()">
           ← Back to Setup
         </button>
@@ -564,6 +578,12 @@
     <div class="contest-over-actions">
       <button class="contest-over-btn back-btn" (click)="showPreviousContest = false">
         ← Back
+      </button>
+      <button class="contest-over-btn" style="width:auto" (click)="generatePreviousContestSnapshot()"
+              [disabled]="snapshotGenerating || previousSnapshotGenerated">
+        <span *ngIf="!snapshotGenerating && !previousSnapshotGenerated">🔗 Share Final Results</span>
+        <span *ngIf="snapshotGenerating">Generating...</span>
+        <span *ngIf="previousSnapshotGenerated">✓ Link Generated</span>
       </button>
       <button class="contest-over-btn save-btn" (click)="reuseParticipants()">
         ↺ Start New Contest with Same Participants
