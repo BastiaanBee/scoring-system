@@ -1,5 +1,6 @@
 import { Component, OnInit, ViewEncapsulation, ChangeDetectorRef } from '@angular/core';
 import { CdkDragDrop, moveItemInArray, DragDropModule } from '@angular/cdk/drag-drop';
+import * as XLSX from 'xlsx';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
@@ -952,7 +953,30 @@ export class App implements OnInit {
     if (!confirmed) return;
     this.contestOver = true;
     this.clearState();
-}
+  }
+
+  // Exports the final contest standings to an Excel (.xlsx) file.
+  // Each contestant gets a row with their rank, country, name, artist,
+  // song, total points, and how many times they received the max point value.
+  exportToExcel(contestants: any[], title: string) {
+    const rows = contestants.map((c, i) => ({
+      'Rank':       i + 1,
+      'Country':    c.country.replace(/[^\p{L}\p{N} ]/gu, '').trim(),
+      'Participant': c.name,
+      'Artist':     c.artist,
+      'Song':       c.song,
+      'Max Points Received': c.maxPointVoters?.length ?? 0,
+      'Total Points': c.points
+    }));
+
+    const worksheet  = XLSX.utils.json_to_sheet(rows);
+    const workbook   = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Results');
+
+    // Use the contest title as the filename, falling back to a default.
+    const filename = (title || 'Contest Results').replace(/[^a-z0-9 ]/gi, '_') + '.xlsx';
+    XLSX.writeFile(workbook, filename);
+  }
 
   // Returns to the setup page and resets all contest state.
   backToSetup() {

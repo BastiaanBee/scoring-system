@@ -1200,6 +1200,19 @@ select:disabled {
   width: auto;
 }
 
+/* Export to spreadsheet button on the final results screen */
+.export-btn {
+  background: transparent;
+  border: 1px solid var(--teal);
+  color: var(--teal);
+  transition: background 0.15s, color 0.15s;
+}
+
+.export-btn:hover {
+  background: var(--teal);
+  color: var(--navy);
+}
+
 .save-btn {
   background: #F5C800;
   color: #0B1A2E;
