@@ -1,4 +1,5 @@
 import { Component, OnInit, ViewEncapsulation, ChangeDetectorRef } from '@angular/core';
+import { CdkDragDrop, moveItemInArray, DragDropModule } from '@angular/cdk/drag-drop';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
@@ -7,7 +8,7 @@ import { db } from './firebase.config';
 
 @Component({
   selector: 'app-root',
-  imports: [FormsModule, CommonModule],
+  imports: [FormsModule, CommonModule, DragDropModule],
   templateUrl: './app.html',
   styleUrl: './app.css',
   encapsulation: ViewEncapsulation.None
@@ -67,6 +68,9 @@ export class App implements OnInit {
   newName    = '';
   newArtist  = '';
   newSong    = '';
+
+  // Index of the contestant currently being edited, or -1 if not editing.
+  editingIndex = -1;
 
   // =====================================================
   // SCORING SYSTEM
@@ -346,6 +350,63 @@ export class App implements OnInit {
   // SETUP METHODS
   // =====================================================
 
+  // Handles drag-and-drop reordering of the contestant list on the setup page.
+  // moveItemInArray is from the Angular CDK and reorders in place.
+  dropContestant(event: CdkDragDrop<any[]>) {
+    moveItemInArray(this.contestants, event.previousIndex, event.currentIndex);
+    if (!this.devMode) this.saveState();
+  }
+
+  // Sorts the contestant list alphabetically by name.
+  sortContestantsAlphabetically() {
+    this.contestants.sort((a, b) => {
+      const nameA = a.country.replace(/[^\p{L}\p{N} ]/gu, '').trim();
+      const nameB = b.country.replace(/[^\p{L}\p{N} ]/gu, '').trim();
+      return nameA.localeCompare(nameB);
+    });
+    if (!this.devMode) this.saveState();
+  }
+
+  // Populates the form fields with the selected contestant's data for editing.
+  editContestant(index: number) {
+    const c = this.contestants[index];
+    this.editingIndex = index;
+    this.newCountry   = c.country;
+    this.newName      = c.name;
+    this.newArtist    = c.artist;
+    this.newSong      = c.song;
+  }
+
+  // Saves the edited contestant back into the array at the same position.
+  saveEditedContestant() {
+    if (!this.newCountry || !this.newName || !this.newArtist || !this.newSong) return;
+
+    // Check for duplicate country, but allow the contestant's own current country.
+    const duplicate = this.contestants.some((c, i) =>
+      c.country === this.newCountry && i !== this.editingIndex
+    );
+    if (duplicate) {
+      alert('This country has already been added.');
+      return;
+    }
+
+    this.contestants[this.editingIndex] = {
+      ...this.contestants[this.editingIndex],
+      country: this.newCountry,
+      name:    this.newName,
+      artist:  this.newArtist,
+      song:    this.newSong,
+    };
+
+    // Reset the form back to add mode.
+    this.editingIndex = -1;
+    this.newCountry   = '';
+    this.newName      = '';
+    this.newArtist    = '';
+    this.newSong      = '';
+    if (!this.devMode) this.saveState();
+  }
+
   // Adds a contestant. Validates all fields and no duplicate country.
   addContestant() {
     if (!this.newCountry || !this.newName || !this.newArtist || !this.newSong) return;
@@ -382,9 +443,7 @@ export class App implements OnInit {
   // Locks voter order alphabetically. Called once on "Start Contest".
   // Also initialises displayContestants[] to match contestants[].
   lockVoterOrder() {
-    this.voterOrder = [...this.contestants]
-      .sort((a, b) => a.name.localeCompare(b.name))
-      .map(c => c.name);
+    this.voterOrder = this.contestants.map(c => c.name);
 
     this.displayContestants = this.contestants.map(c => ({
       ...c,

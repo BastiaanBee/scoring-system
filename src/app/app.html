@@ -95,11 +95,18 @@
 
       <!-- Add + Start buttons -->
       <div class="setup-form-buttons">
-        <button class="btn-add" (click)="addContestant()">Add Contestant</button>
+        <!-- In edit mode: show Save Changes and Cancel. In add mode: show Add Contestant. -->
+        <ng-container *ngIf="editingIndex === -1; else editMode">
+          <button class="btn-add" (click)="addContestant()">Add Contestant</button>
+        </ng-container>
+        <ng-template #editMode>
+          <button class="btn-add" (click)="saveEditedContestant()">💾 Save Changes</button>
+          <button class="btn-cancel" (click)="editingIndex = -1; newCountry = ''; newName = ''; newArtist = ''; newSong = ''">✕ Cancel</button>
+        </ng-template>
         <!-- Disabled until the minimum contestant count is reached -->
         <button class="btn-start"
                 (click)="startContest()"
-                [disabled]="contestants.length < minContestants || !customPointsValid">
+                [disabled]="contestants.length < minContestants || !customPointsValid || editingIndex !== -1">
           Start Contest
         </button>
       </div>
@@ -107,14 +114,23 @@
       <!-- Preview list of added contestants -->
       <!-- Only shown once at least one contestant has been added -->
       <div *ngIf="contestants.length > 0" class="contestant-preview">
-        <div class="contestant-preview-header">{{ contestants.length }} contestant(s) added</div>
-        <!-- Each row shows contestant info with an ✕ remove button -->
-        <div *ngFor="let c of contestants; let i = index" class="contestant-preview-row">
-          <span>{{ c.country }} — {{ c.name }} — {{ c.artist }} — {{ c.song }}</span>
-          <button (click)="contestants.splice(i, 1); saveState()">✕</button>
+        <div class="contestant-preview-header">
+          {{ contestants.length }} contestant(s) added — drag to reorder
+          <button class="btn-sort" (click)="sortContestantsAlphabetically()">Sort A–Z</button>
+        </div>
+        <!-- Drag-and-drop list — cdkDropList wraps the list, cdkDrag marks each row -->
+        <div cdkDropList (cdkDropListDropped)="dropContestant($event)">
+          <div *ngFor="let c of contestants; let i = index" class="contestant-preview-row" cdkDrag>
+            <!-- Drag handle — only this area initiates the drag -->
+            <span class="drag-handle" cdkDragHandle>⠿</span>
+            <span>{{ c.country }} — {{ c.name }} — {{ c.artist }} — {{ c.song }}</span>
+            <div class="contestant-preview-actions">
+              <button class="btn-edit" (click)="editContestant(i)">✏️</button>
+              <button class="btn-remove" (click)="contestants.splice(i, 1); saveState()">✕</button>
+            </div>
+          </div>
         </div>
       </div>
-
     </div>
 
     <!-- View previous contest banner — shown if a finished contest exists -->

@@ -366,6 +366,101 @@ body {
   transition: background 0.12s;
 }
 
+/* Drag handle icon on each contestant row */
+.drag-handle {
+  cursor: grab;
+  color: var(--muted);
+  font-size: 1.1rem;
+  padding-right: 0.5rem;
+  user-select: none;
+}
+
+.drag-handle:active {
+  cursor: grabbing;
+}
+
+/* Container for the edit and remove buttons on each contestant row */
+.contestant-preview-actions {
+  display: flex;
+  gap: 0.4rem;
+  margin-left: auto;
+}
+
+/* Edit button on each contestant row */
+.btn-edit {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 0.95rem;
+  padding: 0.1rem 0.3rem;
+  border-radius: 4px;
+  opacity: 0.7;
+  transition: opacity 0.15s;
+}
+
+.btn-edit:hover {
+  opacity: 1;
+}
+
+/* Cancel button shown in edit mode next to Save Changes */
+.btn-cancel {
+  background: transparent;
+  border: 1px solid var(--muted);
+  color: var(--muted);
+  border-radius: 6px;
+  padding: 0.45rem 1rem;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.btn-cancel:hover {
+  border-color: var(--text);
+  color: var(--text);
+}
+
+/* Sort alphabetically button in the contestant preview header */
+.btn-sort {
+  background: transparent;
+  border: 1px solid var(--muted);
+  color: var(--muted);
+  border-radius: 6px;
+  padding: 0.2rem 0.6rem;
+  cursor: pointer;
+  font-size: 0.75rem;
+  margin-left: 0.75rem;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.btn-sort:hover {
+  border-color: var(--teal);
+  color: var(--teal);
+}
+
+/* Style for the floating preview shown while dragging */
+.cdk-drag-preview {
+  background: var(--navy-lt);
+  border: 1px solid var(--teal);
+  border-radius: 5px;
+  padding: 0.5rem 0.75rem;
+  color: var(--text);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+}
+
+/* Placeholder gap shown where the item will be dropped */
+.cdk-drag-placeholder {
+  opacity: 0;
+  border: 2px dashed var(--teal);
+  border-radius: 5px;
+  background: var(--navy-mid);
+  height: 2rem;
+}
+
+/* Smooth animation for rows shifting out of the way */
+.cdk-drop-list-dragging .contestant-preview-row:not(.cdk-drag-dragging) {
+  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+}
+
 .contestant-preview-row:hover {
   background: rgba(255, 255, 255, 0.04);
 }
