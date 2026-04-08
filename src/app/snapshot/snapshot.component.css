@@ -76,7 +76,8 @@ html, body {
   /* Adjust the scoreboard grid to 4 columns instead of 7 */
   .score-header,
   .score-row {
-    grid-template-columns: 44px 1fr 1fr 70px;
+    grid-template-columns: 44px 1fr 1fr 70px !important;
+    font-size: 0.8rem;
   }
 
   /* Hide Artist, Song and star columns on mobile */
