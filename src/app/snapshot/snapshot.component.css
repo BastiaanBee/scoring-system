@@ -65,3 +65,58 @@ html, body {
 .podium {
   margin-top: 2rem;
 }
+
+/* =====================================================
+   MOBILE RESPONSIVENESS
+   On small screens, hide Artist and Song columns to
+   prevent the scoreboard from overflowing horizontally.
+   ====================================================== */
+@media (max-width: 768px) {
+
+  /* Adjust the scoreboard grid to 4 columns instead of 7 */
+  .score-header,
+  .score-row {
+    grid-template-columns: 44px 1fr 1fr 70px;
+  }
+
+  /* Hide Artist, Song and star columns on mobile */
+  .artist-col,
+  .song-col,
+  .max-pts-col,
+  .max-pts-col-header {
+    display: none;
+  }
+
+  /* Reveal bar: stack vertically and ensure nothing overflows */
+  .reveal-overlay {
+    flex-direction: column;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.75rem 1rem;
+    text-align: center;
+  }
+
+  /* Make the points value slightly smaller on mobile */
+  .reveal-points-value {
+    font-size: 2.5rem;
+  }
+
+  /* Ensure the recipient name wraps cleanly */
+  .reveal-recipient {
+    font-size: 1rem;
+    white-space: normal;
+    text-align: center;
+  }
+
+  /* Shrink the header title on mobile */
+  .header h1 {
+    font-size: clamp(1.8rem, 6vw, 3rem);
+  }
+
+  /* Add some side padding to the scoreboard */
+  .snapshot-scoreboard {
+    padding: 0.8rem 0.6rem;
+    padding-bottom: 8rem;
+  }
+
+}
