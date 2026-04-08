@@ -978,6 +978,27 @@ export class App implements OnInit {
     XLSX.writeFile(workbook, filename);
   }
 
+  // Exports the current live scoreboard state to an Excel (.xlsx) file.
+  // Used during the contest to save a mid-round snapshot of standings.
+  exportLiveScoreboard() {
+    const rows = this.displayContestants.map((c, i) => ({
+      'Rank':                i + 1,
+      'Country':             c.country.replace(/[^\p{L}\p{N} ]/gu, '').trim(),
+      'Participant':         c.name,
+      'Artist':              c.artist,
+      'Song':                c.song,
+      'Max Points Received': c.maxPointVoters?.length ?? 0,
+      'Total Points':        c.points
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(rows);
+    const workbook  = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Standings');
+
+    const filename = `${this.contestTitle || 'Contest'} Scoreboard Round ${this.currentRound}.xlsx`;
+    XLSX.writeFile(workbook, filename);
+  }
+
   // Returns to the setup page and resets all contest state.
   backToSetup() {
     this.contestOver        = false;

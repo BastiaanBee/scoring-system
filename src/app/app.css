@@ -1213,6 +1213,30 @@ select:disabled {
   color: var(--navy);
 }
 
+/* Export button inside the scoreboard header */
+.scoreboard-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.export-scoreboard-btn {
+  margin-left: auto;
+  background: transparent;
+  border: 1px solid var(--muted);
+  color: var(--muted);
+  border-radius: 6px;
+  padding: 0.2rem 0.6rem;
+  cursor: pointer;
+  font-size: 0.75rem;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.export-scoreboard-btn:hover {
+  border-color: var(--teal);
+  color: var(--teal);
+}
+
 .save-btn {
   background: #F5C800;
   color: #0B1A2E;

@@ -5,6 +5,7 @@ import { Component, OnInit, ViewEncapsulation, ChangeDetectorRef } from '@angula
 import { RouterModule, ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { doc, getDoc } from 'firebase/firestore';
+import * as XLSX from 'xlsx';
 import { db } from '../firebase.config';
 
 @Component({
@@ -241,6 +242,29 @@ export class SnapshotComponent implements OnInit {
   getMaxPointVotersTooltip(voters: string[]): string {
     if (!voters || voters.length === 0) return '';
     return voters.join(', ');
+  }
+
+  // Exports the current scoreboard state to an Excel (.xlsx) file.
+  exportToExcel() {
+    const contestants = this.isFinalSnapshot ? this.finalContestants : this.displayContestants;
+    const rows = contestants.map((c: any, i: number) => ({
+      'Rank':                i + 1,
+      'Country':             c.country.replace(/[^\p{L}\p{N} ]/gu, '').trim(),
+      'Participant':         c.name,
+      'Artist':              c.artist,
+      'Song':                c.song,
+      'Max Points Received': c.maxPointVoters?.length ?? 0,
+      'Total Points':        c.points
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(rows);
+    const workbook  = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Standings');
+
+    const filename = this.isFinalSnapshot
+    ? `${this.contestTitle || 'Contest'} Final Results.xlsx`
+    : `${this.contestTitle || 'Contest'} Scoreboard ${this.voter}'s Votes.xlsx`;
+    XLSX.writeFile(workbook, filename);
   }
 
   // trackBy for the scoreboard *ngFor.
