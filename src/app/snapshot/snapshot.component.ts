@@ -84,6 +84,12 @@ export class SnapshotComponent implements OnInit {
   // Throttle clicks to prevent double-reveals.
   lastRevealClick = 0;
 
+  // Whether autoplay is currently running.
+  isAutoplaying = false;
+
+  // Reference to the autoplay interval so it can be cleared on pause.
+  autoplayInterval: any = null;
+
   // Whether this is a final results snapshot (no reveal sequence).
   isFinalSnapshot = false;
 
@@ -177,6 +183,34 @@ export class SnapshotComponent implements OnInit {
         this.revealIndex++;
       }
     }, 700);
+  }
+
+  // Toggles autoplay on and off.
+  // When active, steps through the reveal every 3 seconds automatically.
+  toggleAutoplay() {
+    if (this.isAutoplaying) {
+      // Pause — clear the interval and reset the flag.
+      clearInterval(this.autoplayInterval);
+      this.autoplayInterval = null;
+      this.isAutoplaying    = false;
+    } else {
+      // Play — start the interval.
+      this.isAutoplaying = true;
+      this.autoplayInterval = setInterval(() => {
+        if (this.revealIndex < this.lastRoundVotes.length - 1) {
+          this.nextReveal();
+        } else {
+          // Last point reached — reveal it first, then stop autoplay after animation completes.
+          this.nextReveal();
+          setTimeout(() => {
+            clearInterval(this.autoplayInterval);
+            this.autoplayInterval = null;
+            this.isAutoplaying    = false;
+            this.cdr.detectChanges();
+          }, 700);
+        }
+      }, 3000);
+    }
   }
 
   animateSort() {

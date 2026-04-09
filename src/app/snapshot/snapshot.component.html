@@ -88,8 +88,13 @@
       </div>
       <button class="reveal-next-btn"
               (click)="nextReveal()"
-              *ngIf="revealIndex < lastRoundVotes.length - 1">
+              *ngIf="revealIndex < lastRoundVotes.length - 1 && !isAutoplaying">
         Next →
+      </button>
+      <button class="reveal-next-btn reveal-play-btn"
+              (click)="toggleAutoplay()"
+              *ngIf="revealIndex < lastRoundVotes.length - 1">
+        {{ isAutoplaying ? '⏸ Pause' : '▶ Play' }}
       </button>
     </div>
 
