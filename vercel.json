@@ -1,0 +1,6 @@
+{
+  "rewrites": [
+    { "source": "/manual", "destination": "/manual.html" },
+    { "source": "/((?!manual).*)", "destination": "/index.html" }
+  ]
+}
