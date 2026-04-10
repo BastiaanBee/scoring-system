@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Host Manual — MU Worldvision Song Contest</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --gold:     #F5C800;
+      --teal:     #00C4A8;
+      --navy:     #0B1A2E;
+      --navy-mid: #112240;
+      --navy-lt:  #1A3358;
+      --text:     #F0F4FF;
+      --text-2:   #C0CFEA;
+      --muted:    #7888AA;
+      --rule:     rgba(255,255,255,0.08);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      background: var(--navy);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      font-size: 16px;
+      line-height: 1.7;
+    }
+
+    /* ── Header ── */
+    .hero {
+      background: var(--navy-mid);
+      border-bottom: 1px solid var(--rule);
+      padding: 3rem 2rem 2.5rem;
+      text-align: center;
+    }
+
+    .hero-eyebrow {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--teal);
+      margin-bottom: 0.75rem;
+    }
+
+    .hero h1 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(2.5rem, 6vw, 4.5rem);
+      color: var(--gold);
+      letter-spacing: 0.1em;
+      line-height: 1;
+      text-shadow: 0 0 40px rgba(245,200,0,0.3);
+      margin-bottom: 0.5rem;
+    }
+
+    .hero-sub {
+      font-size: 0.95rem;
+      color: var(--muted);
+      font-weight: 500;
+    }
+
+    .badge {
+      display: inline-block;
+      background: rgba(245,200,0,0.12);
+      border: 1px solid rgba(245,200,0,0.3);
+      color: var(--gold);
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      padding: 0.25rem 0.7rem;
+      border-radius: 20px;
+      margin-bottom: 1.2rem;
+    }
+
+    /* ── Layout ── */
+    .container {
+      max-width: 780px;
+      margin: 0 auto;
+      padding: 3rem 2rem 5rem;
+    }
+
+    /* ── Section ── */
+    .section {
+      margin-bottom: 3rem;
+    }
+
+    .section-number {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 4rem;
+      color: rgba(245,200,0,0.12);
+      line-height: 1;
+      margin-bottom: -0.5rem;
+    }
+
+    .section h2 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.7rem;
+      color: var(--gold);
+      letter-spacing: 0.08em;
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--rule);
+    }
+
+    .section p {
+      color: var(--text-2);
+      margin-bottom: 0.75rem;
+      font-size: 0.95rem;
+    }
+
+    /* ── Steps ── */
+    .steps {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      margin-top: 1rem;
+    }
+
+    .step {
+      display: flex;
+      gap: 1rem;
+      align-items: flex-start;
+      background: var(--navy-mid);
+      border: 1px solid var(--rule);
+      border-radius: 8px;
+      padding: 1rem 1.2rem;
+    }
+
+    .step-num {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.4rem;
+      color: var(--teal);
+      min-width: 2rem;
+      line-height: 1.2;
+    }
+
+    .step-body {
+      flex: 1;
+    }
+
+    .step-title {
+      font-weight: 700;
+      font-size: 0.9rem;
+      color: var(--text);
+      margin-bottom: 0.25rem;
+    }
+
+    .step-desc {
+      font-size: 0.875rem;
+      color: var(--text-2);
+      line-height: 1.6;
+    }
+
+    /* ── Tips ── */
+    .tip {
+      background: rgba(0,196,168,0.07);
+      border-left: 3px solid var(--teal);
+      border-radius: 0 6px 6px 0;
+      padding: 0.75rem 1rem;
+      margin-top: 1rem;
+      font-size: 0.875rem;
+      color: var(--text-2);
+    }
+
+    .tip strong {
+      color: var(--teal);
+    }
+
+    .warning {
+      background: rgba(245,200,0,0.07);
+      border-left: 3px solid var(--gold);
+      border-radius: 0 6px 6px 0;
+      padding: 0.75rem 1rem;
+      margin-top: 1rem;
+      font-size: 0.875rem;
+      color: var(--text-2);
+    }
+
+    .warning strong {
+      color: var(--gold);
+    }
+
+    /* ── Tag pills ── */
+    .tag {
+      display: inline-block;
+      background: var(--navy-lt);
+      border: 1px solid var(--rule);
+      color: var(--text-2);
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 0.15rem 0.5rem;
+      border-radius: 4px;
+      font-family: monospace;
+    }
+
+    /* ── Divider ── */
+    .divider {
+      border: none;
+      border-top: 1px solid var(--rule);
+      margin: 2.5rem 0;
+    }
+
+    /* ── Footer ── */
+    footer {
+      text-align: center;
+      padding: 2rem;
+      font-size: 0.8rem;
+      color: var(--muted);
+      border-top: 1px solid var(--rule);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="hero">
+    <div class="badge">Host Manual</div>
+    <div class="hero-eyebrow">✦ Platina32.com ✦</div>
+    <h1>MU Worldvision<br>Song Contest</h1>
+    <p class="hero-sub">Everything you need to run a contest from start to finish.</p>
+  </div>
+
+  <div class="container">
+
+    <!-- Section 1 -->
+    <div class="section">
+      <div class="section-number">01</div>
+      <h2>Before the Contest</h2>
+      <p>Before opening the app, make sure you have collected the following information from all participants:</p>
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">→</div>
+          <div class="step-body">
+            <div class="step-title">Participant name</div>
+            <div class="step-desc">The forum username or display name of each contestant.</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">→</div>
+          <div class="step-body">
+            <div class="step-title">Represented country</div>
+            <div class="step-desc">Each contestant represents one country. No two contestants can share the same country.</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">→</div>
+          <div class="step-body">
+            <div class="step-title">Artist & song title</div>
+            <div class="step-desc">The song entry submitted by each contestant.</div>
+          </div>
+        </div>
+      </div>
+      <div class="tip"><strong>Tip:</strong> Publish all songs to participants before the contest starts so everyone has had a chance to listen before voting begins.</div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- Section 2 -->
+    <div class="section">
+      <div class="section-number">02</div>
+      <h2>Setting Up the Contest</h2>
+      <p>Go to <strong>platina32.com</strong> and click the Song Contest tile to open the app.</p>
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <div class="step-title">Enter a contest title</div>
+            <div class="step-desc">This appears in the scoreboard header and on all exported files. Example: <span class="tag">MU Worldvision Song Contest 47</span></div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <div class="step-title">Choose a scoring system</div>
+            <div class="step-desc">Select Eurovision (12-10-8-7-6-5-4-3-2-1), Formula 1 (25-18-15-12-10-8-6-4-2-1), or define your own custom point values.</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <div class="step-title">Add all contestants</div>
+            <div class="step-desc">Select each contestant's country from the dropdown, then fill in their name, artist, and song. Click <span class="tag">Add Contestant</span> after each one. Already-chosen countries are greyed out automatically.</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">4</div>
+          <div class="step-body">
+            <div class="step-title">Reorder if needed</div>
+            <div class="step-desc">Drag the ⠿ handle on each row to reorder contestants. This controls the voting order. Click <span class="tag">Sort A–Z</span> to sort by country name. The default order is the order contestants were added.</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">5</div>
+          <div class="step-body">
+            <div class="step-title">Click Start Contest</div>
+            <div class="step-desc">The button is enabled once you have enough contestants for the chosen scoring system (number of point positions + 1).</div>
+          </div>
+        </div>
+      </div>
+      <div class="warning"><strong>Note:</strong> You need at least one more contestant than the number of point positions in your scoring system. With Eurovision scoring (10 positions), you need at least 11 contestants.</div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- Section 3 -->
+    <div class="section">
+      <div class="section-number">03</div>
+      <h2>Running the Voting Rounds</h2>
+      <p>Each contestant takes a turn at your screen to cast their votes. The voting panel on the right shows whose turn it is.</p>
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <div class="step-title">Hand the screen to the current voter</div>
+            <div class="step-desc">The voter bar at the top shows who is currently voting. That contestant sits at your computer and assigns points to others using the dropdowns.</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <div class="step-title">All point slots must be filled</div>
+            <div class="step-desc">The Submit button stays disabled until every point value has been assigned to a different contestant. A voter cannot vote for themselves.</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <div class="step-title">Click Submit Votes</div>
+            <div class="step-desc">Votes are locked in. The scoreboard updates immediately in the background, but the display stays unchanged until the reveal.</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">4</div>
+          <div class="step-body">
+            <div class="step-title">Run the reveal sequence</div>
+            <div class="step-desc">Click <span class="tag">▶ Show Reveal</span> to announce the round's points one by one, from lowest to highest. The scoreboard animates live as points are awarded.</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">5</div>
+          <div class="step-body">
+            <div class="step-title">Repeat for each voter</div>
+            <div class="step-desc">The round counter in the header tracks progress. Repeat until all contestants have voted.</div>
+          </div>
+        </div>
+      </div>
+      <div class="tip"><strong>Tip:</strong> After submitting a round, click <span class="tag">🔗 Generate Snapshot Link</span> to create a shareable link that contestants can open on their own devices to watch the reveal independently.</div>
+      <div class="tip"><strong>Tip:</strong> Made a mistake? Click <span class="tag">↩ Undo Last Round</span> to revert the last submitted round and re-enter the votes.</div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- Section 4 -->
+    <div class="section">
+      <div class="section-number">04</div>
+      <h2>Ending the Contest</h2>
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <div class="step-title">After the last round</div>
+            <div class="step-desc">Once the final voter has submitted and the reveal is done, the <span class="tag">🏆 End Contest & Show Results</span> button appears.</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <div class="step-title">Final results screen</div>
+            <div class="step-desc">A podium shows the top 3 contestants, followed by the full final standings table.</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <div class="step-title">Save & share results</div>
+            <div class="step-desc">Click <span class="tag">💾 Save Results</span> to store results locally for later. Click <span class="tag">🔗 Share Final Results</span> to generate a shareable link. Click <span class="tag">📊 Export to Spreadsheet</span> to download an Excel file.</div>
+          </div>
+        </div>
+      </div>
+      <div class="tip"><strong>Tip:</strong> Saved results can be viewed later from the setup page via the <span class="tag">📋 View Previously Finished Contest</span> button — and reused to start a new contest with the same participants.</div>
+    </div>
+
+  </div>
+
+  <footer>
+    ✦ Made by Platina32 ✦ &nbsp;|&nbsp; platina32.com
+  </footer>
+
+</body>
+</html>

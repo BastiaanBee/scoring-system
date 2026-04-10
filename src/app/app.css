@@ -529,6 +529,27 @@ body {
   color: #C0CFEA;
 }
 
+/* Help/manual button in the setup page header */
+.help-btn {
+  position: absolute;
+  right: 1.5rem;
+  top: 1rem;
+  background: transparent;
+  border: 1px solid var(--muted);
+  color: var(--muted);
+  border-radius: 6px;
+  padding: 0.3rem 0.75rem;
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-family: 'Inter', sans-serif;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.help-btn:hover {
+  border-color: var(--gold);
+  color: var(--gold);
+}
+
 /* ─────────────────────────────────────────
    VOTER BAR
    Strip below the header showing the
