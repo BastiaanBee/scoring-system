@@ -368,6 +368,15 @@ export class App implements OnInit {
     if (!this.devMode) this.saveState();
   }
 
+  // Shuffles the contestant list randomly using Fisher-Yates algorithm.
+  shuffleContestants() {
+    for (let i = this.contestants.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [this.contestants[i], this.contestants[j]] = [this.contestants[j], this.contestants[i]];
+    }
+    if (!this.devMode) this.saveState();
+  }
+
   // Populates the form fields with the selected contestant's data for editing.
   editContestant(index: number) {
     const c = this.contestants[index];

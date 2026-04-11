@@ -346,12 +346,17 @@ body {
 }
 
 .contestant-preview-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
   font-size: 0.60rem;
   font-weight: 700;
   letter-spacing: 0.25em;
   text-transform: uppercase;
   color: var(--muted);
   margin-bottom: 0.5rem;
+  user-select: none;
 }
 
 .contestant-preview-row {
@@ -428,7 +433,6 @@ body {
   padding: 0.2rem 0.6rem;
   cursor: pointer;
   font-size: 0.75rem;
-  margin-left: 0.75rem;
   transition: border-color 0.15s, color 0.15s;
 }
 

@@ -118,6 +118,7 @@
         <div class="contestant-preview-header">
           {{ contestants.length }} contestant(s) added — drag to reorder
           <button class="btn-sort" (click)="sortContestantsAlphabetically()">Sort A–Z</button>
+          <button class="btn-sort" (click)="shuffleContestants()">Shuffle</button>
         </div>
         <!-- Drag-and-drop list — cdkDropList wraps the list, cdkDrag marks each row -->
         <div cdkDropList (cdkDropListDropped)="dropContestant($event)">
