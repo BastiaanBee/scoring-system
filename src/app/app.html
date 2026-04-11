@@ -598,7 +598,7 @@
 
     <!-- Back button + reuse participants button -->
     <div class="contest-over-actions">
-      <button class="contest-over-btn back-btn" (click)="showPreviousContest = false">
+      <button class="contest-over-btn back-btn" (click)="closePreviousContest()">
         ← Back
       </button>
       <button class="contest-over-btn" style="width:auto" (click)="generatePreviousContestSnapshot()"

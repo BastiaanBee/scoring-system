@@ -49,6 +49,11 @@ body {
   min-height: 100vh;
 }
 
+/* Prevent scrolling when overlay is open */
+body.overflow-hidden {
+  overflow: hidden;
+}
+
 /* ─────────────────────────────────────────
    PAGE
    The root container for both the setup
@@ -498,6 +503,7 @@ body {
   padding: 1rem 1.5rem;
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 1rem;
   margin-bottom: 1rem;
   font-family: 'Inter', sans-serif;

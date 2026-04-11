@@ -1033,9 +1033,16 @@ export class App implements OnInit {
     try {
       this.previousContest     = JSON.parse(raw);
       this.showPreviousContest = true;
+      document.body.classList.add('overflow-hidden');
     } catch {
       console.error('Failed to load previous contest');
     }
+  }
+
+  // Closes the previous contest overlay.
+  closePreviousContest() {
+    this.showPreviousContest = false;
+    document.body.classList.remove('overflow-hidden');
   }
 
   // Loads the participants from the previous finished contest into the
@@ -1056,7 +1063,7 @@ export class App implements OnInit {
     }));
 
     // Close the overlay and return to setup page.
-    this.showPreviousContest = false;
+    this.closePreviousContest();
     this.setupComplete       = false;
     this.contestOver         = false;
     this.voterOrder          = [];
