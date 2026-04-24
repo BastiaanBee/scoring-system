@@ -48,6 +48,11 @@
                 "glob": "enemy1.gif",
                 "input": "src/app/shooter",
                 "output": "assets/shooter"
+              },
+              {
+                "glob": "Sector Patrol.mp3",
+                "input": "src/app/shooter",
+                "output": "assets/shooter"
               }
             ],
             "styles": [

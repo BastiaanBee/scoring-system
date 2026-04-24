@@ -26,7 +26,7 @@ interface Enemy {
 }
 
 type PlayerSpriteDirection = 'center' | 'left' | 'right';
-type GameState = 'menu' | 'playing' | 'paused';
+type GameState = 'menu' | 'briefing' | 'playing' | 'paused';
 
 @Component({
   selector: 'app-shooter',
@@ -83,6 +83,8 @@ export class ShooterComponent implements AfterViewInit, OnDestroy {
   private readonly fireSpriteHeight = 24;
   private readonly fireSpriteFallbackWidth = 12;
 
+  private readonly levelMusic = new Audio('/assets/shooter/Sector%20Patrol.mp3');
+
   private enemyGifLoaded = false;
   private enemyAnimationFrames: ImageBitmap[] = [];
   private enemyAnimationFrameDurationMs = 80;
@@ -105,6 +107,8 @@ export class ShooterComponent implements AfterViewInit, OnDestroy {
   private lastTimestamp = 0;
   private fireCooldown = 0;
   private score = 0;
+  private shields = 3;
+  private integrity = 100;
 
   private readonly bulletSpeed = 500;
   private readonly fireIntervalSeconds = 0.12;
@@ -112,8 +116,13 @@ export class ShooterComponent implements AfterViewInit, OnDestroy {
   private readonly enemySpeed = 72;
   private readonly enemyHitPoints = 5;
   private readonly enemyKillScore = 1000;
+  private readonly enemyCollisionScorePenalty = 500;
+  private readonly maxShields = 3;
+  private readonly integrityDamagePerHit = 20;
+  private readonly shieldRechargeIntervalSeconds = 15;
   private readonly playerBottomOffset = 28;
   private enemySpawnTimer = this.enemySpawnIntervalSeconds;
+  private shieldRechargeTimer = this.shieldRechargeIntervalSeconds;
 
   private readonly onWindowResize = () => {
     this.resizeCanvas();
@@ -126,11 +135,12 @@ export class ShooterComponent implements AfterViewInit, OnDestroy {
         this.keysPressed.clear();
         this.gameState = 'paused';
         this.menuFocusIndex = 0;
+        this.pauseLevelMusic();
         this.cdr.markForCheck();
       } else if (this.gameState === 'paused') {
-        this.gameState = 'playing';
-        this.lastTimestamp = 0;
-        this.cdr.markForCheck();
+        this.resumeGame();
+      } else if (this.gameState === 'briefing') {
+        this.returnToMainMenu();
       }
       return;
     }
@@ -163,13 +173,24 @@ export class ShooterComponent implements AfterViewInit, OnDestroy {
   };
 
   goHome(): void {
+    this.stopLevelMusic();
     this.router.navigate(['/']);
+  }
+
+  openMissionBriefing(): void {
+    this.stopLevelMusic();
+    this.helpOpen = false;
+    this.menuFocusIndex = 0;
+    this.gameState = 'briefing';
   }
 
   startNewGame(): void {
     this.bullets = [];
     this.enemies = [];
     this.score = 0;
+    this.shields = this.maxShields;
+    this.integrity = 100;
+    this.shieldRechargeTimer = this.shieldRechargeIntervalSeconds;
     this.enemySpawnTimer = this.enemySpawnIntervalSeconds;
     this.fireCooldown = 0;
     this.lastTimestamp = 0;
@@ -178,6 +199,7 @@ export class ShooterComponent implements AfterViewInit, OnDestroy {
     this.keysPressed.clear();
     this.helpOpen = false;
     this.gameState = 'playing';
+    this.playLevelMusic(true);
   }
 
   loadGame(): void {
@@ -187,6 +209,7 @@ export class ShooterComponent implements AfterViewInit, OnDestroy {
   resumeGame(): void {
     this.gameState = 'playing';
     this.lastTimestamp = 0;
+    this.playLevelMusic(false);
     this.cdr.markForCheck();
   }
 
@@ -194,11 +217,15 @@ export class ShooterComponent implements AfterViewInit, OnDestroy {
     this.bullets = [];
     this.enemies = [];
     this.score = 0;
+    this.shields = this.maxShields;
+    this.integrity = 100;
+    this.shieldRechargeTimer = this.shieldRechargeIntervalSeconds;
     this.enemySpawnTimer = this.enemySpawnIntervalSeconds;
     this.keysPressed.clear();
     this.helpOpen = false;
     this.menuFocusIndex = 0;
     this.gameState = 'menu';
+    this.stopLevelMusic();
     this.cdr.markForCheck();
   }
 
@@ -220,9 +247,12 @@ export class ShooterComponent implements AfterViewInit, OnDestroy {
     }
     if (this.gameState === 'menu') {
       return [
-        { action: () => this.startNewGame() },
+        { action: () => this.openMissionBriefing() },
         { action: () => this.toggleHelp() },
       ];
+    }
+    if (this.gameState === 'briefing') {
+      return [{ action: () => this.startNewGame() }];
     }
     return [];
   }
@@ -234,6 +264,10 @@ export class ShooterComponent implements AfterViewInit, OnDestroy {
     if (!this.context) {
       return;
     }
+
+    this.levelMusic.loop = true;
+    this.levelMusic.volume = 0.45;
+    this.levelMusic.preload = 'auto';
 
     void this.loadEnemyAnimationFrames();
     this.loadPlayerSprite();
@@ -248,6 +282,7 @@ export class ShooterComponent implements AfterViewInit, OnDestroy {
     this.detachInputListeners();
     this.resizeObserver?.disconnect();
     this.resizeObserver = null;
+    this.stopLevelMusic();
     for (const frame of this.enemyAnimationFrames) {
       frame.close();
     }
@@ -315,10 +350,12 @@ export class ShooterComponent implements AfterViewInit, OnDestroy {
     }
 
     this.enemyAnimationClockMs += deltaSeconds * 1000;
+    this.updateShieldRecharge(deltaSeconds);
 
     this.updateBullets(deltaSeconds);
     this.updateEnemies(deltaSeconds);
     this.handleProjectileEnemyCollisions();
+    this.handleEnemyPlayerCollisions();
   }
 
   private updatePlayer(deltaSeconds: number): void {
@@ -485,6 +522,66 @@ export class ShooterComponent implements AfterViewInit, OnDestroy {
     }
 
     this.bullets = remainingBullets;
+  }
+
+  private handleEnemyPlayerCollisions(): void {
+    if (this.enemies.length === 0) {
+      return;
+    }
+
+    const enemySource = this.getEnemyFrameSource();
+    const enemyWidth = enemySource
+      ? this.getScaledWidthFromHeight(
+          enemySource,
+          this.enemySpriteHeight,
+          this.enemySpriteFallbackWidth,
+        )
+      : this.enemySpriteFallbackWidth;
+    const halfEnemyWidth = enemyWidth / 2;
+    const halfEnemyHeight = this.enemySpriteHeight / 2;
+
+    const remainingEnemies: Enemy[] = [];
+
+    for (const enemy of this.enemies) {
+      const overlapsPlayer =
+        this.player.x + this.player.radius >= enemy.x - halfEnemyWidth &&
+        this.player.x - this.player.radius <= enemy.x + halfEnemyWidth &&
+        this.player.y + this.player.radius >= enemy.y - halfEnemyHeight &&
+        this.player.y - this.player.radius <= enemy.y + halfEnemyHeight;
+
+      if (overlapsPlayer) {
+        this.applyPlayerHit();
+      } else {
+        remainingEnemies.push(enemy);
+      }
+    }
+
+    this.enemies = remainingEnemies;
+  }
+
+  private updateShieldRecharge(deltaSeconds: number): void {
+    if (this.shields >= this.maxShields) {
+      this.shieldRechargeTimer = this.shieldRechargeIntervalSeconds;
+      return;
+    }
+
+    this.shieldRechargeTimer -= deltaSeconds;
+    while (this.shieldRechargeTimer <= 0 && this.shields < this.maxShields) {
+      this.shields += 1;
+      this.shieldRechargeTimer += this.shieldRechargeIntervalSeconds;
+    }
+  }
+
+  private applyPlayerHit(): void {
+    this.score = Math.max(0, this.score - this.enemyCollisionScorePenalty);
+
+    if (this.shields > 0) {
+      this.shields -= 1;
+      this.shieldRechargeTimer = this.shieldRechargeIntervalSeconds;
+      return;
+    }
+
+    this.integrity = Math.max(0, this.integrity - this.integrityDamagePerHit);
   }
 
   private render(): void {
@@ -748,13 +845,69 @@ export class ShooterComponent implements AfterViewInit, OnDestroy {
     ctx.textBaseline = 'top';
     ctx.shadowColor = 'rgba(0, 255, 220, 0.45)';
     ctx.shadowBlur = 4;
+    ctx.textAlign = 'left';
 
     const scoreText = `SCORE: ${this.score.toString().padStart(9, '0')}`;
     ctx.fillText(scoreText, 16, 16);
     ctx.fillText('Press ESC for Main Menu', 16, 36);
     ctx.fillText('LEVEL 01', 16, 56);
 
+    const hudRightX = this.width - 16;
+    const shieldWarningAlpha = this.shields === 0 ? this.getWarningBlinkAlpha() : 1;
+    const integrityWarningAlpha = this.integrity < 50 ? this.getWarningBlinkAlpha() : 1;
+
+    ctx.globalAlpha = shieldWarningAlpha;
+    ctx.textAlign = 'right';
+    ctx.fillText('SHIELDS', hudRightX, 16);
+
+    const shieldBlockWidth = 22;
+    const shieldBlockHeight = 9;
+    const shieldBlockGap = 5;
+    const totalShieldWidth =
+      this.maxShields * shieldBlockWidth + (this.maxShields - 1) * shieldBlockGap;
+    const shieldStartX = hudRightX - totalShieldWidth;
+
+    for (let i = 0; i < this.maxShields; i += 1) {
+      const blockX = shieldStartX + i * (shieldBlockWidth + shieldBlockGap);
+      const blockY = 31;
+
+      ctx.fillStyle = i < this.shields ? '#53f7ff' : 'rgba(83, 247, 255, 0.15)';
+      ctx.fillRect(blockX, blockY, shieldBlockWidth, shieldBlockHeight);
+      ctx.strokeStyle = 'rgba(0, 255, 220, 0.75)';
+      ctx.lineWidth = 1;
+      ctx.strokeRect(blockX + 0.5, blockY + 0.5, shieldBlockWidth - 1, shieldBlockHeight - 1);
+    }
+
+    ctx.globalAlpha = integrityWarningAlpha;
+    ctx.fillStyle = '#7dffdf';
+    const integrityText = `INTEGRITY: ${this.integrity.toString().padStart(3, '0')}%`;
+    ctx.fillText(integrityText, hudRightX, 49);
+
     ctx.restore();
+  }
+
+  private getWarningBlinkAlpha(): number {
+    const phase = Math.sin((this.enemyAnimationClockMs / 1400) * Math.PI * 2);
+    return 0.35 + ((phase + 1) / 2) * 0.65;
+  }
+
+  private playLevelMusic(restart: boolean): void {
+    if (restart) {
+      this.levelMusic.currentTime = 0;
+    }
+
+    void this.levelMusic.play().catch(() => {
+      // Browser autoplay policies may defer playback until explicit user interaction.
+    });
+  }
+
+  private pauseLevelMusic(): void {
+    this.levelMusic.pause();
+  }
+
+  private stopLevelMusic(): void {
+    this.levelMusic.pause();
+    this.levelMusic.currentTime = 0;
   }
 
   private loadPlayerSprite(): void {

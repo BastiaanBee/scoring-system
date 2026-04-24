@@ -4,6 +4,27 @@
   <section class="game-shell" aria-label="Top-down shooter game area">
     <canvas #gameCanvas class="game-canvas"></canvas>
 
+    @if (gameState === 'briefing') {
+      <div class="briefing-overlay" role="dialog" aria-modal="true" aria-label="Mission briefing">
+        <div class="briefing-panel">
+          <p class="briefing-label">ITC TRANSMISSION // KAVETH SECTOR</p>
+          <div class="briefing-scroll-window">
+            <p class="briefing-scroll-text">
+              The year is 2387. As part of the Interstellar Trade Compact (ITC), Rael Danner patrols
+              Directorate Seventeen in the Kaveth Sector, a usually quiet stretch of space along the
+              Bellas Corridor trade route. Suddenly, alerts jolt him awake in his cockpit, as his radar
+              picks up several anomalies headed his way. <br><br>
+              Prepare for mission start...
+            </p>
+          </div>
+          <div class="briefing-actions">
+            <button class="menu-btn menu-btn--primary" (click)="startNewGame()">▶ Deploy</button>
+            <button class="menu-btn" (click)="returnToMainMenu()">← Back to Main Menu</button>
+          </div>
+        </div>
+      </div>
+    }
+
     @if (gameState === 'paused') {
       <div class="pause-overlay" role="dialog" aria-modal="true" aria-label="Game paused">
         <div class="menu-panel">
@@ -25,7 +46,7 @@
 
           @if (!helpOpen) {
             <div class="menu-buttons">
-              <button class="menu-btn menu-btn--primary" (click)="startNewGame()">▶ New Game</button>
+              <button class="menu-btn menu-btn--primary" (click)="openMissionBriefing()">▶ New Game</button>
               <button class="menu-btn menu-btn--disabled" (click)="loadGame()" aria-disabled="true">⬛ Load Game</button>
               <button class="menu-btn" (click)="toggleHelp()">? Help</button>
               <div class="menu-divider"></div>
