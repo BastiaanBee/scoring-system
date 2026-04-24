@@ -20,8 +20,34 @@
             "tsConfig": "tsconfig.app.json",
             "assets": [
               {
-                "glob": "**/*",
-                "input": "public"
+                  "glob": "player_1*.png",
+                "input": "src/app/shooter",
+                "output": "assets/shooter"
+              },
+              {
+                "glob": "boost1.png",
+                "input": "src/app/shooter",
+                "output": "assets/shooter"
+              },
+              {
+                "glob": "fire1.png",
+                "input": "src/app/shooter",
+                "output": "assets/shooter"
+              },
+              {
+                "glob": "bg1.png",
+                "input": "src/app/shooter",
+                "output": "assets/shooter"
+              },
+              {
+                "glob": "mainmenu.png",
+                "input": "src/app/shooter",
+                "output": "assets/shooter"
+              },
+              {
+                "glob": "enemy1.gif",
+                "input": "src/app/shooter",
+                "output": "assets/shooter"
               }
             ],
             "styles": [

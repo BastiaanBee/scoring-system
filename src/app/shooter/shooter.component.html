@@ -1,0 +1,54 @@
+<div class="shooter-page">
+  <button class="home-btn" (click)="goHome()">Home</button>
+
+  <section class="game-shell" aria-label="Top-down shooter game area">
+    <canvas #gameCanvas class="game-canvas"></canvas>
+
+    @if (gameState === 'paused') {
+      <div class="pause-overlay" role="dialog" aria-modal="true" aria-label="Game paused">
+        <div class="menu-panel">
+          <p class="menu-title">PAUSED</p>
+          <div class="menu-buttons">
+            <button class="menu-btn menu-btn--primary" (click)="resumeGame()">▶ Resume</button>
+            <button class="menu-btn" (click)="startNewGame()">↺ New Game</button>
+            <button class="menu-btn" (click)="returnToMainMenu()">⌂ Main Menu</button>
+          </div>
+        </div>
+      </div>
+    }
+
+    @if (gameState === 'menu') {
+      <div class="menu-overlay" role="dialog" aria-modal="true" aria-label="Main menu">
+        <div class="menu-panel">
+          <p class="menu-title">SECTOR PATROL</p>
+          <p class="menu-subtitle">── MAIN MENU ──</p>
+
+          @if (!helpOpen) {
+            <div class="menu-buttons">
+              <button class="menu-btn menu-btn--primary" (click)="startNewGame()">▶ New Game</button>
+              <button class="menu-btn menu-btn--disabled" (click)="loadGame()" aria-disabled="true">⬛ Load Game</button>
+              <button class="menu-btn" (click)="toggleHelp()">? Help</button>
+              <div class="menu-divider"></div>
+              <button class="menu-btn menu-btn--toggle" disabled>♪ Music : On</button>
+              <button class="menu-btn menu-btn--toggle" disabled>◈ SFX : On</button>
+            </div>
+          }
+
+          @if (helpOpen) {
+            <div class="help-panel">
+              <p class="help-title">── CONTROLS ──</p>
+              <ul class="help-list">
+                <li><span class="help-key">W / 🡱</span> Fly forward</li>
+                <li><span class="help-key">S / 🡳</span> Fly backward</li>
+                <li><span class="help-key">A / 🡰</span> Strafe left</li>
+                <li><span class="help-key">D / 🡲</span> Strafe right</li>
+                <li><span class="help-key">Space</span> Fire</li>
+              </ul>
+              <button class="menu-btn menu-btn--back" (click)="toggleHelp()">← Back</button>
+            </div>
+          }
+        </div>
+      </div>
+    }
+  </section>
+</div>

@@ -19,4 +19,8 @@ export class HomeComponent {
   start() {
     this.router.navigate(['/contest']);
   }
+
+  openShooter() {
+    this.router.navigate(['/shooter']);
+  }
 }
