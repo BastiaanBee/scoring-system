@@ -38,6 +38,19 @@
       </div>
     }
 
+    @if (gameState === 'levelComplete') {
+      <div class="level-complete-overlay" role="dialog" aria-modal="true" aria-label="Level complete">
+        <div class="menu-panel">
+          <p class="menu-title">LEVEL 01 CLEAR</p>
+          <p class="menu-subtitle">── SECTOR SECURED ──</p>
+          <div class="menu-buttons">
+            <button class="menu-btn menu-btn--primary" (click)="startNewGame()">▶ Replay Level 1</button>
+            <button class="menu-btn" (click)="returnToMainMenu()">⌂ Main Menu</button>
+          </div>
+        </div>
+      </div>
+    }
+
     @if (gameState === 'menu') {
       <div class="menu-overlay" role="dialog" aria-modal="true" aria-label="Main menu">
         <div class="menu-panel">
@@ -50,7 +63,9 @@
               <button class="menu-btn menu-btn--disabled" (click)="loadGame()" aria-disabled="true">⬛ Load Game</button>
               <button class="menu-btn" (click)="toggleHelp()">? Help</button>
               <div class="menu-divider"></div>
-              <button class="menu-btn menu-btn--toggle" disabled>♪ Music : On</button>
+              <button class="menu-btn menu-btn--toggle" [class.menu-btn--toggle-off]="!musicEnabled" (click)="toggleMusic()">
+                ♪ Music : {{ musicEnabled ? 'On' : 'Off' }}
+              </button>
               <button class="menu-btn menu-btn--toggle" disabled>◈ SFX : On</button>
             </div>
           }

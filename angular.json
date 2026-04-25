@@ -53,6 +53,11 @@
                 "glob": "Sector Patrol.mp3",
                 "input": "src/app/shooter",
                 "output": "assets/shooter"
+              },
+              {
+                "glob": "Victory.mp3",
+                "input": "src/app/shooter",
+                "output": "assets/shooter"
               }
             ],
             "styles": [

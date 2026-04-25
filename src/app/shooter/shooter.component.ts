@@ -25,8 +25,13 @@ interface Enemy {
   hp: number;
 }
 
+interface SpawnStep {
+  timeFromStartSeconds: number;
+  xRatio: number;
+}
+
 type PlayerSpriteDirection = 'center' | 'left' | 'right';
-type GameState = 'menu' | 'briefing' | 'playing' | 'paused';
+type GameState = 'menu' | 'briefing' | 'playing' | 'paused' | 'levelEnding' | 'levelComplete';
 
 @Component({
   selector: 'app-shooter',
@@ -84,6 +89,8 @@ export class ShooterComponent implements AfterViewInit, OnDestroy {
   private readonly fireSpriteFallbackWidth = 12;
 
   private readonly levelMusic = new Audio('/assets/shooter/Sector%20Patrol.mp3');
+  private readonly victoryMusic = new Audio('/assets/shooter/Victory.mp3');
+  private retryVictoryOnNextGesture = false;
 
   private enemyGifLoaded = false;
   private enemyAnimationFrames: ImageBitmap[] = [];
@@ -109,26 +116,44 @@ export class ShooterComponent implements AfterViewInit, OnDestroy {
   private score = 0;
   private shields = 3;
   private integrity = 100;
+  private levelNumber = 1;
+  private levelElapsedSeconds = 0;
+  private nextSpawnIndex = 0;
+  private level1SpawnedCount = 0;
+  private level1DestroyedCount = 0;
+  private level1EscapedCount = 0;
+  private isPlayerInputLocked = false;
+  private levelEndingVelocityY = 0;
+  protected musicEnabled = true;
 
   private readonly bulletSpeed = 500;
   private readonly fireIntervalSeconds = 0.12;
-  private readonly enemySpawnIntervalSeconds = 2.8;
-  private readonly enemySpeed = 72;
+  private readonly enemySpeed = 88;
   private readonly enemyHitPoints = 5;
   private readonly enemyKillScore = 1000;
+  private readonly enemyEscapeScorePenalty = this.enemyKillScore / 2;
   private readonly enemyCollisionScorePenalty = 500;
   private readonly maxShields = 3;
   private readonly integrityDamagePerHit = 20;
   private readonly shieldRechargeIntervalSeconds = 15;
   private readonly playerBottomOffset = 28;
-  private enemySpawnTimer = this.enemySpawnIntervalSeconds;
   private shieldRechargeTimer = this.shieldRechargeIntervalSeconds;
+  private readonly levelEndingInitialSpeed = 300;
+  private readonly levelEndingAcceleration = 620;
+  private readonly levelEndingScrollMultiplier = 1.55;
+  private readonly level1MaxSpawns = 50;
+  private level1SpawnSchedule: SpawnStep[] = [];
 
   private readonly onWindowResize = () => {
     this.resizeCanvas();
   };
 
   private readonly onWindowKeyDown = (event: KeyboardEvent) => {
+    if (this.retryVictoryOnNextGesture && (event.code === 'Enter' || event.code === 'Space')) {
+      this.retryVictoryOnNextGesture = false;
+      this.playVictoryMusic(false);
+    }
+
     if (event.code === 'Escape') {
       event.preventDefault();
       if (this.gameState === 'playing') {
@@ -141,11 +166,19 @@ export class ShooterComponent implements AfterViewInit, OnDestroy {
         this.resumeGame();
       } else if (this.gameState === 'briefing') {
         this.returnToMainMenu();
+      } else if (this.gameState === 'levelComplete') {
+        this.returnToMainMenu();
       }
       return;
     }
 
-    if (this.gameState !== 'playing') {
+    const canNavigateMenu =
+      this.gameState === 'menu' ||
+      this.gameState === 'paused' ||
+      this.gameState === 'briefing' ||
+      this.gameState === 'levelComplete';
+
+    if (canNavigateMenu) {
       if (event.code === 'ArrowUp' || event.code === 'ArrowDown' || event.code === 'Enter') {
         event.preventDefault();
         const items = this.activeMenuItems;
@@ -161,6 +194,10 @@ export class ShooterComponent implements AfterViewInit, OnDestroy {
       }
     }
 
+    if (this.gameState !== 'playing') {
+      return;
+    }
+
     this.keysPressed.add(event.code);
 
     if (event.code === 'Space') {
@@ -172,26 +209,47 @@ export class ShooterComponent implements AfterViewInit, OnDestroy {
     this.keysPressed.delete(event.code);
   };
 
+  private readonly onWindowPointerDown = () => {
+    if (!this.retryVictoryOnNextGesture) {
+      return;
+    }
+
+    this.retryVictoryOnNextGesture = false;
+    this.playVictoryMusic(false);
+  };
+
   goHome(): void {
     this.stopLevelMusic();
+    this.stopVictoryMusic();
     this.router.navigate(['/']);
   }
 
   openMissionBriefing(): void {
-    this.stopLevelMusic();
+    this.stopVictoryMusic();
+    this.playLevelMusic(true);
     this.helpOpen = false;
     this.menuFocusIndex = 0;
     this.gameState = 'briefing';
   }
 
   startNewGame(): void {
+    const cameFromBriefing = this.gameState === 'briefing';
+
     this.bullets = [];
     this.enemies = [];
     this.score = 0;
+    this.levelNumber = 1;
+    this.levelElapsedSeconds = 0;
+    this.nextSpawnIndex = 0;
+    this.level1SpawnedCount = 0;
+    this.level1DestroyedCount = 0;
+    this.level1EscapedCount = 0;
+    this.level1SpawnSchedule = this.buildLevel1SpawnSchedule();
+    this.isPlayerInputLocked = false;
+    this.levelEndingVelocityY = 0;
     this.shields = this.maxShields;
     this.integrity = 100;
     this.shieldRechargeTimer = this.shieldRechargeIntervalSeconds;
-    this.enemySpawnTimer = this.enemySpawnIntervalSeconds;
     this.fireCooldown = 0;
     this.lastTimestamp = 0;
     this.player.x = this.width / 2;
@@ -199,7 +257,8 @@ export class ShooterComponent implements AfterViewInit, OnDestroy {
     this.keysPressed.clear();
     this.helpOpen = false;
     this.gameState = 'playing';
-    this.playLevelMusic(true);
+    this.stopVictoryMusic();
+    this.playLevelMusic(!cameFromBriefing);
   }
 
   loadGame(): void {
@@ -217,21 +276,48 @@ export class ShooterComponent implements AfterViewInit, OnDestroy {
     this.bullets = [];
     this.enemies = [];
     this.score = 0;
+    this.levelNumber = 1;
+    this.levelElapsedSeconds = 0;
+    this.nextSpawnIndex = 0;
+    this.level1SpawnedCount = 0;
+    this.level1DestroyedCount = 0;
+    this.level1EscapedCount = 0;
+    this.isPlayerInputLocked = false;
+    this.levelEndingVelocityY = 0;
     this.shields = this.maxShields;
     this.integrity = 100;
     this.shieldRechargeTimer = this.shieldRechargeIntervalSeconds;
-    this.enemySpawnTimer = this.enemySpawnIntervalSeconds;
     this.keysPressed.clear();
     this.helpOpen = false;
     this.menuFocusIndex = 0;
     this.gameState = 'menu';
     this.stopLevelMusic();
+    this.stopVictoryMusic();
     this.cdr.markForCheck();
   }
 
   toggleHelp(): void {
     this.helpOpen = !this.helpOpen;
     this.menuFocusIndex = 0;
+  }
+
+  toggleMusic(): void {
+    this.musicEnabled = !this.musicEnabled;
+
+    if (!this.musicEnabled) {
+      this.stopLevelMusic();
+      this.stopVictoryMusic();
+      return;
+    }
+
+    if (this.gameState === 'levelEnding' || this.gameState === 'levelComplete') {
+      this.playVictoryMusic(false);
+      return;
+    }
+
+    if (this.gameState === 'briefing' || this.gameState === 'playing' || this.gameState === 'paused') {
+      this.playLevelMusic(false);
+    }
   }
 
   private get activeMenuItems(): Array<{ action: () => void }> {
@@ -254,6 +340,12 @@ export class ShooterComponent implements AfterViewInit, OnDestroy {
     if (this.gameState === 'briefing') {
       return [{ action: () => this.startNewGame() }];
     }
+    if (this.gameState === 'levelComplete') {
+      return [
+        { action: () => this.startNewGame() },
+        { action: () => this.returnToMainMenu() },
+      ];
+    }
     return [];
   }
 
@@ -268,6 +360,9 @@ export class ShooterComponent implements AfterViewInit, OnDestroy {
     this.levelMusic.loop = true;
     this.levelMusic.volume = 0.45;
     this.levelMusic.preload = 'auto';
+    this.victoryMusic.loop = false;
+    this.victoryMusic.volume = 0.52;
+    this.victoryMusic.preload = 'auto';
 
     void this.loadEnemyAnimationFrames();
     this.loadPlayerSprite();
@@ -283,6 +378,7 @@ export class ShooterComponent implements AfterViewInit, OnDestroy {
     this.resizeObserver?.disconnect();
     this.resizeObserver = null;
     this.stopLevelMusic();
+    this.stopVictoryMusic();
     for (const frame of this.enemyAnimationFrames) {
       frame.close();
     }
@@ -315,12 +411,14 @@ export class ShooterComponent implements AfterViewInit, OnDestroy {
     window.addEventListener('resize', this.onWindowResize);
     window.addEventListener('keydown', this.onWindowKeyDown);
     window.addEventListener('keyup', this.onWindowKeyUp);
+    window.addEventListener('pointerdown', this.onWindowPointerDown);
   }
 
   private detachInputListeners(): void {
     window.removeEventListener('resize', this.onWindowResize);
     window.removeEventListener('keydown', this.onWindowKeyDown);
     window.removeEventListener('keyup', this.onWindowKeyUp);
+    window.removeEventListener('pointerdown', this.onWindowPointerDown);
   }
 
   private attachResizeObserver(): void {
@@ -335,12 +433,22 @@ export class ShooterComponent implements AfterViewInit, OnDestroy {
   }
 
   private update(deltaSeconds: number): void {
-    if (this.gameState !== 'playing') {
+    if (this.gameState !== 'playing' && this.gameState !== 'levelEnding') {
       return;
     }
 
+    const scrollMultiplier = this.gameState === 'levelEnding' ? this.levelEndingScrollMultiplier : 1;
     this.backgroundScrollOffset =
-      (this.backgroundScrollOffset + this.backgroundScrollSpeed * deltaSeconds) % this.height;
+      (this.backgroundScrollOffset + this.backgroundScrollSpeed * scrollMultiplier * deltaSeconds) % this.height;
+
+    this.enemyAnimationClockMs += deltaSeconds * 1000;
+
+    if (this.gameState === 'levelEnding') {
+      this.updateLevelEnding(deltaSeconds);
+      return;
+    }
+
+    this.levelElapsedSeconds += deltaSeconds;
 
     this.updatePlayer(deltaSeconds);
 
@@ -349,16 +457,20 @@ export class ShooterComponent implements AfterViewInit, OnDestroy {
       this.tryFire();
     }
 
-    this.enemyAnimationClockMs += deltaSeconds * 1000;
     this.updateShieldRecharge(deltaSeconds);
 
     this.updateBullets(deltaSeconds);
     this.updateEnemies(deltaSeconds);
     this.handleProjectileEnemyCollisions();
     this.handleEnemyPlayerCollisions();
+    this.tryStartLevelEnding();
   }
 
   private updatePlayer(deltaSeconds: number): void {
+    if (this.isPlayerInputLocked) {
+      return;
+    }
+
     let dx = 0;
     let dy = 0;
 
@@ -401,6 +513,10 @@ export class ShooterComponent implements AfterViewInit, OnDestroy {
   }
 
   private tryFire(): void {
+    if (this.isPlayerInputLocked) {
+      return;
+    }
+
     if (this.fireCooldown > 0) {
       return;
     }
@@ -436,21 +552,38 @@ export class ShooterComponent implements AfterViewInit, OnDestroy {
   }
 
   private updateEnemies(deltaSeconds: number): void {
-    this.enemySpawnTimer -= deltaSeconds;
-    while (this.enemySpawnTimer <= 0) {
-      this.spawnEnemy();
-      this.enemySpawnTimer += this.enemySpawnIntervalSeconds;
+    while (this.nextSpawnIndex < this.level1SpawnSchedule.length) {
+      const step = this.level1SpawnSchedule[this.nextSpawnIndex];
+      if (step.timeFromStartSeconds > this.levelElapsedSeconds) {
+        break;
+      }
+
+      this.spawnEnemyAtRatio(step.xRatio);
+      this.nextSpawnIndex += 1;
+      this.level1SpawnedCount += 1;
     }
 
-    this.enemies = this.enemies
-      .map((enemy) => ({
+    const remainingEnemies: Enemy[] = [];
+    for (const enemy of this.enemies) {
+      const updatedEnemy = {
         ...enemy,
         y: enemy.y + enemy.vy * deltaSeconds,
-      }))
-      .filter((enemy) => enemy.y - this.enemySpriteHeight / 2 <= this.height + 20);
+      };
+
+      const escapedBottom = updatedEnemy.y - this.enemySpriteHeight / 2 > this.height + 20;
+      if (escapedBottom) {
+        this.level1EscapedCount += 1;
+        this.score = Math.max(0, this.score - this.enemyEscapeScorePenalty);
+        continue;
+      }
+
+      remainingEnemies.push(updatedEnemy);
+    }
+
+    this.enemies = remainingEnemies;
   }
 
-  private spawnEnemy(): void {
+  private spawnEnemyAtRatio(xRatio: number): void {
     const enemySource = this.getEnemyFrameSource();
     const enemyWidth = enemySource
       ? this.getScaledWidthFromHeight(
@@ -462,7 +595,8 @@ export class ShooterComponent implements AfterViewInit, OnDestroy {
     const halfWidth = enemyWidth / 2;
     const minX = halfWidth;
     const maxX = Math.max(halfWidth, this.width - halfWidth);
-    const spawnX = minX + Math.random() * (maxX - minX);
+    const ratioX = this.width * xRatio;
+    const spawnX = Math.max(minX, Math.min(maxX, ratioX));
 
     this.enemies.push({
       x: spawnX,
@@ -510,6 +644,7 @@ export class ShooterComponent implements AfterViewInit, OnDestroy {
 
         if (enemy.hp <= 0) {
           this.enemies.splice(enemyIndex, 1);
+          this.level1DestroyedCount += 1;
           this.score += this.enemyKillScore;
         }
 
@@ -582,6 +717,112 @@ export class ShooterComponent implements AfterViewInit, OnDestroy {
     }
 
     this.integrity = Math.max(0, this.integrity - this.integrityDamagePerHit);
+  }
+
+  private tryStartLevelEnding(): void {
+    const allScheduledEnemiesSpawned = this.nextSpawnIndex >= this.level1SpawnSchedule.length;
+    if (!allScheduledEnemiesSpawned) {
+      return;
+    }
+
+    if (this.enemies.length > 0) {
+      return;
+    }
+
+    this.startLevelEnding();
+  }
+
+  private buildLevel1SpawnSchedule(): SpawnStep[] {
+    const schedule: SpawnStep[] = [];
+    const minEdgeRatio = 0.1;
+    const maxEdgeRatio = 0.9;
+    let elapsed = 1.0;
+    let lastSingleRatio = 0.5;
+
+    const clampRatio = (value: number) => Math.max(minEdgeRatio, Math.min(maxEdgeRatio, value));
+    const randomRange = (min: number, max: number) => min + Math.random() * (max - min);
+
+    const getSpacedSingleRatio = () => {
+      let ratio = clampRatio(randomRange(minEdgeRatio, maxEdgeRatio));
+      let attempts = 0;
+      while (Math.abs(ratio - lastSingleRatio) < 0.2 && attempts < 8) {
+        ratio = clampRatio(randomRange(minEdgeRatio, maxEdgeRatio));
+        attempts += 1;
+      }
+      lastSingleRatio = ratio;
+      return ratio;
+    };
+
+    const pushSingle = () => {
+      schedule.push({
+        timeFromStartSeconds: elapsed,
+        xRatio: getSpacedSingleRatio(),
+      });
+      elapsed += randomRange(2.1, 3.5);
+    };
+
+    const pushSymmetricCluster = () => {
+      const center = randomRange(0.34, 0.66);
+      const wingOffset = randomRange(0.12, 0.18);
+      const left = clampRatio(center - wingOffset);
+      const right = clampRatio(center + wingOffset);
+
+      schedule.push({ timeFromStartSeconds: elapsed, xRatio: left });
+      schedule.push({ timeFromStartSeconds: elapsed + 0.3, xRatio: center });
+      schedule.push({ timeFromStartSeconds: elapsed + 0.6, xRatio: right });
+
+      lastSingleRatio = center;
+      elapsed += randomRange(4.0, 5.6);
+    };
+
+    while (schedule.length < this.level1MaxSpawns) {
+      const remaining = this.level1MaxSpawns - schedule.length;
+      const canPlaceCluster = remaining >= 3;
+      const shouldPlaceCluster = canPlaceCluster && Math.random() < 0.18;
+
+      if (shouldPlaceCluster) {
+        pushSymmetricCluster();
+      } else {
+        pushSingle();
+      }
+    }
+
+    schedule.sort((a, b) => a.timeFromStartSeconds - b.timeFromStartSeconds);
+    return schedule.slice(0, this.level1MaxSpawns);
+  }
+
+  private startLevelEnding(): void {
+    this.gameState = 'levelEnding';
+    this.pauseLevelMusic();
+    this.playVictoryMusic(true);
+    this.isPlayerInputLocked = true;
+    this.keysPressed.clear();
+    this.bullets = [];
+    this.fireCooldown = this.fireIntervalSeconds;
+    this.playerSpriteDirection = 'center';
+    this.isBoostingForward = true;
+    this.levelEndingVelocityY = -this.levelEndingInitialSpeed;
+    this.cdr.markForCheck();
+  }
+
+  private updateLevelEnding(deltaSeconds: number): void {
+    this.levelEndingVelocityY -= this.levelEndingAcceleration * deltaSeconds;
+    this.player.y += this.levelEndingVelocityY * deltaSeconds;
+
+    const playerIsOffscreen = this.player.y + this.playerSpriteHeight / 2 < -24;
+    if (!playerIsOffscreen) {
+      return;
+    }
+
+    this.finishLevel();
+  }
+
+  private finishLevel(): void {
+    this.gameState = 'levelComplete';
+    this.isBoostingForward = false;
+    this.levelEndingVelocityY = 0;
+    this.player.y = -this.playerSpriteHeight;
+    this.cdr.markForCheck();
   }
 
   private render(): void {
@@ -850,7 +1091,7 @@ export class ShooterComponent implements AfterViewInit, OnDestroy {
     const scoreText = `SCORE: ${this.score.toString().padStart(9, '0')}`;
     ctx.fillText(scoreText, 16, 16);
     ctx.fillText('Press ESC for Main Menu', 16, 36);
-    ctx.fillText('LEVEL 01', 16, 56);
+    ctx.fillText(`LEVEL ${this.levelNumber.toString().padStart(2, '0')}`, 16, 56);
 
     const hudRightX = this.width - 16;
     const shieldWarningAlpha = this.shields === 0 ? this.getWarningBlinkAlpha() : 1;
@@ -892,6 +1133,12 @@ export class ShooterComponent implements AfterViewInit, OnDestroy {
   }
 
   private playLevelMusic(restart: boolean): void {
+    if (!this.musicEnabled) {
+      return;
+    }
+
+    this.pauseVictoryMusic();
+
     if (restart) {
       this.levelMusic.currentTime = 0;
     }
@@ -908,6 +1155,33 @@ export class ShooterComponent implements AfterViewInit, OnDestroy {
   private stopLevelMusic(): void {
     this.levelMusic.pause();
     this.levelMusic.currentTime = 0;
+  }
+
+  private playVictoryMusic(restart: boolean): void {
+    if (!this.musicEnabled) {
+      return;
+    }
+
+    this.pauseLevelMusic();
+
+    if (restart) {
+      this.victoryMusic.currentTime = 0;
+    }
+
+    void this.victoryMusic.play().catch(() => {
+      // Browser autoplay policies may defer playback until explicit user interaction.
+      this.retryVictoryOnNextGesture = true;
+    });
+  }
+
+  private pauseVictoryMusic(): void {
+    this.victoryMusic.pause();
+  }
+
+  private stopVictoryMusic(): void {
+    this.retryVictoryOnNextGesture = false;
+    this.victoryMusic.pause();
+    this.victoryMusic.currentTime = 0;
   }
 
   private loadPlayerSprite(): void {

@@ -333,6 +333,20 @@
   backdrop-filter: blur(2px);
 }
 
+.level-complete-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 51;
+  background:
+    radial-gradient(circle at 50% 30%, rgba(10, 120, 190, 0.28), rgba(0, 0, 0, 0.86) 68%),
+    rgba(0, 5, 18, 0.72);
+  backdrop-filter: blur(2px);
+}
+
 .briefing-overlay {
   position: absolute;
   inset: 0;
@@ -646,10 +660,20 @@
 }
 
 /* Disabled/coming-soon buttons */
-.menu-btn--disabled,
-.menu-btn--toggle {
+.menu-btn--disabled {
   opacity: 0.42;
   cursor: not-allowed;
+}
+
+.menu-btn--toggle {
+  opacity: 1;
+  cursor: pointer;
+}
+
+.menu-btn--toggle-off {
+  opacity: 0.72;
+  color: #7fd6df;
+  border-color: rgba(0, 180, 255, 0.3);
 }
 
 /* Back button in help panel */
