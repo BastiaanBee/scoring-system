@@ -20,6 +20,10 @@
             "tsConfig": "tsconfig.app.json",
             "assets": [
               {
+                "glob": "**/*",
+                "input": "public"
+              },
+              {
                   "glob": "player_1*.png",
                 "input": "src/app/shooter",
                 "output": "assets/shooter"
