@@ -1208,6 +1208,15 @@ select:disabled {
   margin: 0 auto;
 }
 
+.final-standings .score-header,
+.final-standings .score-row {
+  grid-template-columns: 44px minmax(120px, 1fr) minmax(160px, 1.15fr) minmax(130px, 1fr) minmax(130px, 1fr) 50px 88px;
+}
+
+.final-standings .score-header span {
+  white-space: nowrap;
+}
+
 /* Contest over action buttons */
 .contest-over-actions {
   display: flex;
@@ -1379,4 +1388,139 @@ select:disabled {
 .end-contest-btn:hover {
   background: rgba(245, 200, 0, 0.18);
   border-color: #F5C800;
+}
+
+/* Mobile/tablet fixes for final results layout */
+@media (max-width: 900px) {
+  .contest-over-overlay {
+    padding: 1rem 0.8rem 1.5rem;
+  }
+
+  .podium {
+    gap: 1rem;
+    margin-bottom: 1.8rem;
+  }
+
+  .podium-place {
+    min-width: 0;
+    width: 100%;
+    max-width: 240px;
+  }
+
+  .gold-block,
+  .silver-block,
+  .bronze-block {
+    width: 100%;
+  }
+
+  .contest-over-actions {
+    flex-wrap: wrap;
+    gap: 0.7rem;
+  }
+
+  .contest-over-btn {
+    width: calc(50% - 0.35rem);
+    min-width: 190px;
+  }
+
+  .final-standings .score-header,
+  .final-standings .score-row {
+    grid-template-columns: 36px minmax(105px, 1fr) minmax(130px, 1.15fr) minmax(110px, 1fr) minmax(110px, 1fr) 42px 78px;
+    gap: 0.38rem;
+  }
+
+  .final-standings .score-header {
+    font-size: 0.53rem;
+    letter-spacing: 0.16em;
+  }
+}
+
+@media (max-width: 768px) {
+  .podium {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.85rem;
+  }
+
+  .podium-place {
+    max-width: none;
+  }
+
+  .podium-place.gold-place {
+    order: 1;
+  }
+
+  .podium-place.silver-place {
+    order: 2;
+  }
+
+  .podium-place.bronze-place {
+    order: 3;
+  }
+
+  .gold-block {
+    height: 90px;
+  }
+
+  .silver-block {
+    height: 76px;
+  }
+
+  .bronze-block {
+    height: 64px;
+  }
+
+  .final-standings {
+    max-width: 100%;
+  }
+
+  .final-standings .score-header,
+  .final-standings .score-row {
+    grid-template-columns: 36px minmax(108px, 1fr) minmax(120px, 1fr) 72px;
+    gap: 0.35rem;
+  }
+
+  .final-standings .score-header {
+    font-size: 0.52rem;
+    letter-spacing: 0.14em;
+    padding-left: 0.35rem;
+    padding-right: 0.35rem;
+  }
+
+  .final-standings .score-row {
+    font-size: 0.78rem;
+    padding-left: 0.35rem;
+    padding-right: 0.35rem;
+  }
+
+  .final-standings .artist-col,
+  .final-standings .song-col,
+  .final-standings .max-pts-col,
+  .final-standings .max-pts-col-header {
+    display: none;
+  }
+
+  /* Match header labels to the 4-column mobile table: #, Country, Participant, Points */
+  .final-standings .score-header span:nth-child(4),
+  .final-standings .score-header span:nth-child(5),
+  .final-standings .score-header span:nth-child(6) {
+    display: none;
+  }
+
+  .final-standings .country-col {
+    font-size: 0.74rem;
+  }
+
+  .final-standings .participant-col {
+    font-size: 0.72rem;
+  }
+
+  .final-standings .points-col {
+    font-size: 0.96rem;
+  }
+
+  .contest-over-btn {
+    width: 100%;
+    min-width: 0;
+  }
 }
