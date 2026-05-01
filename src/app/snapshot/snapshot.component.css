@@ -132,14 +132,21 @@ html, body {
     width: 100%;
   }
 
-  /* Adjust the scoreboard grid to 4 columns instead of 7 */
+  /* Adjust snapshot tables to 4 columns: #, Country, Participant, Points */
+  .snapshot-scoreboard .score-header,
+  .snapshot-scoreboard .score-row,
   .final-standings .score-header,
   .final-standings .score-row {
-    grid-template-columns: 44px 1fr 1fr 70px !important;
+    grid-template-columns: 36px minmax(96px, 1fr) minmax(110px, 1fr) 72px !important;
+    gap: 0.35rem;
     font-size: 0.8rem;
   }
 
   /* Hide Artist, Song and star columns on mobile */
+  .snapshot-scoreboard .artist-col,
+  .snapshot-scoreboard .song-col,
+  .snapshot-scoreboard .max-pts-col,
+  .snapshot-scoreboard .max-pts-col-header,
   .final-standings .artist-col,
   .final-standings .song-col,
   .final-standings .max-pts-col,
@@ -147,10 +154,54 @@ html, body {
     display: none;
   }
 
+  .snapshot-scoreboard .score-header span:nth-child(4),
+  .snapshot-scoreboard .score-header span:nth-child(5),
+  .snapshot-scoreboard .score-header span:nth-child(6),
   .final-standings .score-header span:nth-child(4),
   .final-standings .score-header span:nth-child(5),
   .final-standings .score-header span:nth-child(6) {
     display: none;
+  }
+
+  .snapshot-scoreboard .score-header,
+  .final-standings .score-header {
+    font-size: 0.52rem;
+    letter-spacing: 0.14em;
+    padding-left: 0.35rem;
+    padding-right: 0.35rem;
+  }
+
+  .snapshot-scoreboard .score-row,
+  .final-standings .score-row {
+    padding-left: 0.35rem;
+    padding-right: 0.35rem;
+    font-size: 0.78rem;
+  }
+
+  /* Truncate long content to keep columns perfectly aligned row-to-row */
+  .snapshot-scoreboard .country-col,
+  .snapshot-scoreboard .participant-col,
+  .final-standings .country-col,
+  .final-standings .participant-col {
+    min-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .snapshot-scoreboard .participant-col,
+  .final-standings .participant-col {
+    font-size: 0.72rem;
+  }
+
+  .snapshot-scoreboard .country-col,
+  .final-standings .country-col {
+    font-size: 0.74rem;
+  }
+
+  .snapshot-scoreboard .points-col,
+  .final-standings .points-col {
+    font-size: 0.96rem;
   }
 
   /* Reveal bar: stack vertically and ensure nothing overflows */
