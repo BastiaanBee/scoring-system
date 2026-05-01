@@ -28,6 +28,7 @@ interface Enemy {
 interface SpawnStep {
   timeFromStartSeconds: number;
   xRatio: number;
+  speedMultiplier: number;
 }
 
 type PlayerSpriteDirection = 'center' | 'left' | 'right';
@@ -142,6 +143,10 @@ export class ShooterComponent implements AfterViewInit, OnDestroy {
   private readonly levelEndingAcceleration = 620;
   private readonly levelEndingScrollMultiplier = 1.55;
   private readonly level1MaxSpawns = 50;
+  private readonly level1ScheduleSeed = 0x5f3759df;
+  private level1RngState = this.level1ScheduleSeed;
+  private readonly enemySpeedMinMultiplier = 1;
+  private readonly enemySpeedMaxMultiplier = 1.5;
   private level1SpawnSchedule: SpawnStep[] = [];
 
   private readonly onWindowResize = () => {
@@ -558,7 +563,7 @@ export class ShooterComponent implements AfterViewInit, OnDestroy {
         break;
       }
 
-      this.spawnEnemyAtRatio(step.xRatio);
+      this.spawnEnemyAtRatio(step.xRatio, step.speedMultiplier);
       this.nextSpawnIndex += 1;
       this.level1SpawnedCount += 1;
     }
@@ -583,7 +588,7 @@ export class ShooterComponent implements AfterViewInit, OnDestroy {
     this.enemies = remainingEnemies;
   }
 
-  private spawnEnemyAtRatio(xRatio: number): void {
+  private spawnEnemyAtRatio(xRatio: number, speedMultiplier = 1): void {
     const enemySource = this.getEnemyFrameSource();
     const enemyWidth = enemySource
       ? this.getScaledWidthFromHeight(
@@ -601,7 +606,7 @@ export class ShooterComponent implements AfterViewInit, OnDestroy {
     this.enemies.push({
       x: spawnX,
       y: -this.enemySpriteHeight / 2,
-      vy: this.enemySpeed,
+      vy: this.enemySpeed * speedMultiplier,
       hp: this.enemyHitPoints,
     });
   }
@@ -733,6 +738,8 @@ export class ShooterComponent implements AfterViewInit, OnDestroy {
   }
 
   private buildLevel1SpawnSchedule(): SpawnStep[] {
+    this.level1RngState = this.level1ScheduleSeed;
+
     const schedule: SpawnStep[] = [];
     const minEdgeRatio = 0.1;
     const maxEdgeRatio = 0.9;
@@ -740,7 +747,10 @@ export class ShooterComponent implements AfterViewInit, OnDestroy {
     let lastSingleRatio = 0.5;
 
     const clampRatio = (value: number) => Math.max(minEdgeRatio, Math.min(maxEdgeRatio, value));
-    const randomRange = (min: number, max: number) => min + Math.random() * (max - min);
+    const randomRange = (min: number, max: number) =>
+      min + this.nextLevelRandom() * (max - min);
+    const randomSpeedMultiplier = () =>
+      randomRange(this.enemySpeedMinMultiplier, this.enemySpeedMaxMultiplier);
 
     const getSpacedSingleRatio = () => {
       let ratio = clampRatio(randomRange(minEdgeRatio, maxEdgeRatio));
@@ -757,6 +767,7 @@ export class ShooterComponent implements AfterViewInit, OnDestroy {
       schedule.push({
         timeFromStartSeconds: elapsed,
         xRatio: getSpacedSingleRatio(),
+        speedMultiplier: randomSpeedMultiplier(),
       });
       elapsed += randomRange(2.1, 3.5);
     };
@@ -766,10 +777,23 @@ export class ShooterComponent implements AfterViewInit, OnDestroy {
       const wingOffset = randomRange(0.12, 0.18);
       const left = clampRatio(center - wingOffset);
       const right = clampRatio(center + wingOffset);
+      const clusterSpeedMultiplier = randomSpeedMultiplier();
 
-      schedule.push({ timeFromStartSeconds: elapsed, xRatio: left });
-      schedule.push({ timeFromStartSeconds: elapsed + 0.3, xRatio: center });
-      schedule.push({ timeFromStartSeconds: elapsed + 0.6, xRatio: right });
+      schedule.push({
+        timeFromStartSeconds: elapsed,
+        xRatio: left,
+        speedMultiplier: clusterSpeedMultiplier,
+      });
+      schedule.push({
+        timeFromStartSeconds: elapsed + 0.3,
+        xRatio: center,
+        speedMultiplier: clusterSpeedMultiplier,
+      });
+      schedule.push({
+        timeFromStartSeconds: elapsed + 0.6,
+        xRatio: right,
+        speedMultiplier: clusterSpeedMultiplier,
+      });
 
       lastSingleRatio = center;
       elapsed += randomRange(4.0, 5.6);
@@ -778,7 +802,7 @@ export class ShooterComponent implements AfterViewInit, OnDestroy {
     while (schedule.length < this.level1MaxSpawns) {
       const remaining = this.level1MaxSpawns - schedule.length;
       const canPlaceCluster = remaining >= 3;
-      const shouldPlaceCluster = canPlaceCluster && Math.random() < 0.18;
+      const shouldPlaceCluster = canPlaceCluster && this.nextLevelRandom() < 0.18;
 
       if (shouldPlaceCluster) {
         pushSymmetricCluster();
@@ -789,6 +813,11 @@ export class ShooterComponent implements AfterViewInit, OnDestroy {
 
     schedule.sort((a, b) => a.timeFromStartSeconds - b.timeFromStartSeconds);
     return schedule.slice(0, this.level1MaxSpawns);
+  }
+
+  private nextLevelRandom(): number {
+    this.level1RngState = (1664525 * this.level1RngState + 1013904223) >>> 0;
+    return this.level1RngState / 0x100000000;
   }
 
   private startLevelEnding(): void {
