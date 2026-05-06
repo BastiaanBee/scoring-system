@@ -49,6 +49,7 @@
              'gold-row':            i === 0,
              'silver-row':          i === 1,
              'bronze-row':          i === 2,
+             'current-voter-row':   revealStarted && c.name === voter && !revealedContestants.has(c.name),
              'received-points-row': revealedContestants.has(c.name)
            }">
 
