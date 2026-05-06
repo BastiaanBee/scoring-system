@@ -9,27 +9,11 @@ import {
   inject,
 } from '@angular/core';
 import { Router } from '@angular/router';
+import { LevelDefinition, LEVEL_CATALOG } from './shooter.levels';
+import { SeededRng } from './shooter.rng';
+import { buildSpawnSchedule } from './shooter.scheduler';
+import { Bullet, Enemy, SpawnStep } from './shooter.types';
 
-interface Bullet {
-  x: number;
-  y: number;
-  vx: number;
-  vy: number;
-  radius: number;
-}
-
-interface Enemy {
-  x: number;
-  y: number;
-  vy: number;
-  hp: number;
-}
-
-interface SpawnStep {
-  timeFromStartSeconds: number;
-  xRatio: number;
-  speedMultiplier: number;
-}
 
 type PlayerSpriteDirection = 'center' | 'left' | 'right';
 type GameState = 'menu' | 'briefing' | 'playing' | 'paused' | 'levelEnding' | 'levelComplete';
@@ -120,17 +104,15 @@ export class ShooterComponent implements AfterViewInit, OnDestroy {
   private levelNumber = 1;
   private levelElapsedSeconds = 0;
   private nextSpawnIndex = 0;
-  private level1SpawnedCount = 0;
-  private level1DestroyedCount = 0;
-  private level1EscapedCount = 0;
+  private spawnedCount = 0;
+  private destroyedCount = 0;
+  private escapedCount = 0;
   private isPlayerInputLocked = false;
   private levelEndingVelocityY = 0;
   protected musicEnabled = true;
 
   private readonly bulletSpeed = 500;
   private readonly fireIntervalSeconds = 0.12;
-  private readonly enemySpeed = 88;
-  private readonly enemyHitPoints = 5;
   private readonly enemyKillScore = 1000;
   private readonly enemyEscapeScorePenalty = this.enemyKillScore / 2;
   private readonly enemyCollisionScorePenalty = 500;
@@ -142,12 +124,8 @@ export class ShooterComponent implements AfterViewInit, OnDestroy {
   private readonly levelEndingInitialSpeed = 300;
   private readonly levelEndingAcceleration = 620;
   private readonly levelEndingScrollMultiplier = 1.55;
-  private readonly level1MaxSpawns = 50;
-  private readonly level1ScheduleSeed = 0x5f3759df;
-  private level1RngState = this.level1ScheduleSeed;
-  private readonly enemySpeedMinMultiplier = 1;
-  private readonly enemySpeedMaxMultiplier = 1.5;
-  private level1SpawnSchedule: SpawnStep[] = [];
+  private currentLevelDef: LevelDefinition = LEVEL_CATALOG[0]!;
+  private spawnSchedule: SpawnStep[] = [];
 
   private readonly onWindowResize = () => {
     this.resizeCanvas();
@@ -246,10 +224,11 @@ export class ShooterComponent implements AfterViewInit, OnDestroy {
     this.levelNumber = 1;
     this.levelElapsedSeconds = 0;
     this.nextSpawnIndex = 0;
-    this.level1SpawnedCount = 0;
-    this.level1DestroyedCount = 0;
-    this.level1EscapedCount = 0;
-    this.level1SpawnSchedule = this.buildLevel1SpawnSchedule();
+    this.spawnedCount = 0;
+    this.destroyedCount = 0;
+    this.escapedCount = 0;
+    this.currentLevelDef = LEVEL_CATALOG[this.levelNumber - 1] ?? LEVEL_CATALOG[0]!;
+    this.spawnSchedule = buildSpawnSchedule(this.currentLevelDef, new SeededRng(this.currentLevelDef.spawn.seed));
     this.isPlayerInputLocked = false;
     this.levelEndingVelocityY = 0;
     this.shields = this.maxShields;
@@ -284,9 +263,9 @@ export class ShooterComponent implements AfterViewInit, OnDestroy {
     this.levelNumber = 1;
     this.levelElapsedSeconds = 0;
     this.nextSpawnIndex = 0;
-    this.level1SpawnedCount = 0;
-    this.level1DestroyedCount = 0;
-    this.level1EscapedCount = 0;
+    this.spawnedCount = 0;
+    this.destroyedCount = 0;
+    this.escapedCount = 0;
     this.isPlayerInputLocked = false;
     this.levelEndingVelocityY = 0;
     this.shields = this.maxShields;
@@ -557,15 +536,15 @@ export class ShooterComponent implements AfterViewInit, OnDestroy {
   }
 
   private updateEnemies(deltaSeconds: number): void {
-    while (this.nextSpawnIndex < this.level1SpawnSchedule.length) {
-      const step = this.level1SpawnSchedule[this.nextSpawnIndex];
+    while (this.nextSpawnIndex < this.spawnSchedule.length) {
+      const step = this.spawnSchedule[this.nextSpawnIndex];
       if (step.timeFromStartSeconds > this.levelElapsedSeconds) {
         break;
       }
 
       this.spawnEnemyAtRatio(step.xRatio, step.speedMultiplier);
       this.nextSpawnIndex += 1;
-      this.level1SpawnedCount += 1;
+      this.spawnedCount += 1;
     }
 
     const remainingEnemies: Enemy[] = [];
@@ -577,7 +556,7 @@ export class ShooterComponent implements AfterViewInit, OnDestroy {
 
       const escapedBottom = updatedEnemy.y - this.enemySpriteHeight / 2 > this.height + 20;
       if (escapedBottom) {
-        this.level1EscapedCount += 1;
+        this.escapedCount += 1;
         this.score = Math.max(0, this.score - this.enemyEscapeScorePenalty);
         continue;
       }
@@ -606,8 +585,8 @@ export class ShooterComponent implements AfterViewInit, OnDestroy {
     this.enemies.push({
       x: spawnX,
       y: -this.enemySpriteHeight / 2,
-      vy: this.enemySpeed * speedMultiplier,
-      hp: this.enemyHitPoints,
+      vy: this.currentLevelDef.enemySpeed * speedMultiplier,
+      hp: this.currentLevelDef.enemyHitPoints,
     });
   }
 
@@ -649,7 +628,7 @@ export class ShooterComponent implements AfterViewInit, OnDestroy {
 
         if (enemy.hp <= 0) {
           this.enemies.splice(enemyIndex, 1);
-          this.level1DestroyedCount += 1;
+          this.destroyedCount += 1;
           this.score += this.enemyKillScore;
         }
 
@@ -725,7 +704,7 @@ export class ShooterComponent implements AfterViewInit, OnDestroy {
   }
 
   private tryStartLevelEnding(): void {
-    const allScheduledEnemiesSpawned = this.nextSpawnIndex >= this.level1SpawnSchedule.length;
+    const allScheduledEnemiesSpawned = this.nextSpawnIndex >= this.spawnSchedule.length;
     if (!allScheduledEnemiesSpawned) {
       return;
     }
@@ -735,89 +714,6 @@ export class ShooterComponent implements AfterViewInit, OnDestroy {
     }
 
     this.startLevelEnding();
-  }
-
-  private buildLevel1SpawnSchedule(): SpawnStep[] {
-    this.level1RngState = this.level1ScheduleSeed;
-
-    const schedule: SpawnStep[] = [];
-    const minEdgeRatio = 0.1;
-    const maxEdgeRatio = 0.9;
-    let elapsed = 1.0;
-    let lastSingleRatio = 0.5;
-
-    const clampRatio = (value: number) => Math.max(minEdgeRatio, Math.min(maxEdgeRatio, value));
-    const randomRange = (min: number, max: number) =>
-      min + this.nextLevelRandom() * (max - min);
-    const randomSpeedMultiplier = () =>
-      randomRange(this.enemySpeedMinMultiplier, this.enemySpeedMaxMultiplier);
-
-    const getSpacedSingleRatio = () => {
-      let ratio = clampRatio(randomRange(minEdgeRatio, maxEdgeRatio));
-      let attempts = 0;
-      while (Math.abs(ratio - lastSingleRatio) < 0.2 && attempts < 8) {
-        ratio = clampRatio(randomRange(minEdgeRatio, maxEdgeRatio));
-        attempts += 1;
-      }
-      lastSingleRatio = ratio;
-      return ratio;
-    };
-
-    const pushSingle = () => {
-      schedule.push({
-        timeFromStartSeconds: elapsed,
-        xRatio: getSpacedSingleRatio(),
-        speedMultiplier: randomSpeedMultiplier(),
-      });
-      elapsed += randomRange(2.1, 3.5);
-    };
-
-    const pushSymmetricCluster = () => {
-      const center = randomRange(0.34, 0.66);
-      const wingOffset = randomRange(0.12, 0.18);
-      const left = clampRatio(center - wingOffset);
-      const right = clampRatio(center + wingOffset);
-      const clusterSpeedMultiplier = randomSpeedMultiplier();
-
-      schedule.push({
-        timeFromStartSeconds: elapsed,
-        xRatio: left,
-        speedMultiplier: clusterSpeedMultiplier,
-      });
-      schedule.push({
-        timeFromStartSeconds: elapsed + 0.3,
-        xRatio: center,
-        speedMultiplier: clusterSpeedMultiplier,
-      });
-      schedule.push({
-        timeFromStartSeconds: elapsed + 0.6,
-        xRatio: right,
-        speedMultiplier: clusterSpeedMultiplier,
-      });
-
-      lastSingleRatio = center;
-      elapsed += randomRange(4.0, 5.6);
-    };
-
-    while (schedule.length < this.level1MaxSpawns) {
-      const remaining = this.level1MaxSpawns - schedule.length;
-      const canPlaceCluster = remaining >= 3;
-      const shouldPlaceCluster = canPlaceCluster && this.nextLevelRandom() < 0.18;
-
-      if (shouldPlaceCluster) {
-        pushSymmetricCluster();
-      } else {
-        pushSingle();
-      }
-    }
-
-    schedule.sort((a, b) => a.timeFromStartSeconds - b.timeFromStartSeconds);
-    return schedule.slice(0, this.level1MaxSpawns);
-  }
-
-  private nextLevelRandom(): number {
-    this.level1RngState = (1664525 * this.level1RngState + 1013904223) >>> 0;
-    return this.level1RngState / 0x100000000;
   }
 
   private startLevelEnding(): void {

@@ -48,6 +48,36 @@ html, body {
   color: #FFA0A8;
 }
 
+/* Flag images in the country column and podium */
+.flag-img {
+  display: inline-block;
+  width: 20px;
+  height: auto;
+  vertical-align: middle;
+  margin-right: 0.3em;
+  border-radius: 2px;
+}
+
+.flag-img--podium {
+  width: 28px;
+}
+
+.reveal-waiting {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.95rem;
+  color: var(--text-2);
+  opacity: 0.75;
+  user-select: none;
+}
+
+.points-delta {
+  font-size: 0.8em;
+  color: rgba(167, 167, 167, 0.445);
+  margin-right: 0.2em;
+  font-weight: 300;
+  letter-spacing: 0;
+}
+
 .reveal-voter {
   user-select: none;
 }

@@ -84,6 +84,13 @@ export class SnapshotComponent implements OnInit {
   // Throttle clicks to prevent double-reveals.
   lastRevealClick = 0;
 
+  // Whether the user has clicked anything to start the reveal yet.
+  // Hides the banner content until first interaction.
+  revealStarted = false;
+
+  // Accumulated points received this round per contestant, for (+x) notifiers.
+  roundPointsReceived: { [name: string]: number } = {};
+
   // Whether autoplay is currently running.
   isAutoplaying = false;
 
@@ -160,6 +167,7 @@ export class SnapshotComponent implements OnInit {
 
   // Reveals the next point in the sequence.
   nextReveal() {
+    this.revealStarted = true;
     const now = Date.now();
     if (now - this.lastRevealClick < 700) return;
     this.lastRevealClick = now;
@@ -169,6 +177,8 @@ export class SnapshotComponent implements OnInit {
 
     if (d) {
       d.points += current.points;
+      this.roundPointsReceived[current.contestant] =
+        (this.roundPointsReceived[current.contestant] ?? 0) + current.points;
       d.scoreCounts[current.points] = (d.scoreCounts[current.points] ?? 0) + 1;
       if (current.points === this.maxPointValue) {
         d.maxPointVoters = [...d.maxPointVoters, this.voter];
@@ -188,6 +198,7 @@ export class SnapshotComponent implements OnInit {
   // Toggles autoplay on and off.
   // When active, steps through the reveal every 3 seconds automatically.
   toggleAutoplay() {
+    this.revealStarted = true;
     if (this.isAutoplaying) {
       // Pause — clear the interval and reset the flag.
       clearInterval(this.autoplayInterval);
@@ -304,6 +315,35 @@ export class SnapshotComponent implements OnInit {
   // trackBy for the scoreboard *ngFor.
   trackByName(index: number, contestant: { name: string }): string {
     return contestant.name;
+  }
+
+  // Returns the flagcdn.com image URL for a country string like '🇳🇱 Netherlands'.
+  // Returns empty string if the country string doesn't start with a regional indicator pair.
+  getFlagUrl(country: string): string {
+    if (!country) return '';
+
+    // Name-based lookup for subdivision flags (tag sequences) that cannot be
+    // derived from regional indicator characters — e.g. 🏴󠁧󠁢󠁥󠁮󠁧󠁿 England.
+    const subdivisionMap: { [key: string]: string } = {
+      'England': 'gb-eng',
+      'Scotland': 'gb-sct',
+      'Wales': 'gb-wls',
+    };
+    const stripped = country.replace(/[^\p{L}\p{N} ]/gu, '').trim();
+    if (subdivisionMap[stripped]) {
+      return `https://flagcdn.com/w20/${subdivisionMap[stripped]}.png`;
+    }
+
+    const cp1 = country.codePointAt(0);
+    const cp2 = country.codePointAt(2);
+    if (!cp1 || !cp2 || cp1 < 0x1F1E6 || cp1 > 0x1F1FF || cp2 < 0x1F1E6 || cp2 > 0x1F1FF) return '';
+    const code = String.fromCharCode(cp1 - 0x1F1E6 + 65) + String.fromCharCode(cp2 - 0x1F1E6 + 65);
+    return `https://flagcdn.com/w20/${code.toLowerCase()}.png`;
+  }
+
+  // Returns the country name with the flag emoji stripped.
+  getCountryName(country: string): string {
+    return country ? country.replace(/[^\p{L}\p{N} ]/gu, '').trim() : '';
   }
 
 }

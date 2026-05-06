@@ -60,7 +60,10 @@
             <ng-container *ngSwitchDefault>#{{ i + 1 }}</ng-container>
           </ng-container>
         </span>
-        <span class="country-col">{{ c.country }}</span>
+        <span class="country-col">
+          <img *ngIf="getFlagUrl(c.country)" [src]="getFlagUrl(c.country)" [alt]="getCountryName(c.country)" class="flag-img" (error)="$event.target.hidden=true">
+          {{ getCountryName(c.country) }}
+        </span>
         <span class="participant-col">{{ c.name }}</span>
         <span class="artist-col">{{ c.artist }}</span>
         <span class="song-col">{{ c.song }}</span>
@@ -71,21 +74,29 @@
             ● {{ c.maxPointVoters.length }}
           </span>
         </span>
-        <span class="points-col">{{ c.points }} pts</span>
+        <span class="points-col">
+          <span *ngIf="roundPointsReceived[c.name]" class="points-delta">(+{{ roundPointsReceived[c.name] }})</span>
+          {{ c.points }} pts
+        </span>
       </div>
 
     </div>
 
     <!-- Reveal bar -->
     <div class="reveal-overlay" *ngIf="!isFinalSnapshot && !revealComplete">
-      <div class="reveal-voter">{{ voter }} gives...</div>
-      <div class="reveal-points-value">
-        {{ lastRoundVotes[revealIndex].points }}
-        <span>{{ lastRoundVotes[revealIndex].points === 1 ? 'pt' : 'pts' }}</span>
-      </div>
-      <div class="reveal-recipient">
-        {{ lastRoundVotes[revealIndex].contestant }}
-      </div>
+      <ng-container *ngIf="!revealStarted">
+        <div class="reveal-waiting">Click <strong>Next</strong> or <strong>Play</strong> to begin the reveal</div>
+      </ng-container>
+      <ng-container *ngIf="revealStarted">
+        <div class="reveal-voter">{{ voter }} gives...</div>
+        <div class="reveal-points-value">
+          {{ lastRoundVotes[revealIndex].points }}
+          <span>{{ lastRoundVotes[revealIndex].points === 1 ? 'pt' : 'pts' }}</span>
+        </div>
+        <div class="reveal-recipient">
+          {{ lastRoundVotes[revealIndex].contestant }}
+        </div>
+      </ng-container>
       <button class="reveal-next-btn"
               (click)="nextReveal()"
               *ngIf="revealIndex < lastRoundVotes.length - 1 && !isAutoplaying">
@@ -102,21 +113,30 @@
     <div *ngIf="isFinalSnapshot">
       <div class="podium">
         <div class="podium-place silver-place">
-          <div class="podium-flag">{{ finalContestants[1]?.country }}</div>
+          <div class="podium-flag">
+            <img *ngIf="getFlagUrl(finalContestants[1]?.country)" [src]="getFlagUrl(finalContestants[1]?.country)" [alt]="getCountryName(finalContestants[1]?.country)" class="flag-img flag-img--podium" (error)="$event.target.hidden=true">
+            {{ getCountryName(finalContestants[1]?.country) }}
+          </div>
           <div class="podium-name">{{ finalContestants[1]?.name }}</div>
           <div class="podium-song">{{ finalContestants[1]?.song }}</div>
           <div class="podium-points">{{ finalContestants[1]?.points }} pts</div>
           <div class="podium-block silver-block">#2</div>
         </div>
         <div class="podium-place gold-place">
-          <div class="podium-flag">{{ finalContestants[0]?.country }}</div>
+          <div class="podium-flag">
+            <img *ngIf="getFlagUrl(finalContestants[0]?.country)" [src]="getFlagUrl(finalContestants[0]?.country)" [alt]="getCountryName(finalContestants[0]?.country)" class="flag-img flag-img--podium" (error)="$event.target.hidden=true">
+            {{ getCountryName(finalContestants[0]?.country) }}
+          </div>
           <div class="podium-name">{{ finalContestants[0]?.name }}</div>
           <div class="podium-song">{{ finalContestants[0]?.song }}</div>
           <div class="podium-points">{{ finalContestants[0]?.points }} pts</div>
           <div class="podium-block gold-block">#1</div>
         </div>
         <div class="podium-place bronze-place">
-          <div class="podium-flag">{{ finalContestants[2]?.country }}</div>
+          <div class="podium-flag">
+            <img *ngIf="getFlagUrl(finalContestants[2]?.country)" [src]="getFlagUrl(finalContestants[2]?.country)" [alt]="getCountryName(finalContestants[2]?.country)" class="flag-img flag-img--podium" (error)="$event.target.hidden=true">
+            {{ getCountryName(finalContestants[2]?.country) }}
+          </div>
           <div class="podium-name">{{ finalContestants[2]?.name }}</div>
           <div class="podium-song">{{ finalContestants[2]?.song }}</div>
           <div class="podium-points">{{ finalContestants[2]?.points }} pts</div>
@@ -154,7 +174,10 @@
               <ng-container *ngSwitchDefault>#{{ i + 1 }}</ng-container>
             </ng-container>
           </span>
-          <span class="country-col">{{ c.country }}</span>
+          <span class="country-col">
+            <img *ngIf="getFlagUrl(c.country)" [src]="getFlagUrl(c.country)" [alt]="getCountryName(c.country)" class="flag-img" (error)="$event.target.hidden=true">
+            {{ getCountryName(c.country) }}
+          </span>
           <span class="participant-col">{{ c.name }}</span>
           <span class="artist-col">{{ c.artist }}</span>
           <span class="song-col">{{ c.song }}</span>
