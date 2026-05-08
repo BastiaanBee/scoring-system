@@ -40,6 +40,8 @@ export class SnapshotComponent implements OnInit {
   contestTitle    = '';
   voter           = '';
   maxPointValue   = 0;
+  voterOrder: string[] = [];
+  currentVoterIndex = 0;
 
   // The scoreboard as it was BEFORE this round's points were awarded.
   preRoundSnapshot: {
@@ -141,6 +143,8 @@ export class SnapshotComponent implements OnInit {
       this.contestTitle      = data['contestTitle'] || '';
       this.voter             = data['voter'] || '';
       this.maxPointValue     = data['maxPointValue'] || 0;
+      this.voterOrder        = data['voterOrder'] || [];
+      this.currentVoterIndex = data['currentVoterIndex'] || 0;
       this.preRoundSnapshot  = data['preRoundSnapshot'] || [];
       this.lastRoundVotes    = data['lastRoundVotes'] || [];
 
@@ -159,6 +163,19 @@ export class SnapshotComponent implements OnInit {
 
     this.loading = false;
     this.cdr.detectChanges();
+  }
+
+  // Returns true if this contestant is the voter for this snapshot round.
+  isCurrentVoter(name: string): boolean {
+    return name === this.voter;
+  }
+
+  // Returns true if this contestant has already voted in an earlier round.
+  // Old snapshots may not have voterOrder/currentVoterIndex, so fail safely.
+  hasAlreadyVoted(name: string): boolean {
+    const voterIndex = this.voterOrder.indexOf(name);
+    if (voterIndex < 0) return false;
+    return voterIndex < this.currentVoterIndex;
   }
 
   // =====================================================

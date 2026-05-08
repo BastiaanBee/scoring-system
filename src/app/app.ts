@@ -887,6 +887,8 @@ export class App implements OnInit {
       const snapshotData = {
         contestTitle:    this.contestTitle,
         voter:           this.lastSubmittedVoter,
+        voterOrder:      this.voterOrder,
+        currentVoterIndex: this.currentVoterIndex,
         preRoundSnapshot: this.preRoundSnapshot,
         lastRoundVotes:  this.lastRoundVotes,
         scoringPreset:   this.scoringPreset,

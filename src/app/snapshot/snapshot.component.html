@@ -46,11 +46,8 @@
            class="score-row"
            [attr.data-name]="c.name"
            [ngClass]="{
-             'gold-row':            i === 0,
-             'silver-row':          i === 1,
-             'bronze-row':          i === 2,
-             'current-voter-row':   revealStarted && c.name === voter && !revealedContestants.has(c.name),
-             'received-points-row': revealedContestants.has(c.name)
+             'current-voter-row':   revealStarted && isCurrentVoter(c.name) && !revealedContestants.has(c.name),
+             'already-voted-row':   !isCurrentVoter(c.name) && hasAlreadyVoted(c.name)
            }">
 
         <span class="rank">
