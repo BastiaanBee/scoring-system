@@ -67,6 +67,8 @@ html, body {
   font-size: 0.95rem;
   color: var(--text-2);
   opacity: 0.75;
+  flex: 1;
+  text-align: center;
   user-select: none;
 }
 
@@ -131,6 +133,13 @@ html, body {
 .already-voted-row {
   border-left: 3px solid #EF4444;
   background: rgba(239, 68, 68, 0.06);
+  padding-left: calc(0.5rem - 3px);
+}
+
+/* Most recently awarded contestant (transient reveal highlight) */
+.received-points-row {
+  border-left: 3px solid #F5C800;
+  background: rgba(245, 200, 0, 0.08);
   padding-left: calc(0.5rem - 3px);
 }
 

@@ -47,7 +47,8 @@
            [attr.data-name]="c.name"
            [ngClass]="{
              'current-voter-row':   revealStarted && isCurrentVoter(c.name) && !revealedContestants.has(c.name),
-             'already-voted-row':   !isCurrentVoter(c.name) && hasAlreadyVoted(c.name)
+             'already-voted-row':   !isCurrentVoter(c.name) && hasAlreadyVoted(c.name),
+             'received-points-row': c.name === lastAwardedContestant
            }">
 
         <span class="rank">

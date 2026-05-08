@@ -1,7 +1,7 @@
 // snapshot.component.ts — read-only reveal page for a specific voting round.
 // Loaded from a shared link by viewers. Fetches snapshot data from Firestore
 // and lets the viewer click through the reveal sequence independently.
-import { Component, OnInit, ViewEncapsulation, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewEncapsulation, ChangeDetectorRef } from '@angular/core';
 import { RouterModule, ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { doc, getDoc } from 'firebase/firestore';
@@ -16,7 +16,7 @@ import { db } from '../firebase.config';
   styleUrl: './snapshot.component.css',
   encapsulation: ViewEncapsulation.None
 })
-export class SnapshotComponent implements OnInit {
+export class SnapshotComponent implements OnInit, OnDestroy {
 
   constructor(private route: ActivatedRoute, private cdr: ChangeDetectorRef) {
     console.log('SnapshotComponent constructed');
@@ -93,6 +93,13 @@ export class SnapshotComponent implements OnInit {
   // Accumulated points received this round per contestant, for (+x) notifiers.
   roundPointsReceived: { [name: string]: number } = {};
 
+  // Temporarily highlighted contestant (yellow) for the latest revealed points.
+  lastAwardedContestant = '';
+
+  // Delay before clearing the final reveal's yellow highlight.
+  private readonly finalAwardHighlightMs = 1200;
+  private clearAwardHighlightTimeout: ReturnType<typeof setTimeout> | null = null;
+
   // Whether autoplay is currently running.
   isAutoplaying = false;
 
@@ -165,6 +172,11 @@ export class SnapshotComponent implements OnInit {
     this.cdr.detectChanges();
   }
 
+  ngOnDestroy() {
+    this.clearAwardHighlightTimer();
+    clearInterval(this.autoplayInterval);
+  }
+
   // Returns true if this contestant is the voter for this snapshot round.
   isCurrentVoter(name: string): boolean {
     return name === this.voter;
@@ -190,6 +202,12 @@ export class SnapshotComponent implements OnInit {
     this.lastRevealClick = now;
 
     const current = this.lastRoundVotes[this.revealIndex];
+    if (!current) return;
+
+    this.clearAwardHighlightTimer();
+    this.lastAwardedContestant = current.contestant;
+
+    const isFinalReveal = this.revealIndex >= this.lastRoundVotes.length - 1;
     const d = this.displayContestants.find(d => d.name === current.contestant);
 
     if (d) {
@@ -204,6 +222,14 @@ export class SnapshotComponent implements OnInit {
 
     this.revealedContestants.add(current.contestant);
     this.animateSort();
+
+    if (isFinalReveal) {
+      this.clearAwardHighlightTimeout = setTimeout(() => {
+        this.lastAwardedContestant = '';
+        this.clearAwardHighlightTimeout = null;
+        this.cdr.detectChanges();
+      }, this.finalAwardHighlightMs);
+    }
 
     setTimeout(() => {
       if (this.revealIndex < this.lastRoundVotes.length - 1) {
@@ -239,6 +265,12 @@ export class SnapshotComponent implements OnInit {
         }
       }, 3000);
     }
+  }
+
+  private clearAwardHighlightTimer() {
+    if (!this.clearAwardHighlightTimeout) return;
+    clearTimeout(this.clearAwardHighlightTimeout);
+    this.clearAwardHighlightTimeout = null;
   }
 
   animateSort() {
