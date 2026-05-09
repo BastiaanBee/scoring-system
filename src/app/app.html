@@ -288,7 +288,7 @@
               <option *ngFor="let c of sortedContestants"
                       [value]="c.name"
                       [disabled]="c.name === currentVoter">
-                {{ c.name }}
+                {{ c.name }} - {{ c.country }}
               </option>
             </select>
           </div>
