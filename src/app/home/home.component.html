@@ -1,6 +1,5 @@
 <!-- home.component.html: homepage template -->
 <div class="home-page">
-
   <!-- Ambient backdrop: sky, sun, mountains, grid floor -->
   <div class="home-backdrop" aria-hidden="true">
     <div class="home-stars"></div>
@@ -12,34 +11,49 @@
     <div class="home-glow"></div>
     <div class="home-range">
       <svg class="range-tile" viewBox="0 0 1200 120" preserveAspectRatio="none">
-        <path class="range-fill" d="M0,120 L0,80 L70,54 L130,86 L200,38 L262,74 L330,50 L395,84 L470,26 L545,70 L610,46 L680,82 L755,34 L820,66 L890,44 L960,78 L1030,52 L1100,80 L1160,58 L1200,80 L1200,120 Z" />
-        <path class="range-rim" vector-effect="non-scaling-stroke" fill="none"
-          d="M0,80 L70,54 L130,86 L200,38 L262,74 L330,50 L395,84 L470,26 L545,70 L610,46 L680,82 L755,34 L820,66 L890,44 L960,78 L1030,52 L1100,80 L1160,58 L1200,80" />
+        <path
+          class="range-fill"
+          d="M0,120 L0,80 L70,54 L130,86 L200,38 L262,74 L330,50 L395,84 L470,26 L545,70 L610,46 L680,82 L755,34 L820,66 L890,44 L960,78 L1030,52 L1100,80 L1160,58 L1200,80 L1200,120 Z"
+        />
+        <path
+          class="range-rim"
+          vector-effect="non-scaling-stroke"
+          fill="none"
+          d="M0,80 L70,54 L130,86 L200,38 L262,74 L330,50 L395,84 L470,26 L545,70 L610,46 L680,82 L755,34 L820,66 L890,44 L960,78 L1030,52 L1100,80 L1160,58 L1200,80"
+        />
       </svg>
       <svg class="range-tile" viewBox="0 0 1200 120" preserveAspectRatio="none">
-        <path class="range-fill" d="M0,120 L0,80 L70,54 L130,86 L200,38 L262,74 L330,50 L395,84 L470,26 L545,70 L610,46 L680,82 L755,34 L820,66 L890,44 L960,78 L1030,52 L1100,80 L1160,58 L1200,80 L1200,120 Z" />
-        <path class="range-rim" vector-effect="non-scaling-stroke" fill="none"
-          d="M0,80 L70,54 L130,86 L200,38 L262,74 L330,50 L395,84 L470,26 L545,70 L610,46 L680,82 L755,34 L820,66 L890,44 L960,78 L1030,52 L1100,80 L1160,58 L1200,80" />
+        <path
+          class="range-fill"
+          d="M0,120 L0,80 L70,54 L130,86 L200,38 L262,74 L330,50 L395,84 L470,26 L545,70 L610,46 L680,82 L755,34 L820,66 L890,44 L960,78 L1030,52 L1100,80 L1160,58 L1200,80 L1200,120 Z"
+        />
+        <path
+          class="range-rim"
+          vector-effect="non-scaling-stroke"
+          fill="none"
+          d="M0,80 L70,54 L130,86 L200,38 L262,74 L330,50 L395,84 L470,26 L545,70 L610,46 L680,82 L755,34 L820,66 L890,44 L960,78 L1030,52 L1100,80 L1160,58 L1200,80"
+        />
       </svg>
     </div>
 
     <div class="home-floor"></div>
-    <div class="home-horizon"></div>
     <div class="home-veil"></div>
     <div class="home-scanlines"></div>
   </div>
 
   <main class="home-main">
-
     <div class="home-marquee">
       <h1 class="home-title">Platina32</h1>
-      <p class="home-subtitle">Select a machine</p>
+      <div class="system-status" aria-label="System ready, two machines online">
+        <span class="status-light" aria-hidden="true"></span>
+        <span>System ready</span>
+        <span class="status-divider">·</span>
+        <span>2 machines online</span>
+      </div>
     </div>
 
     <div class="home-tiles">
-
       <button type="button" class="home-tile" (click)="start()">
-
         <span class="cab-head">
           <span class="cab-marquee">
             <span class="cab-title">Song Contest</span>
@@ -49,26 +63,26 @@
         <span class="cab-bezel">
           <span class="cab-screen">
             <span class="attract attract-score" aria-hidden="true">
-            <span class="sc-row" aria-hidden="true">
-              <span class="sc-flag sc-flag-1"></span>
-              <span class="sc-track"><span class="sc-bar sc-bar-1"></span></span>
-            </span>
-            <span class="sc-row" aria-hidden="true">
-              <span class="sc-flag sc-flag-2"></span>
-              <span class="sc-track"><span class="sc-bar sc-bar-2"></span></span>
-            </span>
-            <span class="sc-row" aria-hidden="true">
-              <span class="sc-flag sc-flag-3"></span>
-              <span class="sc-track"><span class="sc-bar sc-bar-3"></span></span>
-            </span>
-            <span class="sc-row" aria-hidden="true">
-              <span class="sc-flag sc-flag-4"></span>
-              <span class="sc-track"><span class="sc-bar sc-bar-4"></span></span>
-            </span>
-            <span class="sc-row" aria-hidden="true">
-              <span class="sc-flag sc-flag-5"></span>
-              <span class="sc-track"><span class="sc-bar sc-bar-5"></span></span>
-            </span>
+              <span class="sc-row" aria-hidden="true">
+                <span class="sc-flag sc-flag-1"></span>
+                <span class="sc-track"><span class="sc-bar sc-bar-1"></span></span>
+              </span>
+              <span class="sc-row" aria-hidden="true">
+                <span class="sc-flag sc-flag-2"></span>
+                <span class="sc-track"><span class="sc-bar sc-bar-2"></span></span>
+              </span>
+              <span class="sc-row" aria-hidden="true">
+                <span class="sc-flag sc-flag-3"></span>
+                <span class="sc-track"><span class="sc-bar sc-bar-3"></span></span>
+              </span>
+              <span class="sc-row" aria-hidden="true">
+                <span class="sc-flag sc-flag-4"></span>
+                <span class="sc-track"><span class="sc-bar sc-bar-4"></span></span>
+              </span>
+              <span class="sc-row" aria-hidden="true">
+                <span class="sc-flag sc-flag-5"></span>
+                <span class="sc-track"><span class="sc-bar sc-bar-5"></span></span>
+              </span>
             </span>
             <span class="cab-glass" aria-hidden="true"></span>
           </span>
@@ -80,15 +94,24 @@
             <span class="cab-btn cab-btn-1"></span>
             <span class="cab-btn cab-btn-2"></span>
             <span class="cab-btn cab-btn-3"></span>
+            <span class="cab-id" aria-hidden="true">CAB-01</span>
           </span>
         </span>
 
         <span class="cab-body">
           <span class="tile-desc">Eurovision-style voting with a live scoreboard.</span>
           <span class="tile-cta">
-            Launch
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                 stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <span class="cta-default">Launch</span>
+            <span class="cta-hover">Press start</span>
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
               <path d="M5 12h13" />
               <path d="m12 6 6 6-6 6" />
             </svg>
@@ -99,7 +122,6 @@
       </button>
 
       <button type="button" class="home-tile" (click)="openShooter()">
-
         <span class="cab-head">
           <span class="cab-marquee">
             <span class="cab-title">Sector Patrol</span>
@@ -123,15 +145,24 @@
             <span class="cab-btn cab-btn-1"></span>
             <span class="cab-btn cab-btn-2"></span>
             <span class="cab-btn cab-btn-3"></span>
+            <span class="cab-id" aria-hidden="true">CAB-02</span>
           </span>
         </span>
 
         <span class="cab-body">
           <span class="tile-desc">Top-down retro shooter prototype.</span>
           <span class="tile-cta">
-            Launch
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                 stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <span class="cta-default">Launch</span>
+            <span class="cta-hover">Press start</span>
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
               <path d="M5 12h13" />
               <path d="m12 6 6 6-6 6" />
             </svg>
@@ -140,12 +171,10 @@
 
         <span class="cab-plinth" aria-hidden="true"></span>
       </button>
-
     </div>
   </main>
 
   <footer class="home-footer">
     <span>Made by Bastiaan van Dijk &middot; &copy; {{ currentYear }}</span>
   </footer>
-
 </div>
