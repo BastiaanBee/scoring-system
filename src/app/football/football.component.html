@@ -1,0 +1,219 @@
+<main class="board">
+  <header class="topbar">
+    <div class="identity">
+      <a routerLink="/" class="back-link">
+        <span class="back-arrow" aria-hidden="true">←</span>
+        Arcade
+      </a>
+
+      <h1 class="wordmark">Eredivisie</h1>
+      <p class="subtitle">Live table and every result, round by round.</p>
+    </div>
+
+    @if (data(); as league) {
+      <dl class="readout">
+        <div>
+          <dt>Season</dt>
+          <dd>
+            {{ league.season.startDate | date: 'yyyy' }}/{{ league.season.endDate | date: 'yy' }}
+          </dd>
+        </div>
+
+        <div>
+          <dt>Round</dt>
+          <dd>{{ league.season.currentMatchday }}</dd>
+        </div>
+
+        <div>
+          <dt>Clubs</dt>
+          <dd>{{ league.standings.length }}</dd>
+        </div>
+
+        <div>
+          <dt>Fixtures</dt>
+          <dd>{{ league.matches.length }}</dd>
+        </div>
+      </dl>
+    }
+  </header>
+
+  @if (loading()) {
+    <section class="state-panel" aria-live="polite">
+      <span class="loader" aria-hidden="true"></span>
+      <p>Pulling in the latest table.</p>
+    </section>
+  } @else if (error()) {
+    <section class="state-panel">
+      <p class="state-title">The league did not load</p>
+      <p class="state-detail">{{ error() }}</p>
+      <button type="button" class="ghost-button" (click)="loadData()">Reload the table</button>
+    </section>
+  } @else if (data(); as league) {
+    <section class="dashboard">
+      <article class="panel standings-panel">
+        <header class="panel-header">
+          <div class="panel-title">
+            <p class="panel-kicker">League table</p>
+            <h2>Standings</h2>
+          </div>
+
+          <ul class="zone-legend">
+            <li class="zone-europe">Europe</li>
+            <li class="zone-drop">Drop zone</li>
+          </ul>
+        </header>
+
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th class="col-position" scope="col">#</th>
+                <th class="col-club" scope="col">Club</th>
+                <th class="stat-played" scope="col" title="Played">P</th>
+                <th class="optional-column stat-won" scope="col" title="Won">W</th>
+                <th class="optional-column stat-draw" scope="col" title="Drawn">D</th>
+                <th class="optional-column stat-lost" scope="col" title="Lost">L</th>
+                <th class="stat-for" scope="col" title="Goals for">GF</th>
+                <th class="stat-against" scope="col" title="Goals against">GA</th>
+                <th class="stat-delta" scope="col" title="Goal difference">GD</th>
+                <th class="col-points" scope="col">Pts</th>
+                <th class="form-column" scope="col">Form</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              @for (row of league.standings; track row.team.id) {
+                <tr>
+                  <td class="position">
+                    <span class="zone-bar" aria-hidden="true"></span>
+                    {{ $index + 1 }}
+                  </td>
+
+                  <td class="col-club">
+                    <span class="club-name">{{ row.team.shortName ?? row.team.name }}</span>
+                  </td>
+
+                  <td class="stat-played">{{ row.playedGames }}</td>
+                  <td class="optional-column stat-won">{{ row.won }}</td>
+                  <td class="optional-column stat-draw">{{ row.draw }}</td>
+                  <td class="optional-column stat-lost">{{ row.lost }}</td>
+                  <td class="stat-for">{{ row.goalsFor }}</td>
+                  <td class="stat-against">{{ row.goalsAgainst }}</td>
+
+                  <td
+                    class="stat-delta"
+                    [class.is-up]="row.goalDifference > 0"
+                    [class.is-down]="row.goalDifference < 0"
+                  >
+                    {{ row.goalDifference > 0 ? '+' : '' }}{{ row.goalDifference }}
+                  </td>
+
+                  <td class="points">{{ row.points }}</td>
+
+                  <td class="form-column">
+                    <div class="form">
+                      @for (result of row.form; track $index) {
+                        <span class="form-result" [attr.data-result]="result">{{ result }}</span>
+                      }
+                    </div>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </article>
+
+      <article class="panel fixtures-panel">
+        <header class="panel-header">
+          <div class="panel-title">
+            <p class="panel-kicker">
+              Round {{ selectedMatchday() }}
+              @if (selectedMatchday() === league.season.currentMatchday) {
+                <span class="current-chip">Now</span>
+              }
+            </p>
+            <h2>Fixtures</h2>
+          </div>
+
+          <nav class="matchday-controls" aria-label="Select matchday">
+            <button
+              type="button"
+              aria-label="Previous matchday"
+              [disabled]="selectedMatchday() === matchdays()[0]"
+              (click)="previousMatchday()"
+            >
+              ←
+            </button>
+
+            <label>
+              <span class="visually-hidden">Matchday</span>
+              <select (change)="selectMatchday($event)">
+                @for (matchday of matchdays(); track matchday) {
+                  <option [value]="matchday" [selected]="matchday === selectedMatchday()">
+                    Round {{ matchday }}
+                  </option>
+                }
+              </select>
+            </label>
+
+            <button
+              type="button"
+              aria-label="Next matchday"
+              [disabled]="selectedMatchday() === matchdays()[matchdays().length - 1]"
+              (click)="nextMatchday()"
+            >
+              →
+            </button>
+          </nav>
+        </header>
+
+        <div class="matches">
+          @for (match of selectedMatches(); track match.id) {
+            <article class="match-card" [attr.data-status]="match.status">
+              <div class="match-meta">
+                <span class="kickoff">{{ match.utcDate | date: 'EEE d MMM · HH:mm' }}</span>
+                <span class="status">{{ statusLabel(match.status) }}</span>
+              </div>
+
+              <div class="match-line">
+                <span class="side home" [title]="match.homeTeam.name">
+                  <span class="side-name">{{
+                    match.homeTeam.shortName ?? match.homeTeam.name
+                  }}</span>
+                </span>
+
+                @if (isFinished(match)) {
+                  <span class="scoreline">
+                    <b>{{ match.score.fullTime.home }}</b>
+                    <i aria-hidden="true">:</i>
+                    <b>{{ match.score.fullTime.away }}</b>
+                  </span>
+                } @else {
+                  <span class="scoreline pending">vs</span>
+                }
+
+                <span class="side away" [title]="match.awayTeam.name">
+                  <span class="side-name">{{
+                    match.awayTeam.shortName ?? match.awayTeam.name
+                  }}</span>
+                </span>
+              </div>
+            </article>
+          } @empty {
+            <p class="empty-message">Nothing scheduled in this round yet.</p>
+          }
+        </div>
+      </article>
+    </section>
+  }
+
+  <footer class="horizon">
+    <p class="credit">
+      Data by
+      <a href="https://www.football-data.org/" target="_blank" rel="noopener noreferrer"
+        >football-data.org</a
+      >
+    </p>
+  </footer>
+</main>
