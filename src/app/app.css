@@ -666,7 +666,7 @@ body.overflow-hidden {
 ───────────────────────────────────────── */
 .container {
   display: grid;
-  grid-template-columns: 1fr 280px;
+  grid-template-columns: minmax(0, 1fr) 280px;
   align-items: start;
   min-height: calc(100vh - 130px);
 }
@@ -678,6 +678,8 @@ body.overflow-hidden {
 ───────────────────────────────────────── */
 .vote-history {
   width: 100%;
+  min-width: 0;
+  max-width: 100%;
   margin: 1.5rem 0 0;
   box-sizing: border-box;
   background: rgba(0, 0, 0, 0.18);
@@ -735,7 +737,11 @@ body.overflow-hidden {
   the table remains readable instead of shrinking every column.
 */
 .vote-history-scroll {
-  overflow: auto;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  overflow-x: auto;
+  overflow-y: auto;
   max-height: min(65vh, 720px);
   border-top: 1px solid var(--rule);
   scrollbar-gutter: stable;
@@ -857,6 +863,7 @@ body.overflow-hidden {
   border-right: 1px solid var(--rule);
   padding: 1.2rem 1.4rem;
   padding-bottom: 6rem;
+  min-width: 0;
 }
 
 .scoreboard-header {
