@@ -1,34 +1,151 @@
-<!-- home.component.html — homepage template -->
+<!-- home.component.html: homepage template -->
 <div class="home-page">
 
-  <!-- Main content -->
+  <!-- Ambient backdrop: sky, sun, mountains, grid floor -->
+  <div class="home-backdrop" aria-hidden="true">
+    <div class="home-stars"></div>
+    <div class="home-stars home-stars-b"></div>
+
+    <div class="home-sun"></div>
+
+    <div class="home-ground"></div>
+    <div class="home-glow"></div>
+    <div class="home-range">
+      <svg class="range-tile" viewBox="0 0 1200 120" preserveAspectRatio="none">
+        <path class="range-fill" d="M0,120 L0,80 L70,54 L130,86 L200,38 L262,74 L330,50 L395,84 L470,26 L545,70 L610,46 L680,82 L755,34 L820,66 L890,44 L960,78 L1030,52 L1100,80 L1160,58 L1200,80 L1200,120 Z" />
+        <path class="range-rim" vector-effect="non-scaling-stroke" fill="none"
+          d="M0,80 L70,54 L130,86 L200,38 L262,74 L330,50 L395,84 L470,26 L545,70 L610,46 L680,82 L755,34 L820,66 L890,44 L960,78 L1030,52 L1100,80 L1160,58 L1200,80" />
+      </svg>
+      <svg class="range-tile" viewBox="0 0 1200 120" preserveAspectRatio="none">
+        <path class="range-fill" d="M0,120 L0,80 L70,54 L130,86 L200,38 L262,74 L330,50 L395,84 L470,26 L545,70 L610,46 L680,82 L755,34 L820,66 L890,44 L960,78 L1030,52 L1100,80 L1160,58 L1200,80 L1200,120 Z" />
+        <path class="range-rim" vector-effect="non-scaling-stroke" fill="none"
+          d="M0,80 L70,54 L130,86 L200,38 L262,74 L330,50 L395,84 L470,26 L545,70 L610,46 L680,82 L755,34 L820,66 L890,44 L960,78 L1030,52 L1100,80 L1160,58 L1200,80" />
+      </svg>
+    </div>
+
+    <div class="home-floor"></div>
+    <div class="home-horizon"></div>
+    <div class="home-veil"></div>
+    <div class="home-scanlines"></div>
+  </div>
+
   <main class="home-main">
-    <h1 class="home-title">Platina32</h1>
-    <p class="home-subtitle">Pick an app to get started</p>
 
-    <!-- App tiles -->
+    <div class="home-marquee">
+      <h1 class="home-title">Platina32</h1>
+      <p class="home-subtitle">Select a machine</p>
+    </div>
+
     <div class="home-tiles">
-      <div class="home-tile" (click)="start()">
-        <div class="tile-icon">🏆</div>
-        <div class="tile-body">
-          <h2 class="tile-title">Song Contest</h2>
-          <p class="tile-desc">Eurovision-style voting and live scoreboard</p>
-        </div>
-      </div>
 
-      <div class="home-tile" (click)="openShooter()">
-        <div class="tile-icon">🕹️</div>
-        <div class="tile-body">
-          <h2 class="tile-title">Sector Patrol</h2>
-          <p class="tile-desc">Top-down retro shooter prototype</p>
-        </div>
-      </div>
+      <button type="button" class="home-tile" (click)="start()">
+
+        <span class="cab-head">
+          <span class="cab-marquee">
+            <span class="cab-title">Song Contest</span>
+          </span>
+        </span>
+
+        <span class="cab-bezel">
+          <span class="cab-screen">
+            <span class="attract attract-score" aria-hidden="true">
+            <span class="sc-row" aria-hidden="true">
+              <span class="sc-flag sc-flag-1"></span>
+              <span class="sc-track"><span class="sc-bar sc-bar-1"></span></span>
+            </span>
+            <span class="sc-row" aria-hidden="true">
+              <span class="sc-flag sc-flag-2"></span>
+              <span class="sc-track"><span class="sc-bar sc-bar-2"></span></span>
+            </span>
+            <span class="sc-row" aria-hidden="true">
+              <span class="sc-flag sc-flag-3"></span>
+              <span class="sc-track"><span class="sc-bar sc-bar-3"></span></span>
+            </span>
+            <span class="sc-row" aria-hidden="true">
+              <span class="sc-flag sc-flag-4"></span>
+              <span class="sc-track"><span class="sc-bar sc-bar-4"></span></span>
+            </span>
+            <span class="sc-row" aria-hidden="true">
+              <span class="sc-flag sc-flag-5"></span>
+              <span class="sc-track"><span class="sc-bar sc-bar-5"></span></span>
+            </span>
+            </span>
+            <span class="cab-glass" aria-hidden="true"></span>
+          </span>
+        </span>
+
+        <span class="cab-panel" aria-hidden="true">
+          <span class="cab-stick"></span>
+          <span class="cab-buttons">
+            <span class="cab-btn cab-btn-1"></span>
+            <span class="cab-btn cab-btn-2"></span>
+            <span class="cab-btn cab-btn-3"></span>
+          </span>
+        </span>
+
+        <span class="cab-body">
+          <span class="tile-desc">Eurovision-style voting with a live scoreboard.</span>
+          <span class="tile-cta">
+            Launch
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                 stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M5 12h13" />
+              <path d="m12 6 6 6-6 6" />
+            </svg>
+          </span>
+        </span>
+
+        <span class="cab-plinth" aria-hidden="true"></span>
+      </button>
+
+      <button type="button" class="home-tile" (click)="openShooter()">
+
+        <span class="cab-head">
+          <span class="cab-marquee">
+            <span class="cab-title">Sector Patrol</span>
+          </span>
+        </span>
+
+        <span class="cab-bezel">
+          <span class="cab-screen">
+            <span class="attract attract-space" aria-hidden="true">
+              <span class="sp-stars sp-stars-far"></span>
+              <span class="sp-stars sp-stars-near"></span>
+              <span class="sp-ship"><span class="sp-shot"></span></span>
+            </span>
+            <span class="cab-glass" aria-hidden="true"></span>
+          </span>
+        </span>
+
+        <span class="cab-panel" aria-hidden="true">
+          <span class="cab-stick"></span>
+          <span class="cab-buttons">
+            <span class="cab-btn cab-btn-1"></span>
+            <span class="cab-btn cab-btn-2"></span>
+            <span class="cab-btn cab-btn-3"></span>
+          </span>
+        </span>
+
+        <span class="cab-body">
+          <span class="tile-desc">Top-down retro shooter prototype.</span>
+          <span class="tile-cta">
+            Launch
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                 stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M5 12h13" />
+              <path d="m12 6 6 6-6 6" />
+            </svg>
+          </span>
+        </span>
+
+        <span class="cab-plinth" aria-hidden="true"></span>
+      </button>
+
     </div>
   </main>
 
-  <!-- Footer -->
   <footer class="home-footer">
-    <span>Made by Bastiaan van Dijk &mdash; &copy; {{ currentYear }}</span>
+    <span>Made by Bastiaan van Dijk &middot; &copy; {{ currentYear }}</span>
   </footer>
 
 </div>

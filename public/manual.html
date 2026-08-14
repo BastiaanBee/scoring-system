@@ -1,404 +1,1038 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Host Manual — Song Contest</title>
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      --gold:     #F5C800;
-      --teal:     #00C4A8;
-      --navy:     #0B1A2E;
-      --navy-mid: #112240;
-      --navy-lt:  #1A3358;
-      --text:     #F0F4FF;
-      --text-2:   #C0CFEA;
-      --muted:    #7888AA;
-      --rule:     rgba(255,255,255,0.08);
-    }
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Host Manual — Platina32 Song Contest</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --gold: #f5c800;
+        --teal: #00c4a8;
+        --teal-lt: #00e0c0;
+        --navy: #0b1a2e;
+        --navy-mid: #112240;
+        --navy-lt: #1a3358;
+        --text: #f0f4ff;
+        --text-2: #c0cfea;
+        --muted: #7888aa;
+        --rule: rgba(255, 255, 255, 0.08);
+        --danger: #ff8c9a;
+      }
 
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
 
-    html, body {
-      background: var(--navy);
-      color: var(--text);
-      font-family: 'Inter', sans-serif;
-      font-size: 16px;
-      line-height: 1.7;
-    }
+      html {
+        scroll-behavior: smooth;
+        background: var(--navy);
+      }
 
-    /* ── Header ── */
-    .hero {
-      background: var(--navy-mid);
-      border-bottom: 1px solid var(--rule);
-      padding: 3rem 2rem 2.5rem;
-      text-align: center;
-      user-select: none;
-    }
+      body {
+        background:
+          radial-gradient(circle at top, rgba(26, 51, 88, 0.55), transparent 34rem), var(--navy);
+        color: var(--text);
+        font-family: 'Inter', sans-serif;
+        font-size: 16px;
+        line-height: 1.7;
+      }
 
-    .hero-eyebrow {
-      font-family: 'Inter', sans-serif;
-      font-size: 0.7rem;
-      font-weight: 700;
-      letter-spacing: 0.25em;
-      text-transform: uppercase;
-      color: var(--teal);
-      margin-bottom: 0.75rem;
-      user-select: none;
-      pointer-events: none;
-    }
-    
-    a:link {
-      text-decoration: none;
-    }
+      a {
+        color: var(--teal-lt);
+        text-decoration: none;
+      }
 
-    .hero h1 {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: clamp(2.5rem, 6vw, 4.5rem);
-      color: var(--gold);
-      letter-spacing: 0.1em;
-      line-height: 1;
-      text-shadow: 0 0 40px rgba(245,200,0,0.3);
-      margin-bottom: 0.5rem;
-      user-select: none;
-      pointer-events: none;
-    }
+      a:hover {
+        color: var(--gold);
+      }
 
-    .hero-sub {
-      font-size: 0.95rem;
-      color: var(--muted);
-      font-weight: 500;
-    }
+      /* ── Hero ── */
+      .hero {
+        position: relative;
+        overflow: hidden;
+        background: rgba(17, 34, 64, 0.92);
+        border-bottom: 1px solid var(--rule);
+        padding: 3rem 2rem 2.6rem;
+        text-align: center;
+        user-select: none;
+      }
 
-    .badge {
-      display: inline-block;
-      background: rgba(245,200,0,0.12);
-      border: 1px solid rgba(245,200,0,0.3);
-      color: var(--gold);
-      font-size: 0.7rem;
-      font-weight: 700;
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
-      padding: 0.25rem 0.7rem;
-      border-radius: 20px;
-      margin-bottom: 1.2rem;
-      user-select: none;
-      pointer-events: none;
-    }
+      .hero::before {
+        content: '';
+        position: absolute;
+        inset: 0 0 auto;
+        height: 3px;
+        background: linear-gradient(90deg, var(--teal), var(--gold), #e03050, var(--teal));
+      }
 
-    /* ── Layout ── */
-    .container {
-      max-width: 780px;
-      margin: 0 auto;
-      padding: 3rem 2rem 5rem;
-    }
+      .hero-eyebrow {
+        font-size: 0.7rem;
+        font-weight: 700;
+        letter-spacing: 0.25em;
+        text-transform: uppercase;
+        color: var(--teal);
+        margin-bottom: 0.75rem;
+      }
 
-    /* ── Section ── */
-    .section {
-      margin-bottom: 3rem;
-    }
+      .hero h1 {
+        font-family: 'Bebas Neue', sans-serif;
+        font-size: clamp(2.5rem, 6vw, 4.5rem);
+        color: var(--gold);
+        letter-spacing: 0.1em;
+        line-height: 1;
+        text-shadow: 0 0 40px rgba(245, 200, 0, 0.3);
+        margin-bottom: 0.7rem;
+      }
 
-    .section-number {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 4rem;
-      color: rgba(245,200,0,0.12);
-      line-height: 1;
-      margin-bottom: -0.5rem;
-    }
+      .hero-sub {
+        max-width: 720px;
+        margin: 0 auto;
+        font-size: 0.95rem;
+        color: var(--text-2);
+        font-weight: 500;
+      }
 
-    .section h2 {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 1.7rem;
-      color: var(--gold);
-      letter-spacing: 0.08em;
-      margin-bottom: 1rem;
-      padding-bottom: 0.5rem;
-      border-bottom: 1px solid var(--rule);
-    }
+      .badge {
+        display: inline-block;
+        background: rgba(245, 200, 0, 0.12);
+        border: 1px solid rgba(245, 200, 0, 0.3);
+        color: var(--gold);
+        font-size: 0.7rem;
+        font-weight: 700;
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+        padding: 0.25rem 0.7rem;
+        border-radius: 20px;
+        margin-bottom: 1.2rem;
+      }
 
-    .section p {
-      color: var(--text-2);
-      margin-bottom: 0.75rem;
-      font-size: 0.95rem;
-    }
+      /* ── Main layout ── */
+      .container {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 2rem 2rem 5rem;
+      }
 
-    /* ── Steps ── */
-    .steps {
-      display: flex;
-      flex-direction: column;
-      gap: 0.75rem;
-      margin-top: 1rem;
-    }
+      .contents {
+        background: rgba(17, 34, 64, 0.76);
+        border: 1px solid var(--rule);
+        border-radius: 10px;
+        padding: 1.25rem 1.4rem;
+        margin-bottom: 3rem;
+      }
 
-    .step {
-      display: flex;
-      gap: 1rem;
-      align-items: flex-start;
-      background: var(--navy-mid);
-      border: 1px solid var(--rule);
-      border-radius: 8px;
-      padding: 1rem 1.2rem;
-    }
+      .contents-title {
+        font-family: 'Bebas Neue', sans-serif;
+        font-size: 1.15rem;
+        letter-spacing: 0.12em;
+        color: var(--gold);
+        margin-bottom: 0.7rem;
+      }
 
-    .step-num {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 1.4rem;
-      color: var(--teal);
-      min-width: 2rem;
-      line-height: 1.2;
-    }
+      .contents-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0.45rem 1.25rem;
+      }
 
-    .step-body {
-      flex: 1;
-    }
+      .contents a {
+        color: var(--text-2);
+        font-size: 0.88rem;
+      }
 
-    .step-title {
-      font-weight: 700;
-      font-size: 0.9rem;
-      color: var(--text);
-      margin-bottom: 0.25rem;
-    }
+      .contents a:hover {
+        color: var(--teal-lt);
+      }
 
-    .step-desc {
-      font-size: 0.875rem;
-      color: var(--text-2);
-      line-height: 1.6;
-    }
+      /* ── Sections ── */
+      .section {
+        margin-bottom: 3.25rem;
+        scroll-margin-top: 1rem;
+      }
 
-    /* ── Tips ── */
-    .tip {
-      background: rgba(0,196,168,0.07);
-      border-left: 3px solid var(--teal);
-      border-radius: 0 6px 6px 0;
-      padding: 0.75rem 1rem;
-      margin-top: 1rem;
-      font-size: 0.875rem;
-      color: var(--text-2);
-    }
+      .section-number {
+        font-family: 'Bebas Neue', sans-serif;
+        font-size: 4rem;
+        color: rgba(245, 200, 0, 0.12);
+        line-height: 1;
+        margin-bottom: -0.5rem;
+      }
 
-    .tip strong {
-      color: var(--teal);
-    }
+      .section h2 {
+        font-family: 'Bebas Neue', sans-serif;
+        font-size: 1.8rem;
+        color: var(--gold);
+        letter-spacing: 0.08em;
+        margin-bottom: 1rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid var(--rule);
+      }
 
-    .warning {
-      background: rgba(245,200,0,0.07);
-      border-left: 3px solid var(--gold);
-      border-radius: 0 6px 6px 0;
-      padding: 0.75rem 1rem;
-      margin-top: 1rem;
-      font-size: 0.875rem;
-      color: var(--text-2);
-    }
+      .section h3 {
+        font-family: 'Bebas Neue', sans-serif;
+        font-size: 1.15rem;
+        color: var(--teal-lt);
+        letter-spacing: 0.08em;
+        margin: 1.5rem 0 0.6rem;
+      }
 
-    .warning strong {
-      color: var(--gold);
-    }
+      .section p {
+        color: var(--text-2);
+        margin-bottom: 0.8rem;
+        font-size: 0.95rem;
+      }
 
-    /* ── Tag pills ── */
-    .tag {
-      display: inline-block;
-      background: var(--navy-lt);
-      border: 1px solid var(--rule);
-      color: var(--text-2);
-      font-size: 0.75rem;
-      font-weight: 600;
-      padding: 0.15rem 0.5rem;
-      border-radius: 4px;
-      font-family: monospace;
-    }
+      .section ul {
+        margin: 0.65rem 0 1rem 1.25rem;
+        color: var(--text-2);
+        font-size: 0.92rem;
+      }
 
-    /* ── Divider ── */
-    .divider {
-      border: none;
-      border-top: 1px solid var(--rule);
-      margin: 2.5rem 0;
-    }
+      .section li {
+        margin-bottom: 0.35rem;
+        padding-left: 0.2rem;
+      }
 
-    /* ── Footer ── */
-    footer {
-      text-align: center;
-      padding: 2rem;
-      font-size: 0.8rem;
-      color: var(--muted);
-      border-top: 1px solid var(--rule);
-    }
-  </style>
-</head>
-<body>
+      .divider {
+        border: none;
+        border-top: 1px solid var(--rule);
+        margin: 2.75rem 0;
+      }
 
-  <div class="hero">
-    <div class="badge">Host Manual</div>
-    <a href="https://platina32.com" target="_blank"><div class="hero-eyebrow">✦ Platina32.com ✦</div></a>
-    <h1>Platina32 Song Contest</h1>
-    <p class="hero-sub">Everything you need to run a contest from start to finish.</p>
-  </div>
+      /* ── Steps ── */
+      .steps {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        margin-top: 1rem;
+      }
 
-  <div class="container">
+      .step {
+        display: flex;
+        gap: 1rem;
+        align-items: flex-start;
+        background: rgba(17, 34, 64, 0.84);
+        border: 1px solid var(--rule);
+        border-radius: 8px;
+        padding: 1rem 1.2rem;
+      }
 
-    <!-- Section 1 -->
-    <div class="section">
-      <div class="section-number">01</div>
-      <h2>Before the Contest</h2>
-      <p>Before opening the app, make sure you have collected the following information from all participants:</p>
-      <div class="steps">
-        <div class="step">
-          <div class="step-num">→</div>
-          <div class="step-body">
-            <div class="step-title">Participant name</div>
-            <div class="step-desc">The forum username or display name of each contestant.</div>
+      .step-num {
+        font-family: 'Bebas Neue', sans-serif;
+        font-size: 1.4rem;
+        color: var(--teal);
+        min-width: 2rem;
+        line-height: 1.2;
+      }
+
+      .step-body {
+        flex: 1;
+        min-width: 0;
+      }
+
+      .step-title {
+        font-weight: 700;
+        font-size: 0.92rem;
+        color: var(--text);
+        margin-bottom: 0.25rem;
+      }
+
+      .step-desc {
+        font-size: 0.875rem;
+        color: var(--text-2);
+        line-height: 1.6;
+      }
+
+      /* ── Feature cards ── */
+      .feature-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0.8rem;
+        margin-top: 1rem;
+      }
+
+      .feature-card {
+        background: rgba(17, 34, 64, 0.72);
+        border: 1px solid var(--rule);
+        border-radius: 8px;
+        padding: 1rem;
+      }
+
+      .feature-card strong {
+        display: block;
+        color: var(--text);
+        font-size: 0.9rem;
+        margin-bottom: 0.25rem;
+      }
+
+      .feature-card span {
+        display: block;
+        color: var(--text-2);
+        font-size: 0.84rem;
+        line-height: 1.55;
+      }
+
+      /* ── Tips and warnings ── */
+      .tip,
+      .warning,
+      .important {
+        border-radius: 0 6px 6px 0;
+        padding: 0.8rem 1rem;
+        margin-top: 1rem;
+        font-size: 0.875rem;
+        color: var(--text-2);
+      }
+
+      .tip {
+        background: rgba(0, 196, 168, 0.07);
+        border-left: 3px solid var(--teal);
+      }
+
+      .tip strong {
+        color: var(--teal-lt);
+      }
+
+      .warning {
+        background: rgba(245, 200, 0, 0.07);
+        border-left: 3px solid var(--gold);
+      }
+
+      .warning strong {
+        color: var(--gold);
+      }
+
+      .important {
+        background: rgba(224, 48, 80, 0.08);
+        border-left: 3px solid var(--danger);
+      }
+
+      .important strong {
+        color: var(--danger);
+      }
+
+      /* ── Tags and tables ── */
+      .tag {
+        display: inline-block;
+        background: var(--navy-lt);
+        border: 1px solid var(--rule);
+        color: var(--text-2);
+        font-size: 0.75rem;
+        font-weight: 600;
+        padding: 0.15rem 0.5rem;
+        border-radius: 4px;
+        font-family: monospace;
+        white-space: nowrap;
+      }
+
+      .table-wrap {
+        overflow-x: auto;
+        margin-top: 1rem;
+        border: 1px solid var(--rule);
+        border-radius: 8px;
+      }
+
+      table {
+        width: 100%;
+        min-width: 660px;
+        border-collapse: collapse;
+        background: rgba(17, 34, 64, 0.72);
+        font-size: 0.84rem;
+      }
+
+      th,
+      td {
+        text-align: left;
+        vertical-align: top;
+        padding: 0.75rem 0.85rem;
+        border-bottom: 1px solid var(--rule);
+        color: var(--text-2);
+      }
+
+      th {
+        color: var(--teal-lt);
+        background: rgba(11, 26, 46, 0.75);
+        font-size: 0.76rem;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+      }
+
+      tr:last-child td {
+        border-bottom: none;
+      }
+
+      /* ── Footer ── */
+      footer {
+        text-align: center;
+        padding: 2rem;
+        font-size: 0.8rem;
+        color: var(--muted);
+        border-top: 1px solid var(--rule);
+        background: rgba(9, 24, 40, 0.65);
+      }
+
+      @media (max-width: 680px) {
+        .container {
+          padding: 1.5rem 1rem 4rem;
+        }
+
+        .contents-grid,
+        .feature-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .hero {
+          padding-inline: 1rem;
+        }
+
+        .step {
+          padding: 0.9rem;
+        }
+      }
+
+      @media print {
+        body {
+          background: #fff;
+          color: #111;
+        }
+
+        .hero,
+        .contents,
+        .step,
+        .feature-card,
+        table {
+          background: #fff;
+          color: #111;
+        }
+
+        .hero {
+          border-bottom: 2px solid #333;
+        }
+
+        .hero h1,
+        .section h2,
+        .section h3,
+        .contents-title {
+          color: #111;
+          text-shadow: none;
+        }
+
+        .section p,
+        .step-desc,
+        .feature-card span,
+        td,
+        li,
+        .hero-sub {
+          color: #222;
+        }
+
+        .divider,
+        .step,
+        .feature-card,
+        .contents,
+        .table-wrap,
+        th,
+        td {
+          border-color: #bbb;
+        }
+
+        a {
+          color: #111;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="hero">
+      <div class="badge">Host Manual</div>
+      <a href="https://platina32.com" target="_blank" rel="noopener noreferrer">
+        <div class="hero-eyebrow">✦ Platina32.com ✦</div>
+      </a>
+      <h1>Platina32 Song Contest</h1>
+      <p class="hero-sub">
+        A complete guide to setting up contestants, entering votes, running reveals, sharing
+        snapshots, checking voting history, exporting results and reusing a finished contest.
+      </p>
+    </header>
+
+    <main class="container">
+      <nav class="contents" aria-label="Manual contents">
+        <div class="contents-title">Contents</div>
+        <div class="contents-grid">
+          <a href="#before">01 — Before the contest</a>
+          <a href="#setup">02 — Setting up the contest</a>
+          <a href="#voting">03 — Running voting rounds</a>
+          <a href="#reveal">04 — Reveals and snapshot links</a>
+          <a href="#history">05 — Voting history and exports</a>
+          <a href="#finish">06 — Ending and sharing the contest</a>
+          <a href="#saved">07 — Saved and previous contests</a>
+          <a href="#storage">08 — Storage, recovery and practical notes</a>
+        </div>
+      </nav>
+
+      <!-- Section 1 -->
+      <section class="section" id="before">
+        <div class="section-number">01</div>
+        <h2>Before the Contest</h2>
+        <p>Collect the following information for every contestant before you begin:</p>
+
+        <div class="steps">
+          <div class="step">
+            <div class="step-num">→</div>
+            <div class="step-body">
+              <div class="step-title">Participant name</div>
+              <div class="step-desc">
+                The forum username or display name used throughout the voting interface, scoreboard
+                and exports.
+              </div>
+            </div>
+          </div>
+
+          <div class="step">
+            <div class="step-num">→</div>
+            <div class="step-body">
+              <div class="step-title">Represented country</div>
+              <div class="step-desc">
+                Each contestant represents one country. The setup page prevents the same country
+                from being selected twice.
+              </div>
+            </div>
+          </div>
+
+          <div class="step">
+            <div class="step-num">→</div>
+            <div class="step-body">
+              <div class="step-title">Artist and song title</div>
+              <div class="step-desc">
+                These appear on the live scoreboard, final standings, shared pages and spreadsheet
+                exports.
+              </div>
+            </div>
           </div>
         </div>
-        <div class="step">
-          <div class="step-num">→</div>
-          <div class="step-body">
-            <div class="step-title">Represented country</div>
-            <div class="step-desc">Each contestant represents one country. No two contestants can share the same country.</div>
-          </div>
-        </div>
-        <div class="step">
-          <div class="step-num">→</div>
-          <div class="step-body">
-            <div class="step-title">Artist & song title</div>
-            <div class="step-desc">The song entry submitted by each contestant.</div>
-          </div>
-        </div>
-      </div>
-      <div class="tip"><strong>Tip:</strong> Publish all songs to participants before the contest starts so everyone has had a chance to listen before voting begins.</div>
-    </div>
 
-    <hr class="divider">
+        <div class="important">
+          <strong>Important:</strong> Give every participant a unique display name. The app uses
+          participant names throughout the voting order, reveal and voting-history matrix.
+        </div>
 
-    <!-- Section 2 -->
-    <div class="section">
-      <div class="section-number">02</div>
-      <h2>Setting Up the Contest</h2>
-      <p>Go to <strong>platina32.com</strong> and click the Song Contest tile to open the app.</p>
-      <div class="steps">
-        <div class="step">
-          <div class="step-num">1</div>
-          <div class="step-body">
-            <div class="step-title">Enter a contest title</div>
-            <div class="step-desc">This appears in the scoreboard header and on all exported files. Example: <span class="tag">MU Worldvision Song Contest 47</span></div>
-          </div>
+        <div class="tip">
+          <strong>Tip:</strong> Publish the complete song list before voting begins so participants
+          have time to listen and prepare their votes.
         </div>
-        <div class="step">
-          <div class="step-num">2</div>
-          <div class="step-body">
-            <div class="step-title">Choose a scoring system</div>
-            <div class="step-desc">Select Eurovision (12-10-8-7-6-5-4-3-2-1), Formula 1 (25-18-15-12-10-8-6-4-2-1), or define your own custom point values.</div>
-          </div>
-        </div>
-        <div class="step">
-          <div class="step-num">3</div>
-          <div class="step-body">
-            <div class="step-title">Add all contestants</div>
-            <div class="step-desc">Select each contestant's country from the dropdown, then fill in their name, artist, and song. Click <span class="tag">Add Contestant</span> after each one. Already-chosen countries are greyed out automatically.</div>
-          </div>
-        </div>
-        <div class="step">
-          <div class="step-num">4</div>
-          <div class="step-body">
-            <div class="step-title">Reorder if needed</div>
-            <div class="step-desc">Drag the ⠿ handle on each row to reorder contestants. This controls the voting order. Click <span class="tag">Sort A–Z</span> to sort by country name. The default order is the order contestants were added.</div>
-          </div>
-        </div>
-        <div class="step">
-          <div class="step-num">5</div>
-          <div class="step-body">
-            <div class="step-title">Click Start Contest</div>
-            <div class="step-desc">The button is enabled once you have enough contestants for the chosen scoring system (number of point positions + 1).</div>
-          </div>
-        </div>
-      </div>
-      <div class="warning"><strong>Note:</strong> You need at least one more contestant than the number of point positions in your scoring system. With Eurovision scoring (10 positions), you need at least 11 contestants.</div>
-    </div>
+      </section>
 
-    <hr class="divider">
+      <hr class="divider" />
 
-    <!-- Section 3 -->
-    <div class="section">
-      <div class="section-number">03</div>
-      <h2>Running the Voting Rounds</h2>
-      <p>Each contestant takes a turn to cast their votes. The voting panel on the right shows whose turn it is.</p>
-      <div class="steps">
-        <div class="step">
-          <div class="step-num">1</div>
-          <div class="step-body">
-            <div class="step-title">Cast the votes of the current voter</div>
-            <div class="step-desc">The voter bar at the top shows who is currently voting. That contestant hands you his votes and you assign points to the contestants using the dropdowns.</div>
-          </div>
-        </div>
-        <div class="step">
-          <div class="step-num">2</div>
-          <div class="step-body">
-            <div class="step-title">All point slots must be filled</div>
-            <div class="step-desc">The Submit button stays disabled until every point value has been assigned to a different contestant. A voter cannot vote for themselves.</div>
-          </div>
-        </div>
-        <div class="step">
-          <div class="step-num">3</div>
-          <div class="step-body">
-            <div class="step-title">Click Submit Votes</div>
-            <div class="step-desc">Votes are locked in. The scoreboard updates immediately in the background, but the display stays unchanged until the reveal.</div>
-          </div>
-        </div>
-        <div class="step">
-          <div class="step-num">4</div>
-          <div class="step-body">
-            <div class="step-title">Run the reveal sequence</div>
-            <div class="step-desc">Click <span class="tag">▶ Show Reveal</span> to see a preview of the current round's scoreboard changes. After submitting a round, click <span class="tag">🔗 Generate Snapshot Link</span> to create a shareable link that contestants can open on their own devices to watch the reveal independently.</div>
-          </div>
-        </div>
-        <div class="step">
-          <div class="step-num">5</div>
-          <div class="step-body">
-            <div class="step-title">Repeat for each voter</div>
-            <div class="step-desc">The round counter in the header tracks progress. Repeat until all contestants have voted.</div>
-          </div>
-        </div>
-      </div>
-      <div class="tip"><strong>Tip:</strong> Made a mistake? Click <span class="tag">↩ Undo Last Round</span> to revert the last submitted round and re-enter the votes.</div>
-      <div class="tip"><strong>Tip:</strong> At any point during the contest, you can click <span class="tag">📊 Export</span> to export the current scoreboard state to an Excel file.</div>
-    </div>
+      <!-- Section 2 -->
+      <section class="section" id="setup">
+        <div class="section-number">02</div>
+        <h2>Setting Up the Contest</h2>
+        <p>
+          Open the Song Contest app from <strong>platina32.com</strong>. The setup page is where you
+          create the contest, choose its scoring system and enter all contestants.
+        </p>
 
-    <hr class="divider">
+        <div class="steps">
+          <div class="step">
+            <div class="step-num">1</div>
+            <div class="step-body">
+              <div class="step-title">Enter the contest title</div>
+              <div class="step-desc">
+                The title appears above the scoreboard and is used in shared pages and exported
+                filenames. Example: <span class="tag">MU Worldvision Song Contest 47</span>
+              </div>
+            </div>
+          </div>
 
-    <!-- Section 4 -->
-    <div class="section">
-      <div class="section-number">04</div>
-      <h2>Ending the Contest</h2>
-      <div class="steps">
-        <div class="step">
-          <div class="step-num">1</div>
-          <div class="step-body">
-            <div class="step-title">After the last round</div>
-            <div class="step-desc">Once the final voter has submitted and the reveal is done, the <span class="tag">🏆 End Contest & Show Results</span> button appears.</div>
+          <div class="step">
+            <div class="step-num">2</div>
+            <div class="step-body">
+              <div class="step-title">Choose a scoring system</div>
+              <div class="step-desc">
+                Select <strong>Eurovision</strong> (12-10-8-7-6-5-4-3-2-1),
+                <strong>Formula 1</strong> (25-18-15-12-10-8-6-4-2-1), or <strong>Custom</strong>.
+              </div>
+            </div>
+          </div>
+
+          <div class="step">
+            <div class="step-num">3</div>
+            <div class="step-body">
+              <div class="step-title">Configure custom points, when used</div>
+              <div class="step-desc">
+                Enter how many scoring positions are required, press <span class="tag">✓</span>, and
+                enter a positive point value for each position. Up to twenty scoring positions can
+                be created.
+              </div>
+            </div>
+          </div>
+
+          <div class="step">
+            <div class="step-num">4</div>
+            <div class="step-body">
+              <div class="step-title">Add each contestant</div>
+              <div class="step-desc">
+                Select the country, enter the participant name, artist and song, then click
+                <span class="tag">Add Contestant</span>. Countries already in use are disabled.
+              </div>
+            </div>
+          </div>
+
+          <div class="step">
+            <div class="step-num">5</div>
+            <div class="step-body">
+              <div class="step-title">Edit or remove entries</div>
+              <div class="step-desc">
+                Use <span class="tag">✏️</span> to edit an entry and <span class="tag">✕</span> to
+                remove it before the contest begins.
+              </div>
+            </div>
+          </div>
+
+          <div class="step">
+            <div class="step-num">6</div>
+            <div class="step-body">
+              <div class="step-title">Choose the voting order</div>
+              <div class="step-desc">
+                Drag contestants with the <span class="tag">⠿</span> handle, use
+                <span class="tag">Sort A–Z</span> to sort by represented country, or
+                <span class="tag">Shuffle</span> for a random order. The displayed setup order
+                becomes the voting order after the contest starts.
+              </div>
+            </div>
+          </div>
+
+          <div class="step">
+            <div class="step-num">7</div>
+            <div class="step-body">
+              <div class="step-title">Start the contest</div>
+              <div class="step-desc">
+                Click <span class="tag">Start Contest</span>. The button becomes available when all
+                custom points are filled and there are enough contestants.
+              </div>
+            </div>
           </div>
         </div>
-        <div class="step">
-          <div class="step-num">2</div>
-          <div class="step-body">
-            <div class="step-title">Final results screen</div>
-            <div class="step-desc">A podium shows the top 3 contestants, followed by the full final standings table.</div>
+
+        <div class="warning">
+          <strong>Minimum size:</strong> A contest needs at least one more contestant than the
+          number of scoring positions, because nobody may vote for themselves. Eurovision scoring
+          has ten positions, so it requires at least eleven contestants.
+        </div>
+      </section>
+
+      <hr class="divider" />
+
+      <!-- Section 3 -->
+      <section class="section" id="voting">
+        <div class="section-number">03</div>
+        <h2>Running the Voting Rounds</h2>
+        <p>
+          The voter bar and voting panel show whose turn it is. Each contestant submits exactly one
+          round.
+        </p>
+
+        <div class="steps">
+          <div class="step">
+            <div class="step-num">1</div>
+            <div class="step-body">
+              <div class="step-title">Enter the current voter's points</div>
+              <div class="step-desc">
+                Use one dropdown for each point value. The current voter is disabled and cannot vote
+                for themselves.
+              </div>
+            </div>
+          </div>
+
+          <div class="step">
+            <div class="step-num">2</div>
+            <div class="step-body">
+              <div class="step-title">Complete every scoring position</div>
+              <div class="step-desc">
+                Every point value must be assigned, and a recipient may not receive two different
+                point values from the same voter. The progress bar and counter show how many choices
+                are complete.
+              </div>
+            </div>
+          </div>
+
+          <div class="step">
+            <div class="step-num">3</div>
+            <div class="step-body">
+              <div class="step-title">Submit the round</div>
+              <div class="step-desc">
+                Click <span class="tag">Submit Votes ✦</span>. The app records the round, updates
+                the true standings and advances to the next voter.
+              </div>
+            </div>
+          </div>
+
+          <div class="step">
+            <div class="step-num">4</div>
+            <div class="step-body">
+              <div class="step-title">Correct the most recent round when necessary</div>
+              <div class="step-desc">
+                Click <span class="tag">↩ Undo Last Round</span> to remove the most recently
+                submitted voter's points, clear that row from the voting history and return the
+                voting panel to that same voter. Re-enter and submit the corrected round.
+              </div>
+            </div>
+          </div>
+
+          <div class="step">
+            <div class="step-num">5</div>
+            <div class="step-body">
+              <div class="step-title">Continue until everybody has voted</div>
+              <div class="step-desc">
+                The header shows the current round and total number of rounds. A voter cannot submit
+                a second recorded round unless their previous round has first been undone.
+              </div>
+            </div>
           </div>
         </div>
-        <div class="step">
-          <div class="step-num">3</div>
-          <div class="step-body">
-            <div class="step-title">Save & share results</div>
-            <div class="step-desc">Click <span class="tag">💾 Save Results</span> to store results locally for later. Click <span class="tag">🔗 Share Final Results</span> to generate a shareable link. Click <span class="tag">📊 Export to Spreadsheet</span> to download an Excel file.</div>
+
+        <h3>Reading the live scoreboard</h3>
+        <div class="feature-grid">
+          <div class="feature-card">
+            <strong>Automatic ranking</strong>
+            <span
+              >Contestants are ranked by total points as rounds are submitted and revealed.</span
+            >
+          </div>
+          <div class="feature-card">
+            <strong>Tiebreaking</strong>
+            <span>
+              Equal totals are separated by the number of highest scores received, comparing point
+              values from highest to lowest.
+            </span>
+          </div>
+          <div class="feature-card">
+            <strong>Maximum-score marker</strong>
+            <span>
+              The ★ column shows how often a contestant received the highest available point value.
+              Hover over its marker to see which voters awarded it.
+            </span>
+          </div>
+          <div class="feature-card">
+            <strong>Reveal highlights</strong>
+            <span>
+              During a reveal, the current voter, already-finished voters and recipients of revealed
+              points receive different row highlights.
+            </span>
           </div>
         </div>
-      </div>
-      <div class="tip"><strong>Tip:</strong> Saved results can be viewed later from the setup page via the <span class="tag">📋 View Previously Finished Contest</span> button — and reused to start a new contest with the same participants.</div>
-    </div>
+      </section>
 
-  </div>
+      <hr class="divider" />
 
-  <footer>
-    ✦ Made by Platina32 ✦ &nbsp;|&nbsp; <a href="https://platina32.com" target="_blank">platina32.com</a>
-  </footer>
+      <!-- Section 4 -->
+      <section class="section" id="reveal">
+        <div class="section-number">04</div>
+        <h2>Reveals and Snapshot Links</h2>
 
-</body>
+        <h3>Reveal on the host screen</h3>
+        <p>
+          After submitting a round, click <span class="tag">▶ Show Reveal</span>. The scoreboard
+          returns to its pre-round state, allowing you to reveal the submitted scores one at a time.
+        </p>
+        <ul>
+          <li>Click <span class="tag">Next →</span> for each award.</li>
+          <li>The recipient's score and ranking animate after each reveal.</li>
+          <li>Click <span class="tag">Done ✓</span> after the final award.</li>
+          <li>The reveal can be opened again; it restarts from the same pre-round standings.</li>
+        </ul>
+
+        <h3>Share an individual voting round</h3>
+        <p>
+          Click <span class="tag">🔗 Generate Snapshot Link</span> after a round has been submitted.
+          A new read-only page opens for that voting round.
+        </p>
+        <ul>
+          <li>Every viewer controls their own reveal independently.</li>
+          <li>Viewers can reveal manually or use autoplay.</li>
+          <li>The shared page begins from the standings before that voter's points were added.</li>
+          <li>Its Export button downloads the scoreboard state displayed on that snapshot page.</li>
+        </ul>
+
+        <div class="warning">
+          <strong>Snapshot behaviour:</strong> A generated link is a saved copy. It does not change
+          when the host later undoes or edits local contest data. Generate a new link when you need
+          an updated copy.
+        </div>
+      </section>
+
+      <hr class="divider" />
+
+      <!-- Section 5 -->
+      <section class="section" id="history">
+        <div class="section-number">05</div>
+        <h2>Organiser Voting History and Exports</h2>
+
+        <h3>Organiser Voting History</h3>
+        <p>
+          Open the collapsible <span class="tag">📋 Organiser Voting History</span> section
+          underneath the live rankings. It provides a full voter-by-recipient matrix.
+        </p>
+
+        <div class="feature-grid">
+          <div class="feature-card">
+            <strong>Rows are voters</strong>
+            <span>Each completed row shows every point value awarded by that voter.</span>
+          </div>
+          <div class="feature-card">
+            <strong>Columns are recipients</strong>
+            <span>Read down a column to see every score received by one contestant.</span>
+          </div>
+          <div class="feature-card">
+            <strong>Awarded total</strong>
+            <span
+              >The final cell in each completed row shows the total points distributed by that
+              voter.</span
+            >
+          </div>
+          <div class="feature-card">
+            <strong>Received total</strong>
+            <span
+              >The footer total beneath each recipient should match that contestant's scoreboard
+              points.</span
+            >
+          </div>
+        </div>
+
+        <p>
+          For large contests, the matrix scrolls horizontally and vertically. The voter column and
+          recipient headings remain visible while scrolling.
+        </p>
+
+        <h3>Spreadsheet exports</h3>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Export location</th>
+                <th>Workbook contents</th>
+                <th>Purpose</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Live scoreboard <span class="tag">📊 Export</span></td>
+                <td><strong>Standings</strong> + <strong>Voting History</strong></td>
+                <td>Save the current contest state during voting.</td>
+              </tr>
+              <tr>
+                <td>Current final-results screen</td>
+                <td><strong>Results</strong> + <strong>Voting History</strong></td>
+                <td>Download the complete finished contest.</td>
+              </tr>
+              <tr>
+                <td>Previously saved contest</td>
+                <td><strong>Results</strong> + <strong>Voting History</strong></td>
+                <td>Export the saved contest later from the setup page.</td>
+              </tr>
+              <tr>
+                <td>Shared final-results page</td>
+                <td><strong>Standings</strong> + <strong>Voting History</strong></td>
+                <td>Allow anyone with the final link to download the complete overview.</td>
+              </tr>
+              <tr>
+                <td>Shared round-reveal page</td>
+                <td><strong>Standings</strong></td>
+                <td>Export the scoreboard displayed for that individual round.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="tip">
+          <strong>Consistency check:</strong> At the end of the contest, each contestant's
+          scoreboard total, the Received footer in the voting matrix and the exported total should
+          all be identical.
+        </div>
+      </section>
+
+      <hr class="divider" />
+
+      <!-- Section 6 -->
+      <section class="section" id="finish">
+        <div class="section-number">06</div>
+        <h2>Ending and Sharing the Contest</h2>
+
+        <div class="steps">
+          <div class="step">
+            <div class="step-num">1</div>
+            <div class="step-body">
+              <div class="step-title">Finish the final voting round</div>
+              <div class="step-desc">
+                After the last voter submits, complete the reveal or verify the standings. The
+                <span class="tag">🏆 End Contest & Show Results</span> button is available for the
+                host.
+              </div>
+            </div>
+          </div>
+
+          <div class="step">
+            <div class="step-num">2</div>
+            <div class="step-body">
+              <div class="step-title">Confirm the contest ending</div>
+              <div class="step-desc">
+                The app asks for confirmation, then opens the final-results screen with a top-three
+                podium and complete standings.
+              </div>
+            </div>
+          </div>
+
+          <div class="step">
+            <div class="step-num">3</div>
+            <div class="step-body">
+              <div class="step-title">Save results locally</div>
+              <div class="step-desc">
+                Click <span class="tag">💾 Save Results</span> to make the finished contest
+                available later from the app's setup page.
+              </div>
+            </div>
+          </div>
+
+          <div class="step">
+            <div class="step-num">4</div>
+            <div class="step-body">
+              <div class="step-title">Share the final results</div>
+              <div class="step-desc">
+                Click <span class="tag">🔗 Share Final Results</span>. The shared page displays the
+                podium and standings, and its Export button includes the complete voting history.
+              </div>
+            </div>
+          </div>
+
+          <div class="step">
+            <div class="step-num">5</div>
+            <div class="step-body">
+              <div class="step-title">Export the workbook</div>
+              <div class="step-desc">
+                Click <span class="tag">📊 Export to Spreadsheet</span> to download the final
+                rankings and voter-by-recipient history.
+              </div>
+            </div>
+          </div>
+
+          <div class="step">
+            <div class="step-num">6</div>
+            <div class="step-body">
+              <div class="step-title">Return to setup</div>
+              <div class="step-desc">
+                Use <span class="tag">← Back to Setup</span> when you are finished. Save the results
+                first when you want the contest to remain available in the app.
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <hr class="divider" />
+
+      <!-- Section 7 -->
+      <section class="section" id="saved">
+        <div class="section-number">07</div>
+        <h2>Saved and Previous Contests</h2>
+
+        <h3>Resume an unfinished contest</h3>
+        <p>
+          The app automatically saves active contest state in the browser. When the setup page
+          detects one, it displays a resume banner.
+        </p>
+        <ul>
+          <li>
+            <span class="tag">Resume Contest</span> restores contestants, standings, voting order,
+            history and the most recent round state.
+          </li>
+          <li>
+            <span class="tag">Discard &amp; Start Fresh</span> removes the saved active contest.
+          </li>
+        </ul>
+
+        <h3>Open a finished contest</h3>
+        <p>
+          After using <span class="tag">💾 Save Results</span>, the setup page shows
+          <span class="tag">📋 View Previously Finished Contest</span>. From this screen you can:
+        </p>
+        <ul>
+          <li>review the podium and final standings;</li>
+          <li>export the saved results and voting history;</li>
+          <li>generate a new shareable final-results link;</li>
+          <li>reuse the same participant list for a new contest.</li>
+        </ul>
+
+        <h3>Reuse participants</h3>
+        <p>
+          Reusing a previous contest copies participant names, countries, artists and songs back
+          into setup, while resetting all points, score counts, maximum-score records and voting
+          history.
+        </p>
+
+        <div class="warning">
+          <strong>Previous contest history:</strong> Voting history is available only for contests
+          saved after the voting-history feature was added. Older saved contests may contain final
+          standings without the detailed matrix.
+        </div>
+      </section>
+
+      <hr class="divider" />
+
+      <!-- Section 8 -->
+      <section class="section" id="storage">
+        <div class="section-number">08</div>
+        <h2>Storage, Recovery and Practical Notes</h2>
+
+        <h3>What is stored locally?</h3>
+        <p>
+          Contest setup, active progress, Undo data, voting history and explicitly saved finished
+          results use the browser's local storage. Ordinary vote submission does not create a
+          database write.
+        </p>
+
+        <h3>What is stored online?</h3>
+        <p>
+          A cloud snapshot is created only when the host deliberately generates a round link or
+          final-results link. The final-results snapshot contains the standings and voting matrix
+          needed for its export.
+        </p>
+
+        <div class="important">
+          <strong>Browser-specific storage:</strong> Local saves belong to the browser and device on
+          which they were created. Clearing site data, using another browser or switching devices
+          will not carry those local saves across automatically.
+        </div>
+
+        <h3>Recommended host routine</h3>
+        <ul>
+          <li>Use unique participant names.</li>
+          <li>Check the current voter before every submission.</li>
+          <li>Use Undo immediately when the latest round is wrong.</li>
+          <li>Compare voting-history Received totals with the scoreboard before ending.</li>
+          <li>Save the finished contest before returning to setup.</li>
+          <li>Download the final spreadsheet as a permanent offline record.</li>
+          <li>Test shared links in a private/incognito window before distributing them.</li>
+        </ul>
+
+        <div class="tip">
+          <strong>Home and manual:</strong> The <span class="tag">← Home</span> button returns to
+          the main Platina32 website. The <span class="tag">? Host Manual</span> button opens this
+          guide in a new tab.
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      ✦ Made by Platina32 ✦ &nbsp;|&nbsp;
+      <a href="https://platina32.com" target="_blank" rel="noopener noreferrer">platina32.com</a>
+    </footer>
+  </body>
 </html>

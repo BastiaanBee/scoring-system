@@ -14,11 +14,13 @@ import { db } from '../firebase.config';
   imports: [CommonModule, RouterModule],
   templateUrl: './snapshot.component.html',
   styleUrl: './snapshot.component.css',
-  encapsulation: ViewEncapsulation.None
+  encapsulation: ViewEncapsulation.None,
 })
 export class SnapshotComponent implements OnInit, OnDestroy {
-
-  constructor(private route: ActivatedRoute, private cdr: ChangeDetectorRef) {
+  constructor(
+    private route: ActivatedRoute,
+    private cdr: ChangeDetectorRef,
+  ) {
     console.log('SnapshotComponent constructed');
   }
 
@@ -37,21 +39,21 @@ export class SnapshotComponent implements OnInit, OnDestroy {
   // Loaded from Firestore on init.
   // =====================================================
 
-  contestTitle    = '';
-  voter           = '';
-  maxPointValue   = 0;
+  contestTitle = '';
+  voter = '';
+  maxPointValue = 0;
   voterOrder: string[] = [];
   currentVoterIndex = 0;
 
   // The scoreboard as it was BEFORE this round's points were awarded.
   preRoundSnapshot: {
-    name:           string,
-    country:        string,
-    artist:         string,
-    song:           string,
-    points:         number,
-    scoreCounts:    { [points: number]: number },
-    maxPointVoters: string[]
+    name: string;
+    country: string;
+    artist: string;
+    song: string;
+    points: number;
+    scoreCounts: { [points: number]: number };
+    maxPointVoters: string[];
   }[] = [];
 
   // The votes cast this round, sorted lowest to highest.
@@ -65,13 +67,13 @@ export class SnapshotComponent implements OnInit, OnDestroy {
   // The scoreboard as displayed — starts at pre-round state,
   // updated one point at a time as the viewer clicks Next.
   displayContestants: {
-    name:           string,
-    country:        string,
-    artist:         string,
-    song:           string,
-    points:         number,
-    scoreCounts:    { [points: number]: number },
-    maxPointVoters: string[]
+    name: string;
+    country: string;
+    artist: string;
+    song: string;
+    points: number;
+    scoreCounts: { [points: number]: number };
+    maxPointVoters: string[];
   }[] = [];
 
   // Which entry in lastRoundVotes is currently being revealed.
@@ -112,6 +114,10 @@ export class SnapshotComponent implements OnInit, OnDestroy {
   // Final standings for a final results snapshot.
   finalContestants: any[] = [];
 
+  // Complete voting history included with final snapshots.
+  // This is used only to add a second worksheet to the Export button.
+  voteMatrix: { [voter: string]: { [recipient: string]: number | null } } = {};
+
   // =====================================================
   // INITIALISATION
   // =====================================================
@@ -119,18 +125,18 @@ export class SnapshotComponent implements OnInit, OnDestroy {
   async ngOnInit() {
     const id = this.route.snapshot.paramMap.get('id');
     if (!id) {
-      this.error   = 'Invalid snapshot link.';
+      this.error = 'Invalid snapshot link.';
       this.loading = false;
       this.cdr.detectChanges();
       return;
     }
 
     try {
-      const docRef  = doc(db, 'snapshots', id);
+      const docRef = doc(db, 'snapshots', id);
       const docSnap = await getDoc(docRef);
 
       if (!docSnap.exists()) {
-        this.error   = 'This snapshot does not exist or has been deleted.';
+        this.error = 'This snapshot does not exist or has been deleted.';
         this.loading = false;
         return;
       }
@@ -139,30 +145,31 @@ export class SnapshotComponent implements OnInit, OnDestroy {
 
       // Check if this is a final results snapshot.
       if (data['type'] === 'final') {
-        this.isFinalSnapshot  = true;
+        this.isFinalSnapshot = true;
         this.finalContestants = data['contestants'] || [];
-        this.contestTitle     = data['contestTitle'] || '';
-        this.loading          = false;
+        this.contestTitle = data['contestTitle'] || '';
+        this.voterOrder = data['voterOrder'] || [];
+        this.voteMatrix = data['voteMatrix'] || {};
+        this.loading = false;
         this.cdr.detectChanges();
         return;
       }
 
-      this.contestTitle      = data['contestTitle'] || '';
-      this.voter             = data['voter'] || '';
-      this.maxPointValue     = data['maxPointValue'] || 0;
-      this.voterOrder        = data['voterOrder'] || [];
+      this.contestTitle = data['contestTitle'] || '';
+      this.voter = data['voter'] || '';
+      this.maxPointValue = data['maxPointValue'] || 0;
+      this.voterOrder = data['voterOrder'] || [];
       this.currentVoterIndex = data['currentVoterIndex'] || 0;
-      this.preRoundSnapshot  = data['preRoundSnapshot'] || [];
-      this.lastRoundVotes    = data['lastRoundVotes'] || [];
+      this.preRoundSnapshot = data['preRoundSnapshot'] || [];
+      this.lastRoundVotes = data['lastRoundVotes'] || [];
 
       // Initialise displayContestants from the pre-round snapshot, sorted.
-      this.displayContestants = this.preRoundSnapshot.map(c => ({
+      this.displayContestants = this.preRoundSnapshot.map((c) => ({
         ...c,
-        scoreCounts:    { ...c.scoreCounts },
-        maxPointVoters: [...(c.maxPointVoters || [])]
+        scoreCounts: { ...c.scoreCounts },
+        maxPointVoters: [...(c.maxPointVoters || [])],
       }));
       this.sortDisplayContestants();
-
     } catch (err) {
       console.error('Failed to load snapshot:', err);
       this.error = 'Failed to load snapshot. Please try again.';
@@ -208,7 +215,7 @@ export class SnapshotComponent implements OnInit, OnDestroy {
     this.lastAwardedContestant = current.contestant;
 
     const isFinalReveal = this.revealIndex >= this.lastRoundVotes.length - 1;
-    const d = this.displayContestants.find(d => d.name === current.contestant);
+    const d = this.displayContestants.find((d) => d.name === current.contestant);
 
     if (d) {
       d.points += current.points;
@@ -246,7 +253,7 @@ export class SnapshotComponent implements OnInit, OnDestroy {
       // Pause — clear the interval and reset the flag.
       clearInterval(this.autoplayInterval);
       this.autoplayInterval = null;
-      this.isAutoplaying    = false;
+      this.isAutoplaying = false;
     } else {
       // Play — start the interval.
       this.isAutoplaying = true;
@@ -259,7 +266,7 @@ export class SnapshotComponent implements OnInit, OnDestroy {
           setTimeout(() => {
             clearInterval(this.autoplayInterval);
             this.autoplayInterval = null;
-            this.isAutoplaying    = false;
+            this.isAutoplaying = false;
             this.cdr.detectChanges();
           }, 700);
         }
@@ -274,10 +281,10 @@ export class SnapshotComponent implements OnInit, OnDestroy {
   }
 
   animateSort() {
-    const rows   = document.querySelectorAll('.score-row');
+    const rows = document.querySelectorAll('.score-row');
     const before = new Map<string, number>();
 
-    rows.forEach(row => {
+    rows.forEach((row) => {
       const name = (row as HTMLElement).dataset['name'];
       if (name) before.set(name, row.getBoundingClientRect().top);
     });
@@ -287,22 +294,22 @@ export class SnapshotComponent implements OnInit, OnDestroy {
 
     setTimeout(() => {
       const rowsAfter = document.querySelectorAll('.score-row');
-      rowsAfter.forEach(row => {
-        const el     = row as HTMLElement;
-        const name   = el.dataset['name'];
+      rowsAfter.forEach((row) => {
+        const el = row as HTMLElement;
+        const name = el.dataset['name'];
         if (!name) return;
         const oldTop = before.get(name);
         const newTop = el.getBoundingClientRect().top;
         if (oldTop === undefined) return;
-        const delta  = oldTop - newTop;
+        const delta = oldTop - newTop;
         if (delta === 0) return;
 
         el.style.transition = 'none';
-        el.style.transform  = `translateY(${delta}px)`;
+        el.style.transform = `translateY(${delta}px)`;
 
         requestAnimationFrame(() => {
           el.style.transition = 'transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
-          el.style.transform  = 'translateY(0)';
+          el.style.transform = 'translateY(0)';
         });
       });
     }, 0);
@@ -338,26 +345,71 @@ export class SnapshotComponent implements OnInit, OnDestroy {
     return voters.join(', ');
   }
 
+  // Adds the complete voter-by-recipient matrix as a second worksheet.
+  // Older final snapshots without voting history still export normally.
+  private appendVotingHistorySheet(workbook: XLSX.WorkBook) {
+    if (!this.voterOrder.length || Object.keys(this.voteMatrix).length === 0) return;
+
+    // Keep the exact requested column order. Object-based worksheet creation
+    // reorders integer-like contestant names such as "655" before "Voter".
+    const historyRows: (string | number)[][] = [['Voter', ...this.voterOrder, 'Total Awarded']];
+
+    for (const voter of this.voterOrder) {
+      const recipientCells = this.voterOrder.map((recipient) =>
+        voter === recipient ? '—' : (this.voteMatrix?.[voter]?.[recipient] ?? ''),
+      );
+
+      const totalAwarded = Object.values(this.voteMatrix?.[voter] ?? {}).reduce<number>(
+        (total, points) => total + (points ?? 0),
+        0,
+      );
+
+      historyRows.push([voter, ...recipientCells, totalAwarded]);
+    }
+
+    const receivedCells = this.voterOrder.map((recipient) =>
+      this.voterOrder.reduce(
+        (total, voter) => total + (this.voteMatrix?.[voter]?.[recipient] ?? 0),
+        0,
+      ),
+    );
+
+    historyRows.push(['Received', ...receivedCells, '']);
+
+    const historySheet = XLSX.utils.aoa_to_sheet(historyRows);
+    historySheet['!cols'] = [
+      { wch: Math.max(12, ...this.voterOrder.map((name) => name.length + 2)) },
+      ...this.voterOrder.map((name) => ({ wch: Math.max(8, Math.min(name.length + 2, 22)) })),
+      { wch: 15 },
+    ];
+
+    XLSX.utils.book_append_sheet(workbook, historySheet, 'Voting History');
+  }
+
   // Exports the current scoreboard state to an Excel (.xlsx) file.
   exportToExcel() {
     const contestants = this.isFinalSnapshot ? this.finalContestants : this.displayContestants;
     const rows = contestants.map((c: any, i: number) => ({
-      'Rank':                i + 1,
-      'Country':             c.country.replace(/[^\p{L}\p{N} ]/gu, '').trim(),
-      'Participant':         c.name,
-      'Artist':              c.artist,
-      'Song':                c.song,
+      Rank: i + 1,
+      Country: c.country.replace(/[^\p{L}\p{N} ]/gu, '').trim(),
+      Participant: c.name,
+      Artist: c.artist,
+      Song: c.song,
       'Max Points Received': c.maxPointVoters?.length ?? 0,
-      'Total Points':        c.points
+      'Total Points': c.points,
     }));
 
     const worksheet = XLSX.utils.json_to_sheet(rows);
-    const workbook  = XLSX.utils.book_new();
+    const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Standings');
 
+    if (this.isFinalSnapshot) {
+      this.appendVotingHistorySheet(workbook);
+    }
+
     const filename = this.isFinalSnapshot
-    ? `${this.contestTitle || 'Contest'} Final Results.xlsx`
-    : `${this.contestTitle || 'Contest'} Scoreboard ${this.voter}'s Votes.xlsx`;
+      ? `${this.contestTitle || 'Contest'} Final Results.xlsx`
+      : `${this.contestTitle || 'Contest'} Scoreboard ${this.voter}'s Votes.xlsx`;
     XLSX.writeFile(workbook, filename);
   }
 
@@ -374,9 +426,9 @@ export class SnapshotComponent implements OnInit, OnDestroy {
     // Name-based lookup for subdivision flags (tag sequences) that cannot be
     // derived from regional indicator characters — e.g. 🏴󠁧󠁢󠁥󠁮󠁧󠁿 England.
     const subdivisionMap: { [key: string]: string } = {
-      'England': 'gb-eng',
-      'Scotland': 'gb-sct',
-      'Wales': 'gb-wls',
+      England: 'gb-eng',
+      Scotland: 'gb-sct',
+      Wales: 'gb-wls',
     };
     const stripped = country.replace(/[^\p{L}\p{N} ]/gu, '').trim();
     if (subdivisionMap[stripped]) {
@@ -385,8 +437,8 @@ export class SnapshotComponent implements OnInit, OnDestroy {
 
     const cp1 = country.codePointAt(0);
     const cp2 = country.codePointAt(2);
-    if (!cp1 || !cp2 || cp1 < 0x1F1E6 || cp1 > 0x1F1FF || cp2 < 0x1F1E6 || cp2 > 0x1F1FF) return '';
-    const code = String.fromCharCode(cp1 - 0x1F1E6 + 65) + String.fromCharCode(cp2 - 0x1F1E6 + 65);
+    if (!cp1 || !cp2 || cp1 < 0x1f1e6 || cp1 > 0x1f1ff || cp2 < 0x1f1e6 || cp2 > 0x1f1ff) return '';
+    const code = String.fromCharCode(cp1 - 0x1f1e6 + 65) + String.fromCharCode(cp2 - 0x1f1e6 + 65);
     return `https://flagcdn.com/w20/${code.toLowerCase()}.png`;
   }
 
@@ -394,5 +446,4 @@ export class SnapshotComponent implements OnInit, OnDestroy {
   getCountryName(country: string): string {
     return country ? country.replace(/[^\p{L}\p{N} ]/gu, '').trim() : '';
   }
-
 }

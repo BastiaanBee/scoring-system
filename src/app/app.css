@@ -6,19 +6,19 @@
    throughout the app.
 ───────────────────────────────────────── */
 :root {
-  --gold:       #F5C800;
-  --gold-dim:   #B89200;
-  --teal:       #00C4A8;
-  --teal-lt:    #00E0C0;
-  --navy:       #0B1A2E;
-  --navy-mid:   #112240;
-  --navy-lt:    #1A3358;
-  --text:       #F0F4FF;
-  --text-2:     #C0CFEA;
-  --muted:      #7888AA;
-  --silver:     #A8BCCF;
-  --bronze:     #C07830;
-  --rule:       rgba(255, 255, 255, 0.08);
+  --gold: #f5c800;
+  --gold-dim: #b89200;
+  --teal: #00c4a8;
+  --teal-lt: #00e0c0;
+  --navy: #0b1a2e;
+  --navy-mid: #112240;
+  --navy-lt: #1a3358;
+  --text: #f0f4ff;
+  --text-2: #c0cfea;
+  --muted: #7888aa;
+  --silver: #a8bccf;
+  --bronze: #c07830;
+  --rule: rgba(255, 255, 255, 0.08);
 }
 
 /* ─────────────────────────────────────────
@@ -26,14 +26,16 @@
    Removes all browser default margins,
    padding and borders.
 ───────────────────────────────────────── */
-*, *::before, *::after {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
 }
 
 html {
-  background: #0B1A2E;
+  background: #0b1a2e;
   margin: 0;
   padding: 0;
   border: none;
@@ -41,7 +43,7 @@ html {
 }
 
 body {
-  background: #0B1A2E;
+  background: #0b1a2e;
   margin: 0;
   padding: 0;
   border: none;
@@ -63,7 +65,7 @@ body.overflow-hidden {
   min-height: 100vh;
   margin: 0;
   padding: 0;
-  background: linear-gradient(175deg, #0E2244 0%, #0B1A2E 45%, #091828 100%);
+  background: linear-gradient(175deg, #0e2244 0%, #0b1a2e 45%, #091828 100%);
   font-family: 'Inter', sans-serif;
   color: var(--text);
   position: relative;
@@ -75,14 +77,18 @@ body.overflow-hidden {
   content: '';
   display: block;
   height: 3px;
-  background: linear-gradient(90deg, var(--teal), var(--gold), #E03050, var(--teal));
+  background: linear-gradient(90deg, var(--teal), var(--gold), #e03050, var(--teal));
   background-size: 300% 100%;
   animation: stripe 5s linear infinite;
 }
 
 @keyframes stripe {
-  0%   { background-position: 0% 0%; }
-  100% { background-position: 300% 0%; }
+  0% {
+    background-position: 0% 0%;
+  }
+  100% {
+    background-position: 300% 0%;
+  }
 }
 
 /* ─────────────────────────────────────────
@@ -102,19 +108,21 @@ body.overflow-hidden {
   top: 1rem;
   left: 1.5rem;
   background: transparent;
-  border: 1px solid rgba(255,255,255,0.15);
-  color: #C0CFEA;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #c0cfea;
   font-family: 'Inter', sans-serif;
   font-size: 0.8rem;
   padding: 0.4rem 0.9rem;
   border-radius: 6px;
   cursor: pointer;
-  transition: border-color 0.2s, color 0.2s;
+  transition:
+    border-color 0.2s,
+    color 0.2s;
 }
 
 .home-btn:hover {
-  border-color: #F5C800;
-  color: #F5C800;
+  border-color: #f5c800;
+  color: #f5c800;
 }
 
 .header-eyebrow {
@@ -135,7 +143,7 @@ body.overflow-hidden {
   letter-spacing: 0.14em;
   color: var(--gold);
   line-height: 1;
-  text-shadow: 0 0 40px rgba(245, 200, 0, 0.30);
+  text-shadow: 0 0 40px rgba(245, 200, 0, 0.3);
   user-select: none;
   pointer-events: none;
 }
@@ -150,7 +158,9 @@ body.overflow-hidden {
   pointer-events: none;
 }
 
-.header-divider { display: none; }
+.header-divider {
+  display: none;
+}
 
 /* ─────────────────────────────────────────
    SETUP PAGE
@@ -178,7 +188,9 @@ body.overflow-hidden {
   font-size: 0.88rem;
   font-weight: 500;
   padding: 0.55rem 0.75rem;
-  transition: border-color 0.15s, background 0.15s;
+  transition:
+    border-color 0.15s,
+    background 0.15s;
   appearance: none;
   -webkit-appearance: none;
   outline: none;
@@ -194,7 +206,7 @@ body.overflow-hidden {
 }
 
 .setup-form select option {
-  background: #0B1A2E;
+  background: #0b1a2e;
   color: var(--text);
 }
 
@@ -230,9 +242,9 @@ body.overflow-hidden {
 /* Warning shown when not enough contestants are added */
 .setup-warning {
   font-size: 0.78rem;
-  color: #FFA0A8;
+  color: #ffa0a8;
   background: rgba(224, 48, 80, 0.12);
-  border: 1px solid rgba(224, 48, 80, 0.30);
+  border: 1px solid rgba(224, 48, 80, 0.3);
   border-radius: 5px;
   padding: 0.45rem 0.7rem;
   margin-bottom: 0.5rem;
@@ -291,12 +303,14 @@ body.overflow-hidden {
   font-size: 1rem;
   letter-spacing: 0.12em;
   cursor: pointer;
-  transition: background 0.18s, border-color 0.18s;
+  transition:
+    background 0.18s,
+    border-color 0.18s;
 }
 
 .btn-add:hover {
   background: rgba(255, 255, 255, 0.13);
-  border-color: rgba(255, 255, 255, 0.30);
+  border-color: rgba(255, 255, 255, 0.3);
 }
 
 /* Primary teal button — used for "Start Contest" and "Show Reveal" */
@@ -311,7 +325,10 @@ body.overflow-hidden {
   font-size: 1rem;
   letter-spacing: 0.12em;
   cursor: pointer;
-  transition: background 0.18s, transform 0.15s, box-shadow 0.18s;
+  transition:
+    background 0.18s,
+    transform 0.15s,
+    box-shadow 0.18s;
 }
 
 .btn-start:hover:not(:disabled) {
@@ -333,7 +350,7 @@ body.overflow-hidden {
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
-  padding: 0.40rem 1.2rem;
+  padding: 0.4rem 1.2rem;
   font-size: 0.88rem;
   white-space: nowrap;
 }
@@ -355,7 +372,7 @@ body.overflow-hidden {
   align-items: center;
   gap: 0.5rem;
   flex-wrap: wrap;
-  font-size: 0.60rem;
+  font-size: 0.6rem;
   font-weight: 700;
   letter-spacing: 0.25em;
   text-transform: uppercase;
@@ -421,7 +438,9 @@ body.overflow-hidden {
   padding: 0.45rem 1rem;
   cursor: pointer;
   font-size: 0.85rem;
-  transition: border-color 0.15s, color 0.15s;
+  transition:
+    border-color 0.15s,
+    color 0.15s;
 }
 
 .btn-cancel:hover {
@@ -438,7 +457,9 @@ body.overflow-hidden {
   padding: 0.2rem 0.6rem;
   cursor: pointer;
   font-size: 0.75rem;
-  transition: border-color 0.15s, color 0.15s;
+  transition:
+    border-color 0.15s,
+    color 0.15s;
 }
 
 .btn-sort:hover {
@@ -492,7 +513,7 @@ body.overflow-hidden {
 }
 
 .contestant-preview-row button:hover {
-  color: #FF8090;
+  color: #ff8090;
 }
 
 /* Resume banner shown when a saved contest is detected */
@@ -508,13 +529,13 @@ body.overflow-hidden {
   margin-bottom: 1rem;
   font-family: 'Inter', sans-serif;
   font-size: 0.9rem;
-  color: #F5C800;
+  color: #f5c800;
 }
 
 .resume-btn {
   padding: 0.4rem 1rem;
-  background: #F5C800;
-  color: #0B1A2E;
+  background: #f5c800;
+  color: #0b1a2e;
   border: none;
   border-radius: 6px;
   font-family: 'Inter', sans-serif;
@@ -526,8 +547,8 @@ body.overflow-hidden {
 .discard-btn {
   padding: 0.4rem 1rem;
   background: transparent;
-  color: #7888AA;
-  border: 1px solid rgba(255,255,255,0.1);
+  color: #7888aa;
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 6px;
   font-family: 'Inter', sans-serif;
   font-size: 0.85rem;
@@ -535,8 +556,8 @@ body.overflow-hidden {
 }
 
 .discard-btn:hover {
-  border-color: #7888AA;
-  color: #C0CFEA;
+  border-color: #7888aa;
+  color: #c0cfea;
 }
 
 /* Help/manual button in the setup page header */
@@ -552,7 +573,9 @@ body.overflow-hidden {
   cursor: pointer;
   font-size: 0.8rem;
   font-family: 'Inter', sans-serif;
-  transition: border-color 0.15s, color 0.15s;
+  transition:
+    border-color 0.15s,
+    color 0.15s;
 }
 
 .help-btn:hover {
@@ -571,7 +594,7 @@ body.overflow-hidden {
   align-items: center;
   justify-content: space-between;
   padding: 0.55rem 1.5rem;
-  background: rgba(0, 196, 168, 0.10);
+  background: rgba(0, 196, 168, 0.1);
   border-bottom: 1px solid rgba(0, 196, 168, 0.18);
   gap: 1rem;
   position: relative;
@@ -614,9 +637,15 @@ body.overflow-hidden {
 }
 
 @keyframes sonar {
-  0%   { box-shadow: 0 0 0 0   rgba(0, 224, 192, 0.65); }
-  70%  { box-shadow: 0 0 0 8px rgba(0, 224, 192, 0); }
-  100% { box-shadow: 0 0 0 0   rgba(0, 224, 192, 0); }
+  0% {
+    box-shadow: 0 0 0 0 rgba(0, 224, 192, 0.65);
+  }
+  70% {
+    box-shadow: 0 0 0 8px rgba(0, 224, 192, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(0, 224, 192, 0);
+  }
 }
 
 .last-voter {
@@ -643,6 +672,184 @@ body.overflow-hidden {
 }
 
 /* ─────────────────────────────────────────
+   ORGANISER VOTING HISTORY
+   Collapsible spreadsheet-style matrix inside
+   the scoreboard column.
+───────────────────────────────────────── */
+.vote-history {
+  width: 100%;
+  margin: 1.5rem 0 0;
+  box-sizing: border-box;
+  background: rgba(0, 0, 0, 0.18);
+  border: 1px solid var(--rule);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.vote-history-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.9rem 1rem;
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+}
+
+.vote-history-summary::-webkit-details-marker {
+  display: none;
+}
+
+.vote-history-summary::after {
+  content: '▾';
+  flex-shrink: 0;
+  color: var(--teal-lt);
+  transition: transform 0.18s ease;
+}
+
+.vote-history details[open] .vote-history-summary::after {
+  transform: rotate(180deg);
+}
+
+.vote-history-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1rem;
+  letter-spacing: 0.15em;
+  color: var(--teal-lt);
+}
+
+.vote-history-progress {
+  margin-left: auto;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: var(--text-2);
+}
+
+/*
+  Both axes can scroll.
+
+  This is important for contests with twenty or more participants:
+  the table remains readable instead of shrinking every column.
+*/
+.vote-history-scroll {
+  overflow: auto;
+  max-height: min(65vh, 720px);
+  border-top: 1px solid var(--rule);
+  scrollbar-gutter: stable;
+}
+
+.vote-history-table {
+  width: max-content;
+  min-width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.88rem;
+  line-height: 1.2;
+}
+
+.vote-history-table th,
+.vote-history-table td {
+  width: 92px;
+  min-width: 92px;
+  max-width: 92px;
+  height: 46px;
+  box-sizing: border-box;
+  padding: 0.55rem 0.65rem;
+  text-align: center;
+  white-space: nowrap;
+  border-right: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+}
+
+.vote-history-table th {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  background: var(--navy);
+  color: var(--text-2);
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+/* Keep recipient headings visible while scrolling down. */
+.vote-history-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  color: var(--teal-lt);
+}
+
+/* Keep voter names visible while scrolling horizontally. */
+.vote-history-table th:first-child {
+  position: sticky;
+  left: 0;
+  z-index: 3;
+  width: 170px;
+  min-width: 170px;
+  max-width: 170px;
+  text-align: left;
+}
+
+/* The top-left corner must sit above both sticky axes. */
+.vote-history-table thead th:first-child {
+  z-index: 4;
+}
+
+.vote-history-table tbody td {
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.015);
+}
+
+.vote-history-table tbody tr:hover td {
+  background: rgba(255, 255, 255, 0.055);
+}
+
+.vote-history-table tr.history-row-complete td {
+  background: rgba(0, 196, 168, 0.035);
+}
+
+.vote-history-table tr.history-row-complete:hover td {
+  background: rgba(0, 196, 168, 0.075);
+}
+
+.vote-history-table tr.history-row-latest th:first-child {
+  color: var(--gold);
+  box-shadow: inset 3px 0 0 var(--gold);
+}
+
+.vote-history-table .self-vote-cell {
+  color: var(--muted);
+  background: rgba(255, 255, 255, 0.035);
+}
+
+.vote-history-table .max-points-cell {
+  color: var(--gold);
+  font-weight: 800;
+}
+
+.vote-history-table .history-total-heading,
+.vote-history-table .history-total-cell {
+  border-right: none;
+  font-weight: 700;
+}
+
+.vote-history-table .history-total-cell,
+.vote-history-table .history-received-cell {
+  color: var(--gold);
+}
+
+.vote-history-table tfoot th,
+.vote-history-table tfoot td {
+  border-bottom: none;
+  background: rgba(245, 200, 0, 0.055);
+  font-weight: 700;
+}
+
+/* ─────────────────────────────────────────
    SCOREBOARD
    Left column of the main layout.
 ───────────────────────────────────────── */
@@ -661,9 +868,10 @@ body.overflow-hidden {
   border-bottom: 1px solid var(--rule);
 }
 
-.scoreboard-icon { font-size: 0.95rem; 
+.scoreboard-icon {
+  font-size: 0.95rem;
   user-select: none;
-  pointer-events: none;  
+  pointer-events: none;
 }
 
 .scoreboard-title {
@@ -703,15 +911,19 @@ body.overflow-hidden {
   font-size: 0.88rem;
 }
 
-.score-row:last-child { border-bottom: none; }
-.score-row:hover { background: rgba(255, 255, 255, 0.04); }
+.score-row:last-child {
+  border-bottom: none;
+}
+.score-row:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
 
 /* Medal row highlights for positions 1, 2, 3 */
 .score-row.gold-row {
   background: rgba(245, 200, 0, 0.09);
   border-left: 3px solid var(--gold);
   padding-left: calc(0.5rem - 3px);
-  border-bottom: 1px solid rgba(245, 200, 0, 0.10);
+  border-bottom: 1px solid rgba(245, 200, 0, 0.1);
 }
 .score-row.silver-row {
   background: rgba(168, 188, 207, 0.07);
@@ -725,26 +937,26 @@ body.overflow-hidden {
 }
 
 .score-row.current-voter-row {
-  border-left: 3px solid #22C55E;
+  border-left: 3px solid #22c55e;
   background: rgba(34, 197, 94, 0.08);
   padding-left: calc(0.5rem - 3px);
 }
 
 .score-row.already-voted-row {
-  border-left: 3px solid #EF4444;
+  border-left: 3px solid #ef4444;
   background: rgba(239, 68, 68, 0.06);
   padding-left: calc(0.5rem - 3px);
 }
 
 .score-row.received-points-row {
-  border-left: 3px solid #F5C800;
+  border-left: 3px solid #f5c800;
   background: rgba(245, 200, 0, 0.08);
   padding-left: calc(0.5rem - 3px);
 }
 
 /* Rank number / medal emoji */
 .rank {
-  font-size: 0.80rem;
+  font-size: 0.8rem;
   font-weight: 600;
   color: var(--muted);
   line-height: 1;
@@ -754,16 +966,27 @@ body.overflow-hidden {
 /* Country: truncates with ellipsis if too long */
 .country-col {
   color: rgb(114, 163, 255);
-  font-size: 0.80rem;
+  font-size: 0.8rem;
   font-weight: 500;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   min-width: 0;
 }
-.participant-col { color: var(--text);    font-size: 0.90rem; font-weight: 700; }
-.artist-col      { color: var(--text-2);  font-size: 0.82rem; }
-.song-col        { color: var(--teal-lt); font-size: 0.82rem; font-style: italic; }
+.participant-col {
+  color: var(--text);
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+.artist-col {
+  color: var(--text-2);
+  font-size: 0.82rem;
+}
+.song-col {
+  color: var(--teal-lt);
+  font-size: 0.82rem;
+  font-style: italic;
+}
 
 .points-col {
   font-family: 'Bebas Neue', sans-serif;
@@ -774,25 +997,31 @@ body.overflow-hidden {
 }
 
 /* Medal colour overrides for the points column */
-.gold-row   .points-col { color: var(--gold);   }
-.silver-row .points-col { color: var(--silver); }
-.bronze-row .points-col { color: var(--bronze); }
+.gold-row .points-col {
+  color: var(--gold);
+}
+.silver-row .points-col {
+  color: var(--silver);
+}
+.bronze-row .points-col {
+  color: var(--bronze);
+}
 
 /* Current voter highlight */
 .current-voter-row {
-  border-left: 3px solid #22C55E;
+  border-left: 3px solid #22c55e;
   background: rgba(34, 197, 94, 0.08);
 }
 
 /* Already voted this round */
 .already-voted-row {
-  border-left: 3px solid #EF4444;
+  border-left: 3px solid #ef4444;
   background: rgba(239, 68, 68, 0.06);
 }
 
 /* Received points this round */
 .received-points-row {
-  border-left: 3px solid #F5C800;
+  border-left: 3px solid #f5c800;
   background: rgba(245, 200, 0, 0.08);
 }
 
@@ -819,7 +1048,9 @@ body.overflow-hidden {
   border-bottom: 1px solid var(--rule);
 }
 
-.voting-icon { font-size: 0.95rem; }
+.voting-icon {
+  font-size: 0.95rem;
+}
 
 .voting-title {
   font-family: 'Bebas Neue', sans-serif;
@@ -847,12 +1078,17 @@ body.overflow-hidden {
   color: var(--gold);
   text-align: right;
   white-space: nowrap;
-  opacity: 0.80;
+  opacity: 0.8;
 }
 
 /* Slightly larger / brighter for top point values */
-.vote-points-badge.pts-highest { font-size: 1rem; opacity: 1; }
-.vote-points-badge.pts-second  { opacity: 0.90; }
+.vote-points-badge.pts-highest {
+  font-size: 1rem;
+  opacity: 1;
+}
+.vote-points-badge.pts-second {
+  opacity: 0.9;
+}
 
 /* Voting panel dropdowns */
 select {
@@ -862,11 +1098,13 @@ select {
   border-radius: 5px;
   color: var(--text);
   font-family: 'Inter', sans-serif;
-  font-size: 0.80rem;
+  font-size: 0.8rem;
   font-weight: 500;
   padding: 0.28rem 1.6rem 0.28rem 0.5rem;
   cursor: pointer;
-  transition: border-color 0.15s, background 0.15s;
+  transition:
+    border-color 0.15s,
+    background 0.15s;
   appearance: none;
   -webkit-appearance: none;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%2300C4A8' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
@@ -881,7 +1119,7 @@ select:focus {
 }
 
 select option {
-  background: #0B1A2E;
+  background: #0b1a2e;
   color: var(--text);
 }
 
@@ -892,7 +1130,7 @@ select:disabled {
 
 /* Teal border highlight when a vote has been assigned */
 .vote-row.vote-set select {
-  border-color: rgba(0, 196, 168, 0.50);
+  border-color: rgba(0, 196, 168, 0.5);
   color: #fff;
 }
 
@@ -949,7 +1187,10 @@ select:disabled {
   font-size: 1.05rem;
   letter-spacing: 0.15em;
   cursor: pointer;
-  transition: background 0.18s ease, transform 0.15s ease, box-shadow 0.18s ease;
+  transition:
+    background 0.18s ease,
+    transform 0.15s ease,
+    box-shadow 0.18s ease;
 }
 
 .submit-btn:hover:not(:disabled) {
@@ -974,18 +1215,20 @@ select:disabled {
   margin-top: 0.5rem;
   padding: 0.5rem;
   background: transparent;
-  border: 1px solid rgba(255,255,255,0.1);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 6px;
-  color: #7888AA;
+  color: #7888aa;
   font-family: 'Inter', sans-serif;
   font-size: 0.8rem;
   cursor: pointer;
-  transition: border-color 0.2s, color 0.2s;
+  transition:
+    border-color 0.2s,
+    color 0.2s;
 }
 
 .undo-btn:hover {
-  border-color: #7888AA;
-  color: #C0CFEA;
+  border-color: #7888aa;
+  color: #c0cfea;
 }
 
 /* Error message shown when a voting rule is violated */
@@ -993,9 +1236,9 @@ select:disabled {
   margin-top: 0.5rem;
   padding: 0.45rem 0.7rem;
   background: rgba(224, 48, 80, 0.12);
-  border: 1px solid rgba(224, 48, 80, 0.30);
+  border: 1px solid rgba(224, 48, 80, 0.3);
   border-radius: 5px;
-  color: #FFA0A8;
+  color: #ffa0a8;
   font-size: 0.75rem;
   line-height: 1.45;
 }
@@ -1015,7 +1258,7 @@ select:disabled {
   align-items: center;
   justify-content: space-between;
   padding: 0.9rem 2rem;
-  background: #0B1A2E;
+  background: #0b1a2e;
   border-top: 2px solid var(--teal);
   z-index: 100;
   gap: 2rem;
@@ -1023,7 +1266,7 @@ select:disabled {
 
 /* "X gives..." label on the left */
 .reveal-voter {
-  font-size: 0.70rem;
+  font-size: 0.7rem;
   font-weight: 600;
   letter-spacing: 0.3em;
   text-transform: uppercase;
@@ -1071,7 +1314,9 @@ select:disabled {
   letter-spacing: 0.15em;
   cursor: pointer;
   white-space: nowrap;
-  transition: background 0.18s, transform 0.15s;
+  transition:
+    background 0.18s,
+    transform 0.15s;
 }
 
 .reveal-next-btn:hover {
@@ -1079,7 +1324,9 @@ select:disabled {
   transform: translateY(-1px);
 }
 
-.reveal-close { display: none; }
+.reveal-close {
+  display: none;
+}
 
 /* ─────────────────────────────────────────
    CONTEST OVER SCREEN
@@ -1090,7 +1337,7 @@ select:disabled {
 .contest-over-overlay {
   position: fixed;
   inset: 0;
-  background: linear-gradient(175deg, #0E2244 0%, #0B1A2E 50%, #091828 100%);
+  background: linear-gradient(175deg, #0e2244 0%, #0b1a2e 50%, #091828 100%);
   z-index: 200;
   overflow-y: auto;
   padding: 2rem;
@@ -1177,7 +1424,7 @@ select:disabled {
 /* Gold block is tallest */
 .gold-block {
   height: 120px;
-  background: linear-gradient(180deg, rgba(245,200,0,0.25), rgba(245,200,0,0.10));
+  background: linear-gradient(180deg, rgba(245, 200, 0, 0.25), rgba(245, 200, 0, 0.1));
   border-top: 3px solid var(--gold);
   color: var(--gold);
   width: 200px;
@@ -1186,7 +1433,7 @@ select:disabled {
 /* Silver block is medium height */
 .silver-block {
   height: 90px;
-  background: linear-gradient(180deg, rgba(168,188,207,0.20), rgba(168,188,207,0.08));
+  background: linear-gradient(180deg, rgba(168, 188, 207, 0.2), rgba(168, 188, 207, 0.08));
   border-top: 3px solid var(--silver);
   color: var(--silver);
   width: 180px;
@@ -1195,7 +1442,7 @@ select:disabled {
 /* Bronze block is shortest */
 .bronze-block {
   height: 70px;
-  background: linear-gradient(180deg, rgba(192,120,48,0.20), rgba(192,120,48,0.08));
+  background: linear-gradient(180deg, rgba(192, 120, 48, 0.2), rgba(192, 120, 48, 0.08));
   border-top: 3px solid var(--bronze);
   color: var(--bronze);
   width: 160px;
@@ -1210,7 +1457,9 @@ select:disabled {
 
 .final-standings .score-header,
 .final-standings .score-row {
-  grid-template-columns: 44px minmax(120px, 1fr) minmax(160px, 1.15fr) minmax(130px, 1fr) minmax(130px, 1fr) 50px 88px;
+  grid-template-columns:
+    44px minmax(120px, 1fr) minmax(160px, 1.15fr) minmax(130px, 1fr) minmax(130px, 1fr)
+    50px 88px;
 }
 
 .final-standings .score-header span {
@@ -1233,7 +1482,10 @@ select:disabled {
   font-family: 'Inter', sans-serif;
   font-size: 0.9rem;
   cursor: pointer;
-  transition: background 0.2s, border-color 0.2s, color 0.2s;
+  transition:
+    background 0.2s,
+    border-color 0.2s,
+    color 0.2s;
 }
 
 .contest-over-btn.snapshot-btn {
@@ -1245,7 +1497,9 @@ select:disabled {
   background: transparent;
   border: 1px solid var(--teal);
   color: var(--teal);
-  transition: background 0.15s, color 0.15s;
+  transition:
+    background 0.15s,
+    color 0.15s;
 }
 
 .export-btn:hover {
@@ -1269,7 +1523,9 @@ select:disabled {
   padding: 0.2rem 0.6rem;
   cursor: pointer;
   font-size: 0.75rem;
-  transition: border-color 0.15s, color 0.15s;
+  transition:
+    border-color 0.15s,
+    color 0.15s;
 }
 
 .export-scoreboard-btn:hover {
@@ -1278,8 +1534,8 @@ select:disabled {
 }
 
 .save-btn {
-  background: #F5C800;
-  color: #0B1A2E;
+  background: #f5c800;
+  color: #0b1a2e;
   border: none;
   font-weight: 600;
 }
@@ -1290,19 +1546,19 @@ select:disabled {
 
 .back-btn {
   background: transparent;
-  border: 1px solid rgba(255,255,255,0.1);
-  color: #7888AA;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #7888aa;
 }
 
 .back-btn:hover {
-  border-color: #7888AA;
-  color: #C0CFEA;
+  border-color: #7888aa;
+  color: #c0cfea;
 }
 
 .save-confirmation {
   font-family: 'Inter', sans-serif;
   font-size: 0.85rem;
-  color: #00C4A8;
+  color: #00c4a8;
 }
 
 /* Previous contest banner on setup page */
@@ -1350,15 +1606,18 @@ select:disabled {
   background: transparent;
   border: 1px solid rgba(245, 200, 0, 0.25);
   border-radius: 6px;
-  color: #F5C800;
+  color: #f5c800;
   font-family: 'Inter', sans-serif;
   font-size: 0.8rem;
   cursor: pointer;
-  transition: border-color 0.2s, color 0.2s, background 0.2s;
+  transition:
+    border-color 0.2s,
+    color 0.2s,
+    background 0.2s;
 }
 
 .snapshot-btn:hover {
-  border-color: #F5C800;
+  border-color: #f5c800;
   background: rgba(245, 200, 0, 0.06);
 }
 
@@ -1366,7 +1625,7 @@ select:disabled {
   opacity: 0.5;
   cursor: not-allowed;
   border-color: rgba(245, 200, 0, 0.1);
-  color: #7888AA;
+  color: #7888aa;
 }
 
 /* End Contest button — shown after last round is submitted */
@@ -1377,17 +1636,19 @@ select:disabled {
   background: rgba(245, 200, 0, 0.1);
   border: 1px solid rgba(245, 200, 0, 0.4);
   border-radius: 6px;
-  color: #F5C800;
+  color: #f5c800;
   font-family: 'Bebas Neue', sans-serif;
   font-size: 1rem;
   letter-spacing: 0.1em;
   cursor: pointer;
-  transition: background 0.2s, border-color 0.2s;
+  transition:
+    background 0.2s,
+    border-color 0.2s;
 }
- 
+
 .end-contest-btn:hover {
   background: rgba(245, 200, 0, 0.18);
-  border-color: #F5C800;
+  border-color: #f5c800;
 }
 
 /* Mobile/tablet fixes for final results layout */
@@ -1425,7 +1686,9 @@ select:disabled {
 
   .final-standings .score-header,
   .final-standings .score-row {
-    grid-template-columns: 36px minmax(105px, 1fr) minmax(130px, 1.15fr) minmax(110px, 1fr) minmax(110px, 1fr) 42px 78px;
+    grid-template-columns:
+      36px minmax(105px, 1fr) minmax(130px, 1.15fr) minmax(110px, 1fr) minmax(110px, 1fr)
+      42px 78px;
     gap: 0.38rem;
   }
 

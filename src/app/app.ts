@@ -594,6 +594,32 @@ export class App implements OnInit {
     return points === null ? '' : String(points);
   }
 
+  // Number of voting rounds that have been submitted so far.
+  get completedVotingRounds(): number {
+    return this.voterOrder.filter((voter) => this.hasCompletedVotingRound(voter)).length;
+  }
+
+  // Returns true when this voter has at least one recorded award in the matrix.
+  hasCompletedVotingRound(voter: string): boolean {
+    return Object.values(this.voteMatrix[voter] ?? {}).some((points) => points !== null);
+  }
+
+  // Total number of points awarded by one voter in their completed round.
+  getVoterAwardedTotal(voter: string): number {
+    return Object.values(this.voteMatrix[voter] ?? {}).reduce<number>(
+      (total, points) => total + (points ?? 0),
+      0,
+    );
+  }
+
+  // Running total received by one contestant across every submitted round.
+  getRecipientTotal(recipient: string): number {
+    return this.voterOrder.reduce(
+      (total, voter) => total + (this.voteMatrix[voter]?.[recipient] ?? 0),
+      0,
+    );
+  }
+
   private createEmptyMatrixRow(order: string[] = this.voterOrder): {
     [recipient: string]: number | null;
   } {
@@ -704,6 +730,15 @@ export class App implements OnInit {
   // 3. Never touch contestants[] again until next submitVotes().
   submitVotes() {
     this.errorMessage = '';
+
+    // Defensive check: a voter may have only one recorded round.
+    // Undo removes that voter's votes, allowing them to submit again.
+    const voterAlreadySubmitted = this.votes.some((vote) => vote.voter === this.currentVoter);
+
+    if (voterAlreadySubmitted) {
+      this.errorMessage = `${this.currentVoter} has already submitted their votes.`;
+      return;
+    }
 
     const selectedContestants = Object.values(this.currentRoundVotes);
 
@@ -943,9 +978,13 @@ export class App implements OnInit {
     const roundVoteCount = this.lastRoundVotes.length;
     this.votes.splice(this.votes.length - roundVoteCount, roundVoteCount);
 
-    // Step back the voter index.
-    if (this.currentVoterIndex > 0) {
-      this.currentVoterIndex--;
+    // Return to the voter whose submitted round is being undone.
+    // Using the voter name works for every round, including the final round,
+    // where nextVoter() deliberately did not advance the index.
+    const undoneVoterIndex = this.voterOrder.indexOf(this.lastSubmittedVoter);
+
+    if (undoneVoterIndex >= 0) {
+      this.currentVoterIndex = undoneVoterIndex;
     }
 
     // Clear all round state.
@@ -1073,6 +1112,8 @@ export class App implements OnInit {
     const data = {
       contestTitle: this.contestTitle,
       contestants: this.contestants,
+      voterOrder: this.voterOrder,
+      voteMatrix: this.voteMatrix,
     };
     localStorage.setItem('finishedContest', JSON.stringify(data));
     this.hasFinishedContest = true;
@@ -1119,6 +1160,8 @@ export class App implements OnInit {
         type: 'final',
         contestTitle: this.contestTitle,
         contestants: this.contestants,
+        voterOrder: this.voterOrder,
+        voteMatrix: this.voteMatrix,
         createdAt: new Date().toISOString(),
       };
       const docRef = await addDoc(collection(db, 'snapshots'), snapshotData);
@@ -1143,6 +1186,8 @@ export class App implements OnInit {
         type: 'final',
         contestTitle: this.previousContest?.contestTitle || '',
         contestants: this.previousContest?.contestants || [],
+        voterOrder: this.previousContest?.voterOrder || [],
+        voteMatrix: this.previousContest?.voteMatrix || {},
         createdAt: new Date().toISOString(),
       };
       const docRef = await addDoc(collection(db, 'snapshots'), snapshotData);
@@ -1168,10 +1213,68 @@ export class App implements OnInit {
     this.clearState();
   }
 
+  // Adds the complete voter-by-recipient matrix as a second workbook sheet.
+  // The matrix is local state only and does not create any Firestore traffic.
+  private appendVotingHistorySheet(
+    workbook: XLSX.WorkBook,
+    voterOrder: string[] = this.voterOrder,
+    voteMatrix: {
+      [voter: string]: {
+        [recipient: string]: number | null;
+      };
+    } = this.voteMatrix,
+  ) {
+    if (!voterOrder?.length) return;
+
+    // Use an array-of-arrays rather than object keys. JavaScript moves
+    // integer-like object keys (for example a contestant named "655")
+    // ahead of normal text keys, which previously displaced the Voter column.
+    const historyRows: (string | number)[][] = [['Voter', ...voterOrder, 'Total Awarded']];
+
+    for (const voter of voterOrder) {
+      const recipientCells = voterOrder.map((recipient) =>
+        voter === recipient ? '—' : (voteMatrix?.[voter]?.[recipient] ?? ''),
+      );
+
+      const totalAwarded = Object.values(voteMatrix?.[voter] ?? {}).reduce<number>(
+        (total, points) => total + (points ?? 0),
+        0,
+      );
+
+      historyRows.push([voter, ...recipientCells, totalAwarded]);
+    }
+
+    const receivedCells = voterOrder.map((recipient) =>
+      voterOrder.reduce((total, voter) => total + (voteMatrix?.[voter]?.[recipient] ?? 0), 0),
+    );
+
+    historyRows.push(['Received', ...receivedCells, '']);
+
+    const historySheet = XLSX.utils.aoa_to_sheet(historyRows);
+
+    // Give names and totals enough room without making point columns excessive.
+    historySheet['!cols'] = [
+      { wch: Math.max(12, ...voterOrder.map((name) => name.length + 2)) },
+      ...voterOrder.map((name) => ({ wch: Math.max(8, Math.min(name.length + 2, 22)) })),
+      { wch: 15 },
+    ];
+
+    XLSX.utils.book_append_sheet(workbook, historySheet, 'Voting History');
+  }
+
   // Exports the final contest standings to an Excel (.xlsx) file.
   // Each contestant gets a row with their rank, country, name, artist,
   // song, total points, and how many times they received the max point value.
-  exportToExcel(contestants: any[], title: string) {
+  exportToExcel(
+    contestants: any[] = [],
+    title: string = '',
+    voterOrder: string[] = this.voterOrder,
+    voteMatrix: {
+      [voter: string]: {
+        [recipient: string]: number | null;
+      };
+    } = this.voteMatrix,
+  ) {
     const rows = contestants.map((c, i) => ({
       Rank: i + 1,
       Country: c.country.replace(/[^\p{L}\p{N} ]/gu, '').trim(),
@@ -1185,6 +1288,7 @@ export class App implements OnInit {
     const worksheet = XLSX.utils.json_to_sheet(rows);
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Results');
+    this.appendVotingHistorySheet(workbook, voterOrder, voteMatrix);
 
     // Use the contest title as the filename, falling back to a default.
     const filename = (title || 'Contest Results').replace(/[^a-z0-9 ]/gi, '_') + '.xlsx';
@@ -1207,6 +1311,8 @@ export class App implements OnInit {
     const worksheet = XLSX.utils.json_to_sheet(rows);
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Standings');
+
+    this.appendVotingHistorySheet(workbook);
 
     const filename = `${this.contestTitle || 'Contest'} Scoreboard Round ${this.currentRound}.xlsx`;
     XLSX.writeFile(workbook, filename);

@@ -1,5 +1,5 @@
-// home.component.ts — homepage component
-import { Component, ViewEncapsulation } from '@angular/core';
+// home.component.ts: homepage component
+import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 
 @Component({
@@ -7,10 +7,10 @@ import { Router } from '@angular/router';
   standalone: true,
   imports: [],
   templateUrl: './home.component.html',
-  styleUrl: './home.component.css',
-  encapsulation: ViewEncapsulation.None
+  styleUrl: './home.component.css'
+  // ViewEncapsulation.None removed on purpose: the homepage styles were
+  // leaking into every other route, including the apps.
 })
-
 export class HomeComponent {
   currentYear = new Date().getFullYear();
 

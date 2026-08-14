@@ -1,150 +1,944 @@
-/* home.component.css — homepage styles */
-@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Audiowide&family=Electrolize&display=swap');
+/* home.component.css: homepage styles: arcade cabinet select screen */
+@import url('https://fonts.googleapis.com/css2?family=Audiowide&family=Chakra+Petch:wght@400;500;600&display=swap');
 
-/* Reset */
-html, body {
-  margin: 0;
-  padding: 0;
-  background: #0B1A2E;
-}
-
-/* Background with subtle geometric grid */
+/* Everything is scoped under .home-page so nothing leaks into the apps. */
 .home-page {
+  --ink: #08081a;
+  --cab-body: #171436;
+  --cab-top: #1e1a48;
+  --cab-edge: #2b2666;
+  --screen: #05040f;
+  --amber: #ffc53d;
+  --cyan: #41eab4;
+  --cyan-rgb: 65, 234, 180;
+  --text: #ede9ff;
+  --muted: #8f87bc;
+
+  --grid-height: 23vh;
+  --tile: 64px;
+
+  /* Backdrop tuning: change these three to reframe the scene. */
+  --sun-size: clamp(300px, 46vw, 480px);
+  --sun-sink: calc(var(--sun-size) * 0.55); /* how deep the sun sits below the horizon */
+  --range-height: 88px; /* height of the mountain silhouette */
+
+  position: relative;
+  isolation: isolate;
   min-height: 100vh;
-  background-color: #0b1a2e;
-  background-image:
-    linear-gradient(rgba(0, 245, 172, 0.02) 1px, transparent 5px),
-    linear-gradient(90deg, rgba(0, 245, 172, 0.02) 1px, transparent 5px);
-  background-size: 64px 64px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  animation: grid-scroll 10s linear infinite;
+  background: var(--ink);
+  color: var(--text);
+  font-family: 'Chakra Petch', system-ui, sans-serif;
+  overflow-x: hidden;
+  user-select: none;
 }
 
-@keyframes grid-scroll {
-  from { background-position: 0 0; }
-  to   { background-position: 500px 500px; }
+/* ---------- Backdrop ---------- */
+
+.home-backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
 }
 
-/* Main content area */
+/* Star field in four layers, each twinkling on its own clock. Each star is a
+   bright core plus a soft halo, so the opacity swing reads as a glow
+   brightening and dimming rather than a dot blinking on and off. */
+.home-stars {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: var(--grid-height);
+}
+
+.home-stars::before,
+.home-stars::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  will-change: opacity;
+}
+
+.home-stars::before {
+  background-image:
+    radial-gradient(circle 1.5px at 12% 18%, #fff 0 55%, rgba(255, 255, 255, 0) 100%),
+    radial-gradient(circle 1.5px at 41% 12%, #fff 0 55%, rgba(255, 255, 255, 0) 100%),
+    radial-gradient(circle 1.5px at 68% 8%, #fff 0 55%, rgba(255, 255, 255, 0) 100%),
+    radial-gradient(circle 1.5px at 88% 21%, #fff 0 55%, rgba(255, 255, 255, 0) 100%),
+    radial-gradient(circle 9px at 12% 18%, rgba(255, 255, 255, 0.18) 0, rgba(255, 255, 255, 0) 70%),
+    radial-gradient(circle 9px at 41% 12%, rgba(255, 255, 255, 0.18) 0, rgba(255, 255, 255, 0) 70%),
+    radial-gradient(circle 9px at 68% 8%, rgba(255, 255, 255, 0.18) 0, rgba(255, 255, 255, 0) 70%),
+    radial-gradient(circle 9px at 88% 21%, rgba(255, 255, 255, 0.18) 0, rgba(255, 255, 255, 0) 70%);
+  animation: twinkle-a 3.4s ease-in-out infinite alternate;
+}
+
+@keyframes twinkle-a {
+  from {
+    opacity: 0.12;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.home-stars::after {
+  background-image:
+    radial-gradient(circle 1.5px at 28% 42%, #fff 0 55%, rgba(255, 255, 255, 0) 100%),
+    radial-gradient(circle 1.5px at 57% 31%, #fff 0 55%, rgba(255, 255, 255, 0) 100%),
+    radial-gradient(circle 1.5px at 79% 37%, #fff 0 55%, rgba(255, 255, 255, 0) 100%),
+    radial-gradient(circle 1.5px at 7% 55%, #fff 0 55%, rgba(255, 255, 255, 0) 100%),
+    radial-gradient(circle 9px at 28% 42%, rgba(255, 255, 255, 0.18) 0, rgba(255, 255, 255, 0) 70%),
+    radial-gradient(circle 9px at 57% 31%, rgba(255, 255, 255, 0.18) 0, rgba(255, 255, 255, 0) 70%),
+    radial-gradient(circle 9px at 79% 37%, rgba(255, 255, 255, 0.18) 0, rgba(255, 255, 255, 0) 70%),
+    radial-gradient(circle 9px at 7% 55%, rgba(255, 255, 255, 0.18) 0, rgba(255, 255, 255, 0) 70%);
+  animation: twinkle-b 5.1s ease-in-out infinite alternate;
+}
+
+@keyframes twinkle-b {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0.15;
+  }
+}
+
+.home-stars-b::before {
+  background-image:
+    radial-gradient(circle 1.5px at 34% 63%, #fff 0 55%, rgba(255, 255, 255, 0) 100%),
+    radial-gradient(circle 1.5px at 76% 52%, #fff 0 55%, rgba(255, 255, 255, 0) 100%),
+    radial-gradient(circle 1.5px at 93% 58%, #fff 0 55%, rgba(255, 255, 255, 0) 100%),
+    radial-gradient(circle 1.5px at 20% 30%, #fff 0 55%, rgba(255, 255, 255, 0) 100%),
+    radial-gradient(circle 9px at 34% 63%, rgba(255, 255, 255, 0.18) 0, rgba(255, 255, 255, 0) 70%),
+    radial-gradient(circle 9px at 76% 52%, rgba(255, 255, 255, 0.18) 0, rgba(255, 255, 255, 0) 70%),
+    radial-gradient(circle 9px at 93% 58%, rgba(255, 255, 255, 0.18) 0, rgba(255, 255, 255, 0) 70%),
+    radial-gradient(circle 9px at 20% 30%, rgba(255, 255, 255, 0.18) 0, rgba(255, 255, 255, 0) 70%);
+  animation: twinkle-c 4.3s ease-in-out infinite alternate;
+}
+
+@keyframes twinkle-c {
+  from {
+    opacity: 0.2;
+  }
+  to {
+    opacity: 0.95;
+  }
+}
+
+.home-stars-b::after {
+  background-image:
+    radial-gradient(circle 1.5px at 49% 71%, #fff 0 55%, rgba(255, 255, 255, 0) 100%),
+    radial-gradient(circle 1.5px at 63% 66%, #fff 0 55%, rgba(255, 255, 255, 0) 100%),
+    radial-gradient(circle 1.5px at 15% 74%, #fff 0 55%, rgba(255, 255, 255, 0) 100%),
+    radial-gradient(circle 1.5px at 85% 68%, #fff 0 55%, rgba(255, 255, 255, 0) 100%),
+    radial-gradient(circle 9px at 49% 71%, rgba(255, 255, 255, 0.18) 0, rgba(255, 255, 255, 0) 70%),
+    radial-gradient(circle 9px at 63% 66%, rgba(255, 255, 255, 0.18) 0, rgba(255, 255, 255, 0) 70%),
+    radial-gradient(circle 9px at 15% 74%, rgba(255, 255, 255, 0.18) 0, rgba(255, 255, 255, 0) 70%),
+    radial-gradient(circle 9px at 85% 68%, rgba(255, 255, 255, 0.18) 0, rgba(255, 255, 255, 0) 70%);
+  animation: twinkle-d 6.7s ease-in-out infinite alternate;
+}
+
+@keyframes twinkle-d {
+  from {
+    opacity: 0.9;
+  }
+  to {
+    opacity: 0.12;
+  }
+}
+
+/* The sun. Warm against the cool floor, cut by widening slots. */
+.home-sun {
+  position: absolute;
+  left: 50%;
+  bottom: calc(var(--grid-height) - var(--sun-sink));
+  width: var(--sun-size);
+  height: var(--sun-size);
+  transform: translateX(-50%);
+  border-radius: 50%;
+  background: linear-gradient(
+    to bottom,
+    #fff6d6 0%,
+    #ffe07a 8%,
+    #ffb63d 18%,
+    #ff8a5c 27%,
+    #ff5a8f 35%,
+    #f53f9c 44%,
+    #d92a9e 100%
+  );
+  box-shadow: 0 0 100px 10px rgba(255, 143, 61, 0.18);
+}
+
+.home-sun::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: linear-gradient(
+    to bottom,
+    transparent 0% 16%,
+    var(--ink) 16% 17.2%,
+    transparent 17.2% 21%,
+    var(--ink) 21% 22.5%,
+    transparent 22.5% 26%,
+    var(--ink) 26% 27.8%,
+    transparent 27.8% 31%,
+    var(--ink) 31% 33.2%,
+    transparent 33.2% 36.5%,
+    var(--ink) 36.5% 39%,
+    transparent 39% 42%,
+    var(--ink) 42% 45%,
+    transparent 45% 48%,
+    var(--ink) 48% 51.5%,
+    transparent 51.5% 55%,
+    var(--ink) 55% 59%,
+    transparent 59% 62%,
+    var(--ink) 62% 67%,
+    transparent 67% 70%,
+    var(--ink) 70% 76%,
+    transparent 76% 79%,
+    var(--ink) 79% 86%,
+    transparent 86% 89%,
+    var(--ink) 89% 100%
+  );
+}
+
+/* Opaque ground plane. Without this the sun shows through the grid,
+   because the floor is transparent between its lines. */
+.home-ground {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: var(--grid-height);
+  background: var(--ink);
+}
+
+/* Mountain range, sitting on the horizon and occluding the sun's base. */
+.home-range {
+  position: absolute;
+  left: 0;
+  bottom: var(--grid-height);
+  width: 200%;
+  height: var(--range-height);
+  display: flex;
+  animation: range-pan 150s linear infinite;
+}
+
+.range-tile {
+  flex: none;
+  width: 50%;
+  height: 100%;
+  display: block;
+}
+
+/* Two identical tiles shifted by exactly one tile width, so the loop is
+   seamless. The ridge starts and ends at the same height for the same reason. */
+@keyframes range-pan {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.range-fill {
+  fill: #16133a;
+}
+
+.range-rim {
+  stroke: var(--cyan);
+  stroke-width: 1.4;
+  opacity: 0.7;
+}
+
+/* Soft haze sitting on the horizon, behind the grid. This replaces the old
+   box-shadow, which fell off too fast and left a dark gap. */
+.home-glow {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: calc(var(--grid-height) - 70px);
+  height: 140px;
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    rgba(var(--cyan-rgb), 0.2) 42%,
+    rgba(var(--cyan-rgb), 0.3) 50%,
+    rgba(var(--cyan-rgb), 0.18) 64%,
+    transparent 100%
+  );
+}
+
+.home-floor {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: var(--grid-height);
+  perspective: 200px;
+  perspective-origin: 50% 0%;
+  overflow: hidden;
+  /* Near the horizon the perspective squeezes the line spacing below one
+     pixel, which makes the moving grid shimmer. Fading the top out hides
+     that band; the haze layer fills the gap so no dark strip appears. */
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, rgba(0, 0, 0, 0.4) 10%, #000 26%);
+  mask-image: linear-gradient(to bottom, transparent 0, rgba(0, 0, 0, 0.4) 10%, #000 26%);
+}
+
+.home-floor::before {
+  content: '';
+  position: absolute;
+  left: -75%;
+  right: -75%;
+  top: 0;
+  height: 300%;
+  transform: rotateX(76deg);
+  transform-origin: 50% 0%;
+  /* Soft-edged lines. A hard 1px line aliases into broken dots once the
+     perspective squeezes the spacing below a pixel near the horizon. */
+  background-image:
+    repeating-linear-gradient(
+      to right,
+      rgba(var(--cyan-rgb), 0) 0,
+      rgba(var(--cyan-rgb), 0.55) 0.75px,
+      rgba(var(--cyan-rgb), 0.55) 1.35px,
+      rgba(var(--cyan-rgb), 0) 2.1px,
+      rgba(var(--cyan-rgb), 0) var(--tile)
+    ),
+    repeating-linear-gradient(
+      to bottom,
+      rgba(var(--cyan-rgb), 0) 0,
+      rgba(var(--cyan-rgb), 0.55) 0.75px,
+      rgba(var(--cyan-rgb), 0.55) 1.35px,
+      rgba(var(--cyan-rgb), 0) 2.1px,
+      rgba(var(--cyan-rgb), 0) var(--tile)
+    );
+  animation: floor-run 7s linear infinite;
+}
+
+/* Travels exactly one tile, so the loop is seamless. */
+@keyframes floor-run {
+  from {
+    background-position:
+      0 0,
+      0 var(--tile);
+  }
+  to {
+    background-position:
+      0 0,
+      0 0;
+  }
+}
+
+.home-horizon {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: var(--grid-height);
+  height: 2px;
+  background: var(--cyan);
+  opacity: 0.9;
+}
+
+/* Darkens the upper sky so the title always has contrast, whatever the
+   viewport height, and lets the sun fade into haze at its top edge. */
+.home-veil {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    var(--ink) 0 6%,
+    rgba(8, 8, 26, 0.78) 18%,
+    rgba(8, 8, 26, 0.28) 30%,
+    transparent 42%
+  );
+}
+
+.home-scanlines {
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0.03) 0 1px,
+    transparent 1px 3px
+  );
+}
+
+/* ---------- Header ---------- */
+
 .home-main {
   flex: 1;
+  width: 100%;
+  max-width: 760px;
+  box-sizing: border-box;
+  padding: clamp(2.5rem, 8vh, 5rem) 1.25rem 3rem;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  padding: 3rem 1.5rem;
-  width: 100%;
-  max-width: 900px;
-  box-sizing: border-box;
+  justify-content: flex-start;
 }
 
-/* Title */
+.home-marquee {
+  text-align: center;
+}
+
 .home-title {
-  font-family: "Audiowide", sans-serif;
-  font-size: 7rem;
-  color: #F5C800;
-  margin: 0 0 0.5rem 0;
+  margin: 0;
+  font-family: 'Audiowide', system-ui, sans-serif;
+  font-size: clamp(2.25rem, 11vw, 5.5rem);
+  font-weight: 400;
   line-height: 1;
-  letter-spacing: 4px;
-  user-select: none;
-  pointer-events: none;
+  letter-spacing: 0.04em;
+  color: var(--amber);
   text-shadow:
-    0 0 25px rgba(245, 200, 0, 0.4),
-    0 0 25px rgba(245, 200, 0, 0.4);
+    0 0 30px rgba(255, 197, 61, 0.45),
+    0 0 70px rgba(255, 143, 61, 0.25);
+  animation: tube-on 1.1s steps(1, end) 1;
 }
 
-/* Subtitle */
+@keyframes tube-on {
+  0% {
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  16% {
+    opacity: 0.15;
+  }
+  24% {
+    opacity: 1;
+  }
+  32% {
+    opacity: 0.4;
+  }
+  40% {
+    opacity: 1;
+  }
+}
+
 .home-subtitle {
-  font-family: "Audiowide", sans-serif;
-  color: rgba(0, 245, 172, 0.75);
+  margin: 1rem 0 0;
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.28em;
   text-transform: uppercase;
-  font-size: 0.8rem;
-  letter-spacing: 2px;
-  margin: 0 0 3rem 0;
-  user-select: none;
-  pointer-events: none;
-  text-shadow:
-    0 0 10px rgba(0, 212, 245, 0.6),
-    0 0 10px rgba(0, 212, 245, 0.6);
+  color: var(--muted);
 }
 
-/* Tiles grid */
+/* ---------- Cabinets ---------- */
+
 .home-tiles {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1.5rem;
-  justify-content: center;
+  margin-top: clamp(2.5rem, 7vh, 4rem);
   width: 100%;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+  gap: 1.5rem;
 }
 
-/* Individual tile */
+/* The machine itself: head, bezel, control panel, body, plinth. */
 .home-tile {
-  background: rgba(17, 34, 64, 0.64);
-  border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 12px;
-  padding: 2rem;
-  width: 260px;
+  position: relative;
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  gap: 1.5rem;
+  padding: 0;
+  border: 1px solid var(--cab-edge);
+  border-radius: 12px 12px 4px 4px;
+  background: var(--cab-body);
+  color: inherit;
+  font: inherit;
+  text-align: left;
   cursor: pointer;
-  transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
-  box-shadow: 0 0 25px rgba(245, 200, 0, 0.25);
+  overflow: hidden;
+  transition:
+    transform 0.18s ease,
+    border-color 0.18s ease,
+    box-shadow 0.18s ease;
+  animation: cabinet-in 0.5s ease-out backwards;
 }
 
-.home-tile:hover {
-  background: #0c1a2e;
-  border-color: rgba(245, 200, 0, 0.25);
+.home-tile:nth-child(1) {
+  animation-delay: 0.9s;
+}
+.home-tile:nth-child(2) {
+  animation-delay: 1.02s;
+}
+.home-tile:nth-child(3) {
+  animation-delay: 1.14s;
+}
+.home-tile:nth-child(4) {
+  animation-delay: 1.26s;
+}
+
+@keyframes cabinet-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.home-tile:hover,
+.home-tile:focus-visible {
   transform: translateY(-4px);
+  border-color: rgba(255, 197, 61, 0.5);
+  box-shadow: 0 0 34px rgba(255, 197, 61, 0.18);
 }
 
-/* Tile icon */
-.tile-icon {
-  font-size: 2.5rem;
-  line-height: 1;
+.home-tile:focus-visible {
+  outline: 2px solid var(--amber);
+  outline-offset: 3px;
 }
 
-/* Tile text */
-.tile-title {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 1.6rem;
-  color: #F5C800;
-  margin: 0;
-  letter-spacing: 1px;
-  text-shadow:
-    0 0 10px rgba(245, 200, 0, 0.25),
-    0 0 10px rgba(245, 200, 0, 0.15);
+.home-tile:active {
+  transform: translateY(-1px);
+}
+
+/* Cabinet head. The marquee is a trapezoid, narrower at the top, which is
+   what reads as a cabinet rather than a card. */
+.cab-head {
+  display: block;
+  padding: 10px 14px 0;
+  background: var(--cab-top);
+}
+
+.cab-marquee {
+  display: block;
+  padding: 0.6rem 1rem 0.65rem;
+  background: rgba(255, 197, 61, 0.14);
+  border-top: 1px solid rgba(255, 197, 61, 0.45);
+  clip-path: polygon(6% 0, 94% 0, 100% 100%, 0 100%);
+  text-align: center;
+}
+
+.cab-title {
+  font-family: 'Audiowide', system-ui, sans-serif;
+  font-size: 0.95rem;
+  letter-spacing: 0.05em;
+  color: var(--amber);
+  transition: text-shadow 0.18s ease;
+}
+
+.home-tile:hover .cab-title,
+.home-tile:focus-visible .cab-title {
+  text-shadow: 0 0 18px rgba(255, 197, 61, 0.7);
+}
+
+/* Bezel: the cabinet face the screen is recessed into. */
+.cab-bezel {
+  display: block;
+  padding: 12px 16px 14px;
+  background: var(--cab-top);
+}
+
+.cab-screen {
+  position: relative;
+  display: block;
+  height: 86px;
+  overflow: hidden;
+  border-radius: 5px;
+  background: var(--screen);
+  box-shadow:
+    inset 0 0 0 1px rgba(0, 0, 0, 0.9),
+    inset 0 0 22px rgba(0, 0, 0, 0.85);
+}
+
+/* Scanlines plus a soft corner vignette, so it reads as a CRT. */
+.cab-glass {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(120% 90% at 50% 40%, rgba(255, 255, 255, 0.05), transparent 70%),
+    repeating-linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 0 1px, transparent 1px 3px);
+}
+
+.attract {
+  position: absolute;
+  inset: 0;
+  display: block;
+  transition: filter 0.18s ease;
+}
+
+.home-tile:hover .attract,
+.home-tile:focus-visible .attract {
+  filter: brightness(1.3);
+}
+
+/* Control panel: joystick and buttons. Lit from above. */
+.cab-panel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 44px;
+  height: 30px;
+  padding: 0 18px;
+  background: linear-gradient(to bottom, var(--cab-edge), var(--cab-top));
+  border-top: 1px solid rgba(255, 255, 255, 0.09);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.5);
+}
+
+.cab-stick {
+  position: relative;
+  width: 22px;
+  height: 16px;
+  background-image: linear-gradient(#b9bad2, #8e8fa8);
+  background-size: 2px 9px;
+  background-position: 50% 4px;
+  background-repeat: no-repeat;
+}
+
+/* Ball top */
+.cab-stick::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 9px;
+  height: 9px;
+  margin-left: -4.5px;
+  border-radius: 50%;
+  background: #ff4f6d;
+}
+
+/* Shaft and base */
+.cab-stick::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 14px;
+  height: 5px;
+  margin-left: -7px;
+  border-radius: 50%;
+  background: #0d0b1e;
+}
+
+.cab-buttons {
+  display: flex;
+  gap: 6px;
+}
+
+.cab-btn {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+}
+
+.cab-btn-1 {
+  background: var(--amber);
+}
+.cab-btn-2 {
+  background: var(--cyan);
+}
+.cab-btn-3 {
+  background: #ff4f8f;
+}
+
+/* Body below the controls. flex: 1 makes it absorb any extra height so the
+   plinth stays on the floor when two cabinets have different text lengths. */
+.cab-body {
+  display: block;
+  flex: 1;
+  padding: 0.95rem 1.15rem 1rem;
 }
 
 .tile-desc {
-  font-family: "Electrolize", sans-serif;
-  color: #a1a1a1;
-  font-size: 1rem;
-  margin: 0;
-  line-height: 1.2;
-  letter-spacing: 1px;
-  font-style: oblique; 
+  display: block;
+  margin: 0 0 0.85rem;
+  font-size: 0.9rem;
+  line-height: 1.45;
+  color: var(--muted);
 }
 
-/* Footer */
+.tile-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text);
+}
+
+.tile-cta svg {
+  width: 15px;
+  height: 15px;
+  transition: transform 0.18s ease;
+}
+
+.home-tile:hover .tile-cta svg,
+.home-tile:focus-visible .tile-cta svg {
+  transform: translateX(4px);
+}
+
+/* Plinth, with a coin slot. Gives the cabinet some weight at the floor. */
+.cab-plinth {
+  position: relative;
+  display: block;
+  height: 10px;
+  background: var(--cab-top);
+  border-top: 1px solid rgba(0, 0, 0, 0.55);
+}
+
+.cab-plinth::before {
+  content: '';
+  position: absolute;
+  top: 4px;
+  left: 50%;
+  width: 26px;
+  height: 4px;
+  margin-left: -13px;
+  border-radius: 2px;
+  background: #05040f;
+  box-shadow: 0 0 0 1px rgba(255, 197, 61, 0.25);
+}
+
+/* ---------- Attract mode: Song Contest ---------- */
+
+.attract-score {
+  padding: 10px 11px 0;
+  box-sizing: border-box;
+}
+
+.sc-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+
+.sc-flag {
+  width: 7px;
+  height: 7px;
+  flex: none;
+  border-radius: 1px;
+}
+
+.sc-flag-1 {
+  background: var(--amber);
+}
+.sc-flag-2 {
+  background: var(--cyan);
+}
+.sc-flag-3 {
+  background: #ff4f8f;
+}
+.sc-flag-4 {
+  background: #7b7ae0;
+}
+.sc-flag-5 {
+  background: #5fd0e8;
+}
+
+.sc-track {
+  position: relative;
+  flex: 1;
+  height: 7px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.07);
+  overflow: hidden;
+}
+
+.sc-bar {
+  display: block;
+  height: 100%;
+  border-radius: 2px;
+}
+
+/* Each score climbs and settles on its own clock, so the board never
+   looks like it is on a single loop. */
+.sc-bar-1 {
+  background: var(--amber);
+  animation: score-1 3.1s ease-in-out infinite alternate;
+}
+.sc-bar-2 {
+  background: var(--cyan);
+  animation: score-2 4.3s ease-in-out infinite alternate;
+}
+.sc-bar-3 {
+  background: #ff4f8f;
+  animation: score-3 3.7s ease-in-out infinite alternate;
+}
+.sc-bar-4 {
+  background: #7b7ae0;
+  animation: score-4 5.2s ease-in-out infinite alternate;
+}
+.sc-bar-5 {
+  background: #5fd0e8;
+  animation: score-5 4.7s ease-in-out infinite alternate;
+}
+
+@keyframes score-1 {
+  from {
+    width: 18%;
+  }
+  to {
+    width: 92%;
+  }
+}
+@keyframes score-2 {
+  from {
+    width: 34%;
+  }
+  to {
+    width: 61%;
+  }
+}
+@keyframes score-3 {
+  from {
+    width: 8%;
+  }
+  to {
+    width: 74%;
+  }
+}
+@keyframes score-4 {
+  from {
+    width: 46%;
+  }
+  to {
+    width: 22%;
+  }
+}
+@keyframes score-5 {
+  from {
+    width: 12%;
+  }
+  to {
+    width: 53%;
+  }
+}
+
+/* ---------- Attract mode: Sector Patrol ---------- */
+
+.sp-stars {
+  position: absolute;
+  inset: 0;
+  background-size: 100% 46px;
+}
+
+/* Two depths at different speeds gives parallax, so it reads as flying
+   forward rather than a texture sliding. */
+.sp-stars-far {
+  background-image:
+    radial-gradient(1px 1px at 14% 22%, rgba(255, 255, 255, 0.65), transparent),
+    radial-gradient(1px 1px at 63% 9%, rgba(255, 255, 255, 0.6), transparent),
+    radial-gradient(1px 1px at 86% 34%, rgba(255, 255, 255, 0.65), transparent),
+    radial-gradient(1px 1px at 38% 41%, rgba(255, 255, 255, 0.55), transparent);
+  animation: star-fall 4.2s linear infinite;
+}
+
+.sp-stars-near {
+  background-image:
+    radial-gradient(1.4px 1.4px at 27% 14%, #fff, transparent),
+    radial-gradient(1.4px 1.4px at 74% 30%, #fff, transparent),
+    radial-gradient(1.4px 1.4px at 49% 39%, #fff, transparent);
+  animation: star-fall 2.1s linear infinite;
+}
+
+/* Travels exactly one background tile, so it loops without a jump. */
+@keyframes star-fall {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: 0 46px;
+  }
+}
+
+.sp-ship {
+  position: absolute;
+  left: 50%;
+  bottom: 9px;
+  width: 15px;
+  height: 13px;
+  margin-left: -7.5px;
+  animation: ship-drift 4.6s ease-in-out infinite alternate;
+}
+
+.sp-ship::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--cyan);
+  clip-path: polygon(50% 0, 100% 100%, 50% 76%, 0 100%);
+}
+
+@keyframes ship-drift {
+  from {
+    transform: translateX(-30px);
+  }
+  to {
+    transform: translateX(30px);
+  }
+}
+
+/* The shot sits inside the ship, so it fires from wherever the ship is. */
+.sp-shot {
+  position: absolute;
+  left: 50%;
+  bottom: 13px;
+  width: 2px;
+  height: 9px;
+  margin-left: -1px;
+  border-radius: 1px;
+  background: var(--amber);
+  animation: shot-fly 1.6s linear infinite;
+}
+
+@keyframes shot-fly {
+  0% {
+    transform: translateY(0);
+    opacity: 0;
+  }
+  8% {
+    opacity: 1;
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-74px);
+    opacity: 0;
+  }
+}
+
+/* ---------- Footer ---------- */
+
 .home-footer {
   width: 100%;
-  text-align: center;
   padding: 1.25rem;
-  font-family: "Electrolize", sans-serif;
-  color: rgba(0, 245, 172, 0.75);
-  border-top: 2px solid rgba(245, 200, 0, 0.2);
   box-sizing: border-box;
-  user-select: none;
-  pointer-events: none;
-  background: rgba(245, 200, 0, 0.12);
-  font-size: 0.9rem;
-  letter-spacing: 1px;
-  text-shadow:
-    0 0 10px rgba(0, 212, 245, 0.6),
-    0 0 10px rgba(0, 212, 245, 0.6);
+  text-align: center;
+  font-size: 0.78rem;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+}
+
+/* ---------- Responsive ---------- */
+
+@media (max-width: 560px) {
+  .home-page {
+    --grid-height: 22vh;
+  }
+  .home-sun,
+  .home-range {
+    display: none;
+  }
+  .home-glow {
+    bottom: calc(var(--grid-height) - 40px);
+    height: 80px;
+  }
 }

@@ -1,5 +1,4 @@
 <div class="page">
-
   <!-- =====================================================
        SETUP PAGE
        Shown before the contest starts.
@@ -7,13 +6,14 @@
        and all contestants here.
   ====================================================== -->
   <div *ngIf="!setupComplete">
-
     <!-- Header -->
     <div class="header">
       <button class="home-btn" (click)="goHome()">← Home</button>
       <div class="header-eyebrow">✦ Made by Platina32 ✦</div>
       <h1>Platina32 Song Contest</h1>
-      <button class="help-btn" onclick="window.open('/manual.html', '_blank')">? Host Manual</button>
+      <button class="help-btn" onclick="window.open('/manual.html', '_blank')">
+        ? Host Manual
+      </button>
     </div>
 
     <!-- Resume banner — shown if a saved contest exists -->
@@ -24,11 +24,12 @@
     </div>
 
     <div class="setup-form">
-
       <!-- Contest title, shown in the scoreboard header -->
-      <input type="text"
-             placeholder="Contest title (e.g. MU Worldvision Song Contest 47)"
-             [(ngModel)]="contestTitle">
+      <input
+        type="text"
+        placeholder="Contest title (e.g. MU Worldvision Song Contest 47)"
+        [(ngModel)]="contestTitle"
+      />
 
       <!-- ── Scoring system ── -->
       <div class="setup-section-label">Scoring System</div>
@@ -42,7 +43,6 @@
 
       <!-- Custom scoring inputs — only shown when Custom is selected -->
       <div *ngIf="scoringPreset === 'custom'">
-
         <!-- Host enters how many point positions they want (max 20) -->
         <!-- Press Enter or click ✓ to generate the position inputs -->
         <div class="custom-count-row">
@@ -50,7 +50,8 @@
             type="text"
             placeholder="How many point positions per round? (max. 20)"
             [(ngModel)]="customPointsCount"
-            (keyup.enter)="onCustomCountChange()">
+            (keyup.enter)="onCustomCountChange()"
+          />
           <button class="btn-apply" (click)="onCustomCountChange()">✓</button>
         </div>
 
@@ -62,10 +63,10 @@
               [placeholder]="'Points for position ' + (i + 1)"
               [(ngModel)]="customPoints[i]"
               (change)="customPoints = [...customPoints]"
-              min="1">
+              min="1"
+            />
           </div>
         </div>
-
       </div>
 
       <!-- ── Contestant entry ── -->
@@ -75,17 +76,19 @@
       <!-- Already-chosen countries are greyed out -->
       <select [(ngModel)]="newCountry">
         <option value="">— Select country —</option>
-        <option *ngFor="let c of countries"
-                [value]="c.flag + ' ' + c.name"
-                [disabled]="isCountryTaken(c.flag + ' ' + c.name)">
+        <option
+          *ngFor="let c of countries"
+          [value]="c.flag + ' ' + c.name"
+          [disabled]="isCountryTaken(c.flag + ' ' + c.name)"
+        >
           {{ c.flag }} {{ c.name }}
         </option>
       </select>
 
       <!-- Contestant details -->
-      <input class="setup-box" type="text" placeholder="Participant name" [(ngModel)]="newName">
-      <input class="setup-box" type="text" placeholder="Artist"           [(ngModel)]="newArtist">
-      <input class="setup-box" type="text" placeholder="Song"             [(ngModel)]="newSong">
+      <input class="setup-box" type="text" placeholder="Participant name" [(ngModel)]="newName" />
+      <input class="setup-box" type="text" placeholder="Artist" [(ngModel)]="newArtist" />
+      <input class="setup-box" type="text" placeholder="Song" [(ngModel)]="newSong" />
 
       <!-- Warning shown when not enough contestants have been added -->
       <!-- Minimum = number of point positions + 1 -->
@@ -102,12 +105,21 @@
         </ng-container>
         <ng-template #editMode>
           <button class="btn-add" (click)="saveEditedContestant()">💾 Save Changes</button>
-          <button class="btn-cancel" (click)="editingIndex = -1; newCountry = ''; newName = ''; newArtist = ''; newSong = ''">✕ Cancel</button>
+          <button
+            class="btn-cancel"
+            (click)="editingIndex = -1; newCountry = ''; newName = ''; newArtist = ''; newSong = ''"
+          >
+            ✕ Cancel
+          </button>
         </ng-template>
         <!-- Disabled until the minimum contestant count is reached -->
-        <button class="btn-start"
-                (click)="startContest()"
-                [disabled]="contestants.length < minContestants || !customPointsValid || editingIndex !== -1">
+        <button
+          class="btn-start"
+          (click)="startContest()"
+          [disabled]="
+            contestants.length < minContestants || !customPointsValid || editingIndex !== -1
+          "
+        >
           Start Contest
         </button>
       </div>
@@ -137,11 +149,11 @@
 
     <!-- View previous contest banner — shown if a finished contest exists -->
     <div class="prev-contest-banner" *ngIf="hasFinishedContest">
-      <button class="resume-btn" (click)="viewPreviousContest()">📋 View Previously Finished Contest</button>
+      <button class="resume-btn" (click)="viewPreviousContest()">
+        📋 View Previously Finished Contest
+      </button>
     </div>
-
   </div>
-
 
   <!-- =====================================================
        CONTEST PAGE
@@ -150,7 +162,6 @@
        voting panel, and reveal bar.
   ====================================================== -->
   <div *ngIf="setupComplete">
-
     <!-- Header: shows the customised contest title -->
     <div class="header">
       <button class="home-btn" (click)="goHome()">← Home</button>
@@ -162,7 +173,6 @@
 
     <!-- Voter bar: current voter, reveal button, last submission -->
     <div class="voter-bar">
-
       <!-- Current voter info with animated pulse dot -->
       <!-- Hidden after the last round has been submitted -->
       <div class="voter-info" *ngIf="!(isLastRound && canUndo)">
@@ -175,22 +185,19 @@
 
       <!-- Show Reveal button: only appears after a round has been submitted -->
       <!-- Centred absolutely in the voter bar via .btn-reveal -->
-      <button *ngIf="lastRoundVotes.length > 0"
-              class="btn-start btn-reveal"
-              (click)="openReveal()">
+      <button *ngIf="lastRoundVotes.length > 0" class="btn-start btn-reveal" (click)="openReveal()">
         ▶ Show Reveal
       </button>
 
       <!-- Last submission label: only shown after at least one round -->
       <div class="voter-label" *ngIf="lastSubmittedVoter !== 'none'">
-        Previous round's voter <div class="voter-name">{{ lastSubmittedVoter }}</div>
+        Previous round's voter
+        <div class="voter-name">{{ lastSubmittedVoter }}</div>
       </div>
-
     </div>
 
     <!-- Main layout: scoreboard left, voting panel right -->
     <div class="container">
-
       <!-- ── SCOREBOARD ── -->
       <!-- Uses displayContestants[] — the visual copy updated during reveal.
            This is intentionally separate from contestants[] (the source of truth)
@@ -211,25 +218,32 @@
           <span>Artist</span>
           <span>Song</span>
           <!-- ★ column header — tooltip shows what max point value is -->
-          <span class="max-pts-col-header" [title]="'Times awarded ' + maxPointValue + ' pts'">★</span>
-          <span style="text-align:right">Points</span>
+          <span class="max-pts-col-header" [title]="'Times awarded ' + maxPointValue + ' pts'"
+            >★</span
+          >
+          <span style="text-align: right">Points</span>
         </div>
 
         <!-- One row per contestant from displayContestants[] -->
         <!-- trackBy prevents DOM destruction on re-sort (needed for FLIP animation) -->
         <!-- data-name attribute identifies each row for the animation -->
-        <div *ngFor="let c of displayContestants; let i = index; trackBy: trackByName"
-             class="score-row"
-             [attr.data-name]="c.name"
-             [ngClass]="{
-               'gold-row':   i === 0,
-               'silver-row': i === 1,
-               'bronze-row': i === 2,
-               'current-voter-row':   showReveal && isCurrentVoter(c.name),
-               'received-points-row': showReveal && !isCurrentVoter(c.name) && hasReceivedPointsInReveal(c.name),
-               'already-voted-row':   !isCurrentVoter(c.name) && !hasReceivedPointsInReveal(c.name) && hasAlreadyVoted(c.name)
-             }">
-
+        <div
+          *ngFor="let c of displayContestants; let i = index; trackBy: trackByName"
+          class="score-row"
+          [attr.data-name]="c.name"
+          [ngClass]="{
+            'gold-row': i === 0,
+            'silver-row': i === 1,
+            'bronze-row': i === 2,
+            'current-voter-row': showReveal && isCurrentVoter(c.name),
+            'received-points-row':
+              showReveal && !isCurrentVoter(c.name) && hasReceivedPointsInReveal(c.name),
+            'already-voted-row':
+              !isCurrentVoter(c.name) &&
+              !hasReceivedPointsInReveal(c.name) &&
+              hasAlreadyVoted(c.name),
+          }"
+        >
           <!-- Medal emoji for top 3, rank number for the rest -->
           <span class="rank">
             <ng-container [ngSwitch]="i">
@@ -248,20 +262,98 @@
           <!-- Gold dot + count shown when contestant has received max points -->
           <!-- Hover to see tooltip listing who gave those points -->
           <span class="max-pts-col">
-            <span *ngIf="c.maxPointVoters.length > 0"
-                  class="max-pts-dot"
-                  [title]="getMaxPointVotersTooltip(c.maxPointVoters)">
+            <span
+              *ngIf="c.maxPointVoters.length > 0"
+              class="max-pts-dot"
+              [title]="getMaxPointVotersTooltip(c.maxPointVoters)"
+            >
               ● {{ c.maxPointVoters.length }}
             </span>
           </span>
 
           <span class="points-col">{{ c.points }} pts</span>
         </div>
+        <!-- ── ORGANISER VOTING HISTORY ── -->
+        <!-- Uses the local voteMatrix only; opening this table does not read from
+            or write to Firestore. It is collapsed by default to keep the live
+            scoreboard uncluttered. -->
+        <section class="vote-history" *ngIf="voterOrder.length > 0">
+          <details>
+            <summary class="vote-history-summary">
+              <span class="vote-history-title"> 📋 Organiser Voting History </span>
+
+              <span class="vote-history-progress">
+                {{ completedVotingRounds }} / {{ voterOrder.length }} rounds
+              </span>
+            </summary>
+
+            <div class="vote-history-scroll">
+              <table class="vote-history-table">
+                <thead>
+                  <tr>
+                    <th class="history-corner" scope="col">Voter ↓ / Recipient →</th>
+
+                    <th
+                      *ngFor="let recipient of voterOrder"
+                      scope="col"
+                      [title]="getMatrixLabel(recipient)"
+                    >
+                      {{ recipient }}
+                    </th>
+
+                    <th class="history-total-heading" scope="col">Awarded</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  <tr
+                    *ngFor="let voter of voterOrder"
+                    [class.history-row-complete]="hasCompletedVotingRound(voter)"
+                    [class.history-row-latest]="voter === lastSubmittedVoter"
+                  >
+                    <th scope="row" [title]="getMatrixLabel(voter)">
+                      {{ voter }}
+                    </th>
+
+                    <td
+                      *ngFor="let recipient of voterOrder"
+                      [class.self-vote-cell]="voter === recipient"
+                      [class.max-points-cell]="getMatrixPoints(voter, recipient) === maxPointValue"
+                    >
+                      <ng-container *ngIf="voter === recipient; else recordedPoints">
+                        —
+                      </ng-container>
+
+                      <ng-template #recordedPoints>
+                        {{ getMatrixCellDisplay(voter, recipient) }}
+                      </ng-template>
+                    </td>
+
+                    <td class="history-total-cell">
+                      {{ hasCompletedVotingRound(voter) ? getVoterAwardedTotal(voter) : '' }}
+                    </td>
+                  </tr>
+                </tbody>
+
+                <tfoot>
+                  <tr>
+                    <th scope="row">Received</th>
+
+                    <td *ngFor="let recipient of voterOrder" class="history-received-cell">
+                      {{ getRecipientTotal(recipient) }}
+                    </td>
+
+                    <td></td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+          </details>
+        </section>
       </div>
 
       <!-- ── VOTING PANEL ── -->
       <div class="voting-panel">
-
         <div class="voting-header">
           <span class="voting-icon">🗳️</span>
           <!-- Shows the current voter's name -->
@@ -271,23 +363,30 @@
         <!-- One dropdown per available point value -->
         <!-- Current voter is disabled in each dropdown (can't vote for yourself) -->
         <div class="voting-body">
-          <div *ngFor="let p of availablePoints"
-               class="vote-row"
-               [class.vote-set]="currentRoundVotes[p]">
-            <label class="vote-points-badge"
-                  [class.pts-highest]="p === availablePoints[availablePoints.length - 1]"
-                  [class.pts-second]="p === availablePoints[availablePoints.length - 2]"
-                  [class.pts-8]="p === 8">
+          <div
+            *ngFor="let p of availablePoints"
+            class="vote-row"
+            [class.vote-set]="currentRoundVotes[p]"
+          >
+            <label
+              class="vote-points-badge"
+              [class.pts-highest]="p === availablePoints[availablePoints.length - 1]"
+              [class.pts-second]="p === availablePoints[availablePoints.length - 2]"
+              [class.pts-8]="p === 8"
+            >
               {{ p }} pts
             </label>
             <select
               [ngModel]="currentRoundVotes[p] || ''"
               (ngModelChange)="setVote(p, $event)"
-              [disabled]="isLastRound && canUndo">
+              [disabled]="isLastRound && canUndo"
+            >
               <option value="">— Select —</option>
-              <option *ngFor="let c of sortedContestants"
-                      [value]="c.name"
-                      [disabled]="c.name === currentVoter">
+              <option
+                *ngFor="let c of sortedContestants"
+                [value]="c.name"
+                [disabled]="c.name === currentVoter"
+              >
                 {{ c.name }} - {{ c.country }}
               </option>
             </select>
@@ -298,7 +397,6 @@
 
         <!-- Progress bar and submit button -->
         <div class="submit-area">
-
           <!-- Shows X / Y votes assigned -->
           <div class="vote-count-label">
             <em>{{ selectedVoteCount }}</em> / {{ availablePoints.length }} votes assigned
@@ -306,56 +404,51 @@
 
           <!-- Fills as more votes are assigned -->
           <div class="progress-bar-wrap">
-            <div class="progress-bar-fill"
-                 [style.width.%]="(selectedVoteCount / availablePoints.length) * 100">
-            </div>
+            <div
+              class="progress-bar-fill"
+              [style.width.%]="(selectedVoteCount / availablePoints.length) * 100"
+            ></div>
           </div>
 
           <!-- Disabled until all point slots are filled -->
-          <button class="submit-btn"
-                  (click)="submitVotes()"
-                  [disabled]="selectedVoteCount < availablePoints.length || (isLastRound && canUndo)" >
+          <button
+            class="submit-btn"
+            (click)="submitVotes()"
+            [disabled]="selectedVoteCount < availablePoints.length || (isLastRound && canUndo)"
+          >
             Submit Votes ✦
           </button>
 
           <!-- Error shown if a voting rule is violated -->
-          <div class="error-message" *ngIf="errorMessage">
-            ⚠ {{ errorMessage }}
-          </div>
+          <div class="error-message" *ngIf="errorMessage">⚠ {{ errorMessage }}</div>
 
           <!-- Undo last round — only shown after at least one round has been submitted -->
-          <button class="undo-btn"
-                  (click)="undoLastRound()"
-                  *ngIf="canUndo">
+          <button class="undo-btn" (click)="undoLastRound()" *ngIf="canUndo">
             ↩ Undo Last Round
           </button>
 
           <!-- Generate Snapshot button — shown after a round has been submitted -->
           <!-- Writes the current round's reveal data to Firestore and opens the snapshot page -->
-          <button class="snapshot-btn"
-                  (click)="generateSnapshot()"
-                  *ngIf="canUndo"
-                  [disabled]="snapshotGenerating || snapshotGenerated">
+          <button
+            class="snapshot-btn"
+            (click)="generateSnapshot()"
+            *ngIf="canUndo"
+            [disabled]="snapshotGenerating || snapshotGenerated"
+          >
             <span *ngIf="!snapshotGenerating && !snapshotGenerated">🔗 Generate Snapshot Link</span>
             <span *ngIf="snapshotGenerating">Generating...</span>
             <span *ngIf="snapshotGenerated">✓ Snapshot Generated</span>
           </button>
 
           <!-- Error shown if snapshot generation fails -->
-          <div class="error-message" *ngIf="snapshotError">
-            ⚠ {{ snapshotError }}
-          </div>
+          <div class="error-message" *ngIf="snapshotError">⚠ {{ snapshotError }}</div>
 
           <!-- End Contest button — only shown after the last round has been submitted -->
-          <button class="end-contest-btn"
-                  (click)="endContest()"
-                  *ngIf="isLastRound && canUndo">
+          <button class="end-contest-btn" (click)="endContest()" *ngIf="isLastRound && canUndo">
             🏆 End Contest & Show Results
           </button>
-
         </div>
       </div>
-
     </div>
 
     <!-- =====================================================
@@ -367,9 +460,7 @@
          contestants[] (the truth) is never touched here.
     ====================================================== -->
     <div *ngIf="showReveal" class="reveal-overlay">
-      <div class="reveal-voter">
-        {{ lastSubmittedVoter }} gives...
-      </div>
+      <div class="reveal-voter">{{ lastSubmittedVoter }} gives...</div>
       <div class="reveal-points-value">
         {{ lastRoundVotes[revealIndex].points }}
         <span>{{ lastRoundVotes[revealIndex].points === 1 ? 'pt' : 'pts' }}</span>
@@ -377,19 +468,22 @@
       <div class="reveal-recipient">
         {{ lastRoundVotes[revealIndex].contestant }}
       </div>
-      <button class="reveal-next-btn"
-              (click)="nextReveal()"
-              *ngIf="revealIndex < lastRoundVotes.length - 1">
+      <button
+        class="reveal-next-btn"
+        (click)="nextReveal()"
+        *ngIf="revealIndex < lastRoundVotes.length - 1"
+      >
         Next →
       </button>
       <!-- Done button — shown after the last point is revealed -->
-      <button class="reveal-next-btn"
-              (click)="endReveal()"
-              *ngIf="revealIndex === lastRoundVotes.length - 1">
+      <button
+        class="reveal-next-btn"
+        (click)="endReveal()"
+        *ngIf="revealIndex === lastRoundVotes.length - 1"
+      >
         Done ✓
       </button>
     </div>
-
 
     <!-- =====================================================
          CONTEST OVER SCREEN
@@ -400,7 +494,6 @@
          Triggered by contestOver = true.
     ====================================================== -->
     <div *ngIf="contestOver" class="contest-over-overlay">
-
       <!-- Header -->
       <div class="contest-over-header">
         <div class="header-eyebrow">✦ Final Results ✦</div>
@@ -409,7 +502,6 @@
 
       <!-- Podium: top 3 displayed as physical blocks, gold tallest -->
       <div class="podium">
-
         <!-- Silver: #2 (shown left of gold) -->
         <div class="podium-place silver-place">
           <div class="podium-flag">{{ contestants[1]?.country }}</div>
@@ -436,7 +528,6 @@
           <div class="podium-points">{{ contestants[2]?.points }} pts</div>
           <div class="podium-block bronze-block">#3</div>
         </div>
-
       </div>
 
       <!-- Full final standings table — uses contestants[] (source of truth) -->
@@ -452,15 +543,17 @@
           <span>Artist</span>
           <span>Song</span>
           <span class="max-pts-col-header">★</span>
-          <span style="text-align:right">Points</span>
+          <span style="text-align: right">Points</span>
         </div>
-        <div *ngFor="let c of contestants; let i = index"
-             class="score-row"
-             [ngClass]="{
-               'gold-row':   i === 0,
-               'silver-row': i === 1,
-               'bronze-row': i === 2
-             }">
+        <div
+          *ngFor="let c of contestants; let i = index"
+          class="score-row"
+          [ngClass]="{
+            'gold-row': i === 0,
+            'silver-row': i === 1,
+            'bronze-row': i === 2,
+          }"
+        >
           <span class="rank">
             <ng-container [ngSwitch]="i">
               <ng-container *ngSwitchCase="0">🥇</ng-container>
@@ -474,9 +567,11 @@
           <span class="artist-col">{{ c.artist }}</span>
           <span class="song-col">{{ c.song }}</span>
           <span class="max-pts-col">
-            <span *ngIf="c.maxPointVoters.length > 0"
-                  class="max-pts-dot"
-                  [title]="getMaxPointVotersTooltip(c.maxPointVoters)">
+            <span
+              *ngIf="c.maxPointVoters.length > 0"
+              class="max-pts-dot"
+              [title]="getMaxPointVotersTooltip(c.maxPointVoters)"
+            >
               ● {{ c.maxPointVoters.length }}
             </span>
           </span>
@@ -490,22 +585,24 @@
           💾 Save Results
         </button>
         <span class="save-confirmation" *ngIf="resultsSaved">Results saved!</span>
-        <button class="contest-over-btn snapshot-btn" (click)="generateFinalSnapshot()"
-                [disabled]="snapshotGenerating || finalSnapshotGenerated">
+        <button
+          class="contest-over-btn snapshot-btn"
+          (click)="generateFinalSnapshot()"
+          [disabled]="snapshotGenerating || finalSnapshotGenerated"
+        >
           <span *ngIf="!snapshotGenerating && !finalSnapshotGenerated">🔗 Share Final Results</span>
           <span *ngIf="snapshotGenerating">Generating...</span>
           <span *ngIf="finalSnapshotGenerated">✓ Link Generated</span>
         </button>
-        <button class="contest-over-btn export-btn" (click)="exportToExcel(contestants, contestTitle)">
+        <button
+          class="contest-over-btn export-btn"
+          (click)="exportToExcel(contestants, contestTitle, voterOrder, voteMatrix)"
+        >
           📊 Export to Spreadsheet
         </button>
-        <button class="contest-over-btn back-btn" (click)="backToSetup()">
-          ← Back to Setup
-        </button>
+        <button class="contest-over-btn back-btn" (click)="backToSetup()">← Back to Setup</button>
       </div>
-
     </div>
-
   </div>
 
   <!-- =====================================================
@@ -515,7 +612,6 @@
        finished contest.
   ====================================================== -->
   <div *ngIf="showPreviousContest" class="contest-over-overlay">
-
     <!-- Header -->
     <div class="contest-over-header">
       <div class="header-eyebrow">✦ Previous Results ✦</div>
@@ -524,7 +620,6 @@
 
     <!-- Podium -->
     <div class="podium">
-
       <div class="podium-place silver-place">
         <div class="podium-flag">{{ previousContest?.contestants[1]?.country }}</div>
         <div class="podium-name">{{ previousContest?.contestants[1]?.name }}</div>
@@ -548,7 +643,6 @@
         <div class="podium-points">{{ previousContest?.contestants[2]?.points }} pts</div>
         <div class="podium-block bronze-block">#3</div>
       </div>
-
     </div>
 
     <!-- Full standings table -->
@@ -564,15 +658,17 @@
         <span>Artist</span>
         <span>Song</span>
         <span class="max-pts-col-header">★</span>
-        <span style="text-align:right">Points</span>
+        <span style="text-align: right">Points</span>
       </div>
-      <div *ngFor="let c of previousContest?.contestants; let i = index"
-           class="score-row"
-           [ngClass]="{
-             'gold-row':   i === 0,
-             'silver-row': i === 1,
-             'bronze-row': i === 2
-           }">
+      <div
+        *ngFor="let c of previousContest?.contestants; let i = index"
+        class="score-row"
+        [ngClass]="{
+          'gold-row': i === 0,
+          'silver-row': i === 1,
+          'bronze-row': i === 2,
+        }"
+      >
         <span class="rank">
           <ng-container [ngSwitch]="i">
             <ng-container *ngSwitchCase="0">🥇</ng-container>
@@ -586,9 +682,11 @@
         <span class="artist-col">{{ c.artist }}</span>
         <span class="song-col">{{ c.song }}</span>
         <span class="max-pts-col">
-          <span *ngIf="c.maxPointVoters?.length > 0"
-                class="max-pts-dot"
-                [title]="getMaxPointVotersTooltip(c.maxPointVoters)">
+          <span
+            *ngIf="c.maxPointVoters?.length > 0"
+            class="max-pts-dot"
+            [title]="getMaxPointVotersTooltip(c.maxPointVoters)"
+          >
             ● {{ c.maxPointVoters.length }}
           </span>
         </span>
@@ -598,23 +696,35 @@
 
     <!-- Back button + reuse participants button -->
     <div class="contest-over-actions">
-      <button class="contest-over-btn back-btn" (click)="closePreviousContest()">
-        ← Back
-      </button>
-      <button class="contest-over-btn" style="width:auto" (click)="generatePreviousContestSnapshot()"
-              [disabled]="snapshotGenerating || previousSnapshotGenerated">
-        <span *ngIf="!snapshotGenerating && !previousSnapshotGenerated">🔗 Share Final Results</span>
+      <button class="contest-over-btn back-btn" (click)="closePreviousContest()">← Back</button>
+      <button
+        class="contest-over-btn"
+        style="width: auto"
+        (click)="generatePreviousContestSnapshot()"
+        [disabled]="snapshotGenerating || previousSnapshotGenerated"
+      >
+        <span *ngIf="!snapshotGenerating && !previousSnapshotGenerated"
+          >🔗 Share Final Results</span
+        >
         <span *ngIf="snapshotGenerating">Generating...</span>
         <span *ngIf="previousSnapshotGenerated">✓ Link Generated</span>
       </button>
-      <button class="contest-over-btn export-btn" (click)="exportToExcel(previousContest?.contestants, previousContest?.contestTitle)">
+      <button
+        class="contest-over-btn export-btn"
+        (click)="
+          exportToExcel(
+            previousContest?.contestants ?? [],
+            previousContest?.contestTitle ?? '',
+            previousContest?.voterOrder ?? [],
+            previousContest?.voteMatrix ?? {}
+          )
+        "
+      >
         📊 Export to Spreadsheet
       </button>
       <button class="contest-over-btn save-btn" (click)="reuseParticipants()">
         ↺ Start New Contest with Same Participants
       </button>
     </div>
-
   </div>
-
 </div>
