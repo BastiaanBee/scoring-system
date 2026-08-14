@@ -1,0 +1,127 @@
+const FOOTBALL_DATA_BASE_URL = 'https://api.football-data.org/v4';
+const COMPETITION_CODE = 'DED';
+
+const nodeRuntime = globalThis as typeof globalThis & {
+  process?: {
+    env?: Record<string, string | undefined>;
+  };
+};
+
+const asTeam = (raw: any) => ({
+  id: raw?.id ?? 0,
+  name: raw?.name ?? 'Unknown',
+  shortName: raw?.shortName ?? null,
+  tla: raw?.tla ?? null,
+  crest: raw?.crest ?? null,
+});
+
+const asScore = (raw: any) => ({
+  home: raw?.home ?? null,
+  away: raw?.away ?? null,
+});
+
+const asStanding = (raw: any) => ({
+  position: raw?.position ?? 0,
+  team: asTeam(raw?.team),
+  playedGames: raw?.playedGames ?? 0,
+  form: typeof raw?.form === 'string' && raw.form.length > 0 ? raw.form.split(',') : [],
+  won: raw?.won ?? 0,
+  draw: raw?.draw ?? 0,
+  lost: raw?.lost ?? 0,
+  points: raw?.points ?? 0,
+  goalsFor: raw?.goalsFor ?? 0,
+  goalsAgainst: raw?.goalsAgainst ?? 0,
+  goalDifference: raw?.goalDifference ?? 0,
+});
+
+const asMatch = (raw: any) => ({
+  id: raw?.id ?? 0,
+  utcDate: raw?.utcDate ?? '',
+  status: raw?.status ?? 'SCHEDULED',
+  matchday: raw?.matchday ?? null,
+  homeTeam: asTeam(raw?.homeTeam),
+  awayTeam: asTeam(raw?.awayTeam),
+  score: {
+    winner: raw?.score?.winner ?? null,
+    fullTime: asScore(raw?.score?.fullTime),
+  },
+  lastUpdated: raw?.lastUpdated ?? null,
+});
+
+async function requestFootballData(path: string, token: string): Promise<any> {
+  const response = await fetch(`${FOOTBALL_DATA_BASE_URL}${path}`, {
+    headers: {
+      'X-Auth-Token': token,
+      Accept: 'application/json',
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(`football-data.org responded with status ${response.status}.`);
+  }
+
+  return response.json();
+}
+
+export async function GET(): Promise<Response> {
+  const token = nodeRuntime.process?.env?.['FOOTBALL_DATA_TOKEN'];
+
+  if (!token) {
+    return Response.json({ error: 'FOOTBALL_DATA_TOKEN is not configured.' }, { status: 500 });
+  }
+
+  try {
+    const [standingsData, matchesData] = await Promise.all([
+      requestFootballData(`/competitions/${COMPETITION_CODE}/standings`, token),
+      requestFootballData(`/competitions/${COMPETITION_CODE}/matches`, token),
+    ]);
+
+    const totalStanding = standingsData.standings?.find(
+      (standing: any) => standing.type === 'TOTAL',
+    );
+
+    if (!totalStanding) {
+      throw new Error('The API response contained no total standings.');
+    }
+
+    const standings = totalStanding.table.map(asStanding);
+
+    const matches = matchesData.matches
+      .map(asMatch)
+      .filter((match: any) => match.matchday !== null)
+      .sort(
+        (first: any, second: any) =>
+          first.matchday - second.matchday || first.utcDate.localeCompare(second.utcDate),
+      );
+
+    return Response.json(
+      {
+        competition: {
+          id: standingsData.competition.id,
+          name: standingsData.competition.name,
+          code: standingsData.competition.code,
+          emblem: standingsData.competition.emblem ?? null,
+        },
+        season: {
+          id: standingsData.season.id,
+          startDate: standingsData.season.startDate,
+          endDate: standingsData.season.endDate,
+          currentMatchday: standingsData.season.currentMatchday,
+        },
+        standings,
+        matches,
+        updatedAt: new Date().toISOString(),
+      },
+      {
+        status: 200,
+        headers: {
+          'Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=86400',
+        },
+      },
+    );
+  } catch (error) {
+    console.error('Unable to retrieve Eredivisie data:', error);
+
+    return Response.json({ error: 'Unable to retrieve Eredivisie data.' }, { status: 502 });
+  }
+}
