@@ -2,26 +2,28 @@
 @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&display=swap');
 
 :root {
-  --gold:       #F5C800;
-  --gold-dim:   #B89200;
-  --teal:       #00C4A8;
-  --teal-lt:    #00E0C0;
-  --navy:       #0B1A2E;
-  --navy-mid:   #112240;
-  --navy-lt:    #1A3358;
-  --text:       #F0F4FF;
-  --text-2:     #C0CFEA;
-  --muted:      #7888AA;
-  --silver:     #A8BCCF;
-  --bronze:     #C07830;
-  --rule:       rgba(255, 255, 255, 0.08);
+  --gold: #f5c800;
+  --gold-dim: #b89200;
+  --teal: #00c4a8;
+  --teal-lt: #00e0c0;
+  --navy: #0b1a2e;
+  --navy-mid: #112240;
+  --navy-lt: #1a3358;
+  --text: #f0f4ff;
+  --text-2: #c0cfea;
+  --muted: #7888aa;
+  --silver: #a8bccf;
+  --bronze: #c07830;
+  --rule: rgba(255, 255, 255, 0.08);
 }
 
 /* Reset */
-html, body {
+html,
+body {
   margin: 0;
   padding: 0;
-  background: #0B1A2E;
+  background: #0b1a2e;
+  user-select: none;
 }
 
 /* Scoreboard takes full width since there's no voting panel */
@@ -38,14 +40,14 @@ html, body {
   justify-content: center;
   min-height: 100vh;
   font-family: 'Inter', sans-serif;
-  color: #7888AA;
+  color: #7888aa;
   font-size: 1rem;
   user-select: none;
   pointer-events: none;
 }
 
 .snapshot-error {
-  color: #FFA0A8;
+  color: #ffa0a8;
 }
 
 /* Flag images in the country column and podium */
@@ -98,6 +100,85 @@ html, body {
   margin-top: 2rem;
 }
 
+/* =====================================================
+   CONTEST HIGHLIGHTS
+   Small statistical fact cards shown between the
+   podium and final standings on final-result snapshots.
+   ====================================================== */
+
+.contest-facts {
+  max-width: 1000px;
+  margin: 0 auto 2.5rem;
+  padding: 0 1.4rem;
+  font-family: 'Inter', sans-serif;
+  user-select: none;
+}
+
+.contest-facts-header {
+  text-align: center;
+  margin-bottom: 1.2rem;
+}
+
+.contest-facts-eyebrow {
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--teal);
+  margin-bottom: 0.2rem;
+}
+
+.contest-facts-header h2 {
+  margin: 0;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.8rem;
+  font-weight: 400;
+  letter-spacing: 0.12em;
+  color: var(--gold);
+}
+
+.contest-facts-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.8rem;
+}
+
+.contest-fact-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.85rem;
+  min-width: 0;
+  padding: 1rem 1.1rem;
+  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid var(--rule);
+  border-radius: 8px;
+}
+
+.contest-fact-icon {
+  flex-shrink: 0;
+  font-size: 1.5rem;
+  line-height: 1;
+}
+
+.contest-fact-content {
+  min-width: 0;
+}
+
+.contest-fact-title {
+  margin-bottom: 0.3rem;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1rem;
+  letter-spacing: 0.1em;
+  color: var(--teal-lt);
+}
+
+.contest-fact-content p {
+  margin: 0;
+  color: var(--text-2);
+  font-size: 0.82rem;
+  line-height: 1.55;
+}
+
 /* Export button inside the scoreboard header */
 .scoreboard-header {
   display: flex;
@@ -114,7 +195,9 @@ html, body {
   padding: 0.2rem 0.6rem;
   cursor: pointer;
   font-size: 0.75rem;
-  transition: border-color 0.15s, color 0.15s;
+  transition:
+    border-color 0.15s,
+    color 0.15s;
 }
 
 .export-scoreboard-btn:hover {
@@ -124,21 +207,21 @@ html, body {
 
 /* Current voter row highlight */
 .current-voter-row {
-  border-left: 3px solid #22C55E;
+  border-left: 3px solid #22c55e;
   background: rgba(34, 197, 94, 0.08);
   padding-left: calc(0.5rem - 3px);
 }
 
 /* Contestants that already voted in previous rounds */
 .already-voted-row {
-  border-left: 3px solid #EF4444;
+  border-left: 3px solid #ef4444;
   background: rgba(239, 68, 68, 0.06);
   padding-left: calc(0.5rem - 3px);
 }
 
 /* Most recently awarded contestant (transient reveal highlight) */
 .received-points-row {
-  border-left: 3px solid #F5C800;
+  border-left: 3px solid #f5c800;
   background: rgba(245, 200, 0, 0.08);
   padding-left: calc(0.5rem - 3px);
 }
@@ -153,7 +236,6 @@ html, body {
    prevent the scoreboard from overflowing horizontally.
    ====================================================== */
 @media (max-width: 768px) {
-
   .podium {
     display: flex;
     flex-direction: column;
@@ -301,4 +383,11 @@ html, body {
     padding-bottom: 8rem;
   }
 
+  .contest-facts {
+    padding: 0 1rem;
+  }
+
+  .contest-facts-grid {
+    grid-template-columns: 1fr;
+  }
 }
