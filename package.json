@@ -1,6 +1,7 @@
 {
   "name": "synthwave-app",
   "version": "0.0.0",
+  "type": "module",
   "scripts": {
     "ng": "ng",
     "start": "node --env-file=.env.local tools/dev.mjs",
