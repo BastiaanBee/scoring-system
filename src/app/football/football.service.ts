@@ -1,6 +1,8 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 
+export type CompetitionCode = 'DED' | 'PL';
+
 export interface FootballTeam {
   id: number;
   name: string;
@@ -23,7 +25,7 @@ export interface StandingRow {
   goalDifference: number;
 }
 
-export interface EredivisieMatch {
+export interface FootballMatch {
   id: number;
   utcDate: string;
   status: string;
@@ -46,7 +48,7 @@ export interface EredivisieMatch {
   lastUpdated: string | null;
 }
 
-export interface EredivisieData {
+export interface CompetitionData {
   competition: {
     id: number;
     name: string;
@@ -60,7 +62,7 @@ export interface EredivisieData {
     currentMatchday: number | null;
   };
   standings: StandingRow[];
-  matches: EredivisieMatch[];
+  matches: FootballMatch[];
   updatedAt: string;
 }
 
@@ -70,7 +72,7 @@ export interface EredivisieData {
 export class FootballService {
   private readonly http = inject(HttpClient);
 
-  getEredivisie() {
-    return this.http.get<EredivisieData>('/api/eredivisie?v=2');
+  getCompetition(competitionCode: CompetitionCode) {
+    return this.http.get<CompetitionData>(`/api/eredivisie?v=2&competition=${competitionCode}`);
   }
 }

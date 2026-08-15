@@ -1,5 +1,5 @@
 const FOOTBALL_DATA_BASE_URL = 'https://api.football-data.org/v4';
-const COMPETITION_CODE = 'DED';
+const SUPPORTED_COMPETITION_CODES = new Set(['DED', 'PL']);
 
 const nodeRuntime = globalThis as typeof globalThis & {
   process?: {
@@ -73,7 +73,14 @@ async function requestFootballData(path: string, token: string): Promise<any> {
   return response.json();
 }
 
-export async function GET(): Promise<Response> {
+export async function GET(request: Request): Promise<Response> {
+  const requestedCompetition =
+    new URL(request.url).searchParams.get('competition')?.toUpperCase() ?? 'DED';
+
+  if (!SUPPORTED_COMPETITION_CODES.has(requestedCompetition)) {
+    return Response.json({ error: 'Unsupported competition.' }, { status: 400 });
+  }
+
   const token = nodeRuntime.process?.env?.['FOOTBALL_DATA_TOKEN'];
 
   if (!token) {
@@ -82,8 +89,8 @@ export async function GET(): Promise<Response> {
 
   try {
     const [standingsData, matchesData] = await Promise.all([
-      requestFootballData(`/competitions/${COMPETITION_CODE}/standings`, token),
-      requestFootballData(`/competitions/${COMPETITION_CODE}/matches`, token),
+      requestFootballData(`/competitions/${requestedCompetition}/standings`, token),
+      requestFootballData(`/competitions/${requestedCompetition}/matches`, token),
     ]);
 
     const totalStanding = standingsData.standings?.find(
@@ -130,8 +137,8 @@ export async function GET(): Promise<Response> {
       },
     );
   } catch (error) {
-    console.error('Unable to retrieve Eredivisie data:', error);
+    console.error(`Unable to retrieve ${requestedCompetition} data:`, error);
 
-    return Response.json({ error: 'Unable to retrieve Eredivisie data.' }, { status: 502 });
+    return Response.json({ error: 'Unable to retrieve competition data.' }, { status: 502 });
   }
 }

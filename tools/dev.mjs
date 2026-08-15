@@ -20,7 +20,11 @@ const apiServer = createServer(async (request, response) => {
   }
 
   try {
-    const apiResponse = await getEredivisie();
+    const apiRequest = new Request(`http://127.0.0.1:4300${request.url ?? '/api/eredivisie'}`, {
+      method: request.method,
+    });
+
+    const apiResponse = await getEredivisie(apiRequest);
     const body = Buffer.from(await apiResponse.arrayBuffer());
 
     response.writeHead(apiResponse.status, Object.fromEntries(apiResponse.headers.entries()));

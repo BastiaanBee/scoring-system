@@ -3,8 +3,20 @@
     <div class="identity">
       <button class="home-btn" (click)="goHome()">← Home</button>
 
-      <h1 class="wordmark">Eredivisie</h1>
-      <p class="subtitle">Live table and every result, round by round.</p>
+      <nav class="competition-switcher" aria-label="Select competition">
+        @for (competition of competitions; track competition.code) {
+          <button
+            type="button"
+            class="competition-button"
+            [class.is-active]="selectedCompetition() === competition.code"
+            [attr.aria-pressed]="selectedCompetition() === competition.code"
+            [disabled]="loading()"
+            (click)="selectCompetition(competition.code)"
+          >
+            {{ competition.label }}
+          </button>
+        }
+      </nav>
     </div>
 
     @if (data(); as league) {
@@ -53,10 +65,12 @@
             <p class="panel-kicker">League table</p>
             <h2>Standings</h2>
           </div>
+
+          <h1 class="wordmark panel-wordmark">{{ league.competition.name }}</h1>
         </header>
 
         <div class="table-wrapper">
-          <table>
+          <table [attr.data-competition]="selectedCompetition()">
             <thead>
               <tr>
                 <th class="col-position" scope="col">#</th>
@@ -68,35 +82,21 @@
                 <th class="stat-for" scope="col" title="Goals for">GF</th>
                 <th class="stat-against" scope="col" title="Goals against">GA</th>
                 <th class="stat-delta" scope="col" title="Goal difference">GD</th>
-                <th class="col-points" scope="col">Pts</th>
+                <th class="col-points" scope="col">Points</th>
                 <th class="form-column" scope="col">Form</th>
               </tr>
             </thead>
 
             <tbody>
               @for (row of league.standings; track row.team.id) {
-                <tr
-                  [attr.data-zone]="
-                    $index === 0
-                      ? 'champion'
-                      : $index <= 2
-                        ? 'europe'
-                        : $index <= 6
-                          ? 'europe-playoff'
-                          : $index === league.standings.length - 3
-                            ? 'relegation-playoff'
-                            : $index >= league.standings.length - 2
-                              ? 'relegated'
-                              : null
-                  "
-                >
+                <tr [attr.data-zone]="standingsZone($index, league.standings.length)">
                   <td class="position">
                     <span class="zone-bar" aria-hidden="true"></span>
                     {{ $index + 1 }}
                   </td>
 
                   <td class="col-club">
-                    <span class="club-name">{{ row.team.shortName ?? row.team.name }}</span>
+                    <span class="club-name">{{ displayTeamName(row.team) }}</span>
                   </td>
 
                   <td class="stat-played">{{ row.playedGames }}</td>
@@ -118,7 +118,7 @@
 
                   <td class="form-column">
                     <div class="form">
-                      @for (result of row.form; track $index) {
+                      @for (result of teamForm(row.team.id); track $index) {
                         <span class="form-result" [attr.data-result]="result">{{ result }}</span>
                       }
                     </div>
@@ -129,22 +129,29 @@
           </table>
         </div>
 
-        <footer class="zone-legend">
-          <span data-zone="champion" title="Champions League league phase">Champion</span>
-          <span data-zone="europe" title="Champions League and Europa League qualifying"
-            >Europe</span
-          >
-          <span
-            data-zone="europe-playoff"
-            title="Play-offs for a Conference League qualifying spot"
-          >
-            Euro play-offs
-          </span>
-          <span data-zone="relegation-playoff" title="Promotion and relegation play-off"
-            >Play-off</span
-          >
-          <span data-zone="relegated" title="Relegated to the Eerste Divisie">Relegated</span>
-        </footer>
+        @if (selectedCompetition() === 'DED') {
+          <footer class="zone-legend">
+            <span data-zone="champion" title="Champions League league phase">Champion</span>
+            <span data-zone="europe" title="Champions League and Europa League qualifying"
+              >Europe</span
+            >
+            <span
+              data-zone="europe-playoff"
+              title="Play-offs for a Conference League qualifying spot"
+            >
+              Euro play-offs
+            </span>
+            <span data-zone="relegation-playoff" title="Promotion and relegation play-off"
+              >Play-off</span
+            >
+            <span data-zone="relegated" title="Relegated to the Eerste Divisie">Relegated</span>
+          </footer>
+        } @else {
+          <footer class="zone-legend">
+            <span data-zone="champion" title="Premier League champion">Champion</span>
+            <span data-zone="relegated" title="Relegated to the Championship">Relegated</span>
+          </footer>
+        }
       </article>
 
       <article class="panel fixtures-panel">
@@ -209,9 +216,7 @@
 
               <span class="match-line">
                 <span class="side home" [title]="match.homeTeam.name">
-                  <span class="side-name">{{
-                    match.homeTeam.shortName ?? match.homeTeam.name
-                  }}</span>
+                  <span class="side-name">{{ displayTeamName(match.homeTeam) }}</span>
                 </span>
 
                 @if (
@@ -231,9 +236,7 @@
                 }
 
                 <span class="side away" [title]="match.awayTeam.name">
-                  <span class="side-name">{{
-                    match.awayTeam.shortName ?? match.awayTeam.name
-                  }}</span>
+                  <span class="side-name">{{ displayTeamName(match.awayTeam) }}</span>
                 </span>
               </span>
             </button>
@@ -257,8 +260,10 @@
       <article class="match-dialog-card">
         <header class="match-dialog-header">
           <div>
-            <p class="dialog-kicker">Eredivisie · Round {{ match.matchday }}</p>
-            <h2 id="match-dialog-title">Match centre</h2>
+            <p class="dialog-kicker">
+              {{ data()?.competition?.name ?? 'Competition' }} · Round {{ match.matchday }}
+            </p>
+            <h2 id="match-dialog-title">Match details</h2>
           </div>
 
           <button
@@ -277,7 +282,12 @@
         </p>
 
         <section class="dialog-score" [attr.data-status]="match.status">
-          <div class="dialog-team" [class.is-winner]="match.score.winner === 'HOME_TEAM'">
+          <div
+            class="dialog-team"
+            [class.is-winner]="match.score.winner === 'HOME_TEAM'"
+            [class.is-loser]="match.score.winner === 'AWAY_TEAM'"
+            [class.is-draw]="match.score.winner === 'DRAW'"
+          >
             @if (match.homeTeam.crest) {
               <img class="dialog-crest" [src]="match.homeTeam.crest" alt="" />
             } @else {
@@ -285,7 +295,7 @@
                 match.homeTeam.tla ?? '?'
               }}</span>
             }
-            <h3>{{ match.homeTeam.shortName ?? match.homeTeam.name }}</h3>
+            <h3>{{ displayTeamName(match.homeTeam) }}</h3>
             <span>Home</span>
           </div>
 
@@ -302,7 +312,12 @@
             <span class="dialog-status">{{ statusLabel(match.status) }}</span>
           </div>
 
-          <div class="dialog-team" [class.is-winner]="match.score.winner === 'AWAY_TEAM'">
+          <div
+            class="dialog-team"
+            [class.is-winner]="match.score.winner === 'AWAY_TEAM'"
+            [class.is-loser]="match.score.winner === 'HOME_TEAM'"
+            [class.is-draw]="match.score.winner === 'DRAW'"
+          >
             @if (match.awayTeam.crest) {
               <img class="dialog-crest" [src]="match.awayTeam.crest" alt="" />
             } @else {
@@ -310,28 +325,12 @@
                 match.awayTeam.tla ?? '?'
               }}</span>
             }
-            <h3>{{ match.awayTeam.shortName ?? match.awayTeam.name }}</h3>
+            <h3>{{ displayTeamName(match.awayTeam) }}</h3>
             <span>Away</span>
           </div>
         </section>
 
         <dl class="match-facts">
-          <div>
-            <dt>Competition</dt>
-            <dd>Eredivisie</dd>
-          </div>
-          <div>
-            <dt>Matchday</dt>
-            <dd>{{ match.matchday }}</dd>
-          </div>
-          <div>
-            <dt>Kick-off</dt>
-            <dd>{{ match.utcDate | date: 'HH:mm' }}</dd>
-          </div>
-          <div>
-            <dt>Status</dt>
-            <dd>{{ statusLabel(match.status) }}</dd>
-          </div>
           @if (match.score.halfTime; as halfTime) {
             @if (halfTime.home !== null && halfTime.away !== null) {
               <div>
