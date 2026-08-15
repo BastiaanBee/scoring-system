@@ -39,12 +39,22 @@ const asMatch = (raw: any) => ({
   utcDate: raw?.utcDate ?? '',
   status: raw?.status ?? 'SCHEDULED',
   matchday: raw?.matchday ?? null,
+
+  venue: raw?.venue ?? null,
+
+  referee: Array.isArray(raw?.referees)
+    ? (raw.referees.find((referee: any) => referee?.type === 'REFEREE')?.name ?? null)
+    : null,
+
   homeTeam: asTeam(raw?.homeTeam),
   awayTeam: asTeam(raw?.awayTeam),
+
   score: {
     winner: raw?.score?.winner ?? null,
     fullTime: asScore(raw?.score?.fullTime),
+    halfTime: asScore(raw?.score?.halfTime),
   },
+
   lastUpdated: raw?.lastUpdated ?? null,
 });
 

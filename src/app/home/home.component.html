@@ -44,11 +44,11 @@
   <main class="home-main">
     <div class="home-marquee">
       <h1 class="home-title">Platina32</h1>
-      <div class="system-status" aria-label="System ready, two machines online">
+      <div class="system-status" aria-label="System ready, three machines online">
         <span class="status-light" aria-hidden="true"></span>
         <span>System ready</span>
         <span class="status-divider">·</span>
-        <span>2 machines online</span>
+        <span>3 machines online</span>
       </div>
     </div>
 
@@ -151,6 +151,59 @@
 
         <span class="cab-body">
           <span class="tile-desc">Top-down retro shooter prototype.</span>
+          <span class="tile-cta">
+            <span class="cta-default">Launch</span>
+            <span class="cta-hover">Press start</span>
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M5 12h13" />
+              <path d="m12 6 6 6-6 6" />
+            </svg>
+          </span>
+        </span>
+
+        <span class="cab-plinth" aria-hidden="true"></span>
+      </button>
+
+      <button type="button" class="home-tile" (click)="openFootballTracker()">
+        <span class="cab-head">
+          <span class="cab-marquee">
+            <span class="cab-title">Football Tracker</span>
+          </span>
+        </span>
+
+        <span class="cab-bezel">
+          <span class="cab-screen">
+            <span class="attract attract-pitch" aria-hidden="true">
+              <span class="pt-lines"></span>
+              <span class="pt-player pt-player-1"></span>
+              <span class="pt-player pt-player-2"></span>
+              <span class="pt-player pt-player-3"></span>
+              <span class="pt-ball"></span>
+            </span>
+            <span class="cab-glass" aria-hidden="true"></span>
+          </span>
+        </span>
+
+        <span class="cab-panel" aria-hidden="true">
+          <span class="cab-stick"></span>
+          <span class="cab-buttons">
+            <span class="cab-btn cab-btn-1"></span>
+            <span class="cab-btn cab-btn-2"></span>
+            <span class="cab-btn cab-btn-3"></span>
+            <span class="cab-id" aria-hidden="true">CAB-03</span>
+          </span>
+        </span>
+
+        <span class="cab-body">
+          <span class="tile-desc">Follow fixtures, results and the table.</span>
           <span class="tile-cta">
             <span class="cta-default">Launch</span>
             <span class="cta-hover">Press start</span>

@@ -28,11 +28,17 @@ export interface EredivisieMatch {
   utcDate: string;
   status: string;
   matchday: number;
+  venue?: string | null;
+  referee?: string | null;
   homeTeam: FootballTeam;
   awayTeam: FootballTeam;
   score: {
     winner: 'HOME_TEAM' | 'AWAY_TEAM' | 'DRAW' | null;
     fullTime: {
+      home: number | null;
+      away: number | null;
+    };
+    halfTime?: {
       home: number | null;
       away: number | null;
     };
@@ -65,6 +71,6 @@ export class FootballService {
   private readonly http = inject(HttpClient);
 
   getEredivisie() {
-    return this.http.get<EredivisieData>('/api/eredivisie');
+    return this.http.get<EredivisieData>('/api/eredivisie?v=2');
   }
 }

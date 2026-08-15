@@ -1,6 +1,15 @@
 import { DatePipe } from '@angular/common';
-import { Component, computed, inject, linkedSignal, OnInit, signal } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import {
+  Component,
+  computed,
+  ElementRef,
+  inject,
+  linkedSignal,
+  OnInit,
+  signal,
+  ViewChild,
+} from '@angular/core';
+import { Router, RouterLink } from '@angular/router';
 
 import { EredivisieData, EredivisieMatch, FootballService } from './football.service';
 
@@ -12,11 +21,15 @@ import { EredivisieData, EredivisieMatch, FootballService } from './football.ser
   styleUrl: './football.component.css',
 })
 export class FootballComponent implements OnInit {
+  constructor(private router: Router) {}
   private readonly footballService = inject(FootballService);
+
+  @ViewChild('matchDialog') private matchDialog?: ElementRef<HTMLDialogElement>;
 
   readonly data = signal<EredivisieData | null>(null);
   readonly loading = signal(true);
   readonly error = signal<string | null>(null);
+  readonly selectedMatch = signal<EredivisieMatch | null>(null);
   readonly selectedMatchday = linkedSignal(() => this.data()?.season.currentMatchday ?? 1);
 
   readonly matchdays = computed(() => {
@@ -75,6 +88,29 @@ export class FootballComponent implements OnInit {
     }
   }
 
+  openMatch(match: EredivisieMatch): void {
+    this.selectedMatch.set(match);
+
+    const dialog = this.matchDialog?.nativeElement;
+    if (dialog && !dialog.open) {
+      dialog.showModal();
+    }
+  }
+
+  closeMatch(): void {
+    this.matchDialog?.nativeElement.close();
+  }
+
+  handleDialogClose(): void {
+    this.selectedMatch.set(null);
+  }
+
+  handleDialogBackdropClick(event: MouseEvent): void {
+    if (event.target === this.matchDialog?.nativeElement) {
+      this.closeMatch();
+    }
+  }
+
   isFinished(match: EredivisieMatch): boolean {
     return match.status === 'FINISHED' || match.status === 'AWARDED';
   }
@@ -93,5 +129,9 @@ export class FootballComponent implements OnInit {
     };
 
     return labels[status] ?? status.replaceAll('_', ' ').toLowerCase();
+  }
+
+  goHome() {
+    this.router.navigate(['/']);
   }
 }

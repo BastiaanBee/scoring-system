@@ -381,7 +381,7 @@
 .home-main {
   flex: 1;
   width: 100%;
-  max-width: 760px;
+  max-width: 1120px;
   box-sizing: border-box;
   padding: clamp(2.5rem, 8vh, 5rem) 1.25rem 3rem;
   display: flex;
@@ -473,11 +473,14 @@
 
 /* ---------- Cabinets ---------- */
 
+/* Flex rather than grid: with an odd number of cabinets, a wrapped last one
+   centres itself instead of hanging in the left column. */
 .home-tiles {
   margin-top: clamp(2.5rem, 7vh, 4rem);
   width: 100%;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
   gap: 1.5rem;
 }
 
@@ -486,6 +489,10 @@
   position: relative;
   display: flex;
   flex-direction: column;
+  /* Wraps below three across; the cap keeps a cabinet cabinet-shaped rather
+     than letting a lone one stretch across the row. */
+  flex: 1 1 270px;
+  max-width: 340px;
   padding: 0;
   border: 1px solid var(--cab-edge);
   border-radius: 12px 12px 4px 4px;
@@ -1001,6 +1008,212 @@
   100% {
     transform: translateY(-74px);
     opacity: 0;
+  }
+}
+
+/* ---------- Attract mode: Match Day ---------- */
+
+/* Mown stripes over a dark green wash, so the screen reads as a pitch from
+   above before any of the markings land. */
+.attract-pitch {
+  background:
+    repeating-linear-gradient(to right, rgba(255, 255, 255, 0.022) 0 16px, transparent 16px 32px),
+    linear-gradient(to bottom, #07170f, #040d09);
+}
+
+/* Penalty areas. They hang off the attract layer so .pt-lines keeps both of
+   its own pseudo-elements for the halfway line and the centre circle. */
+.attract-pitch::before,
+.attract-pitch::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  width: 13px;
+  height: 38px;
+  margin-top: -19px;
+  border: 1px solid rgba(var(--cyan-rgb), 0.4);
+}
+
+.attract-pitch::before {
+  left: 9px;
+  border-left: 0;
+}
+
+.attract-pitch::after {
+  right: 9px;
+  border-right: 0;
+}
+
+/* Touchlines, inset from the screen edge so the pitch has a margin rather
+   than running flush into the bezel. */
+.pt-lines {
+  position: absolute;
+  inset: 7px 9px;
+  border: 1px solid rgba(var(--cyan-rgb), 0.4);
+  border-radius: 2px;
+}
+
+.pt-lines::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 1px;
+  background: rgba(var(--cyan-rgb), 0.4);
+}
+
+.pt-lines::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 26px;
+  height: 26px;
+  margin: -13px 0 0 -13px;
+  border: 1px solid rgba(var(--cyan-rgb), 0.4);
+  border-radius: 50%;
+}
+
+/* Players hold their shape and drift, so the pitch has life without
+   competing with the ball for attention. */
+.pt-player {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  margin: -3px 0 0 -3px;
+  border-radius: 50%;
+}
+
+.pt-player-1 {
+  left: 34%;
+  top: 30%;
+  background: var(--amber);
+  animation: pt-drift-1 5.4s ease-in-out infinite alternate;
+}
+.pt-player-2 {
+  left: 44%;
+  top: 72%;
+  background: var(--amber);
+  animation: pt-drift-2 6.8s ease-in-out infinite alternate;
+}
+.pt-player-3 {
+  left: 68%;
+  top: 44%;
+  background: #ff4f8f;
+  animation: pt-drift-3 4.9s ease-in-out infinite alternate;
+}
+
+@keyframes pt-drift-1 {
+  from {
+    transform: translate(-7px, 5px);
+  }
+  to {
+    transform: translate(10px, -6px);
+  }
+}
+@keyframes pt-drift-2 {
+  from {
+    transform: translate(8px, -4px);
+  }
+  to {
+    transform: translate(-9px, 3px);
+  }
+}
+@keyframes pt-drift-3 {
+  from {
+    transform: translate(5px, 8px);
+  }
+  to {
+    transform: translate(-8px, -7px);
+  }
+}
+
+/* The ball animates on left and top rather than transform, so the move
+   scales with the cabinet width instead of overshooting a narrow screen. */
+.pt-ball {
+  position: absolute;
+  width: 5px;
+  height: 5px;
+  margin: -2.5px 0 0 -2.5px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 0 7px rgba(255, 255, 255, 0.7);
+  animation: pt-run 7s ease-in-out infinite;
+}
+
+/* Tracking reticle: the nod to what the app actually does. */
+.pt-ball::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 15px;
+  height: 15px;
+  margin: -7.5px 0 0 -7.5px;
+  border: 1px solid rgba(var(--cyan-rgb), 0.6);
+  border-radius: 50%;
+  animation: pt-track 1.8s ease-out infinite;
+}
+
+@keyframes pt-track {
+  from {
+    transform: scale(0.45);
+    opacity: 0.85;
+  }
+  to {
+    transform: scale(1.6);
+    opacity: 0;
+  }
+}
+
+/* One move: worked out of defence, switched, finished at the right-hand
+   goal. The ball vanishes on the line and restarts from the centre spot. */
+@keyframes pt-run {
+  0% {
+    left: 50%;
+    top: 50%;
+    opacity: 1;
+  }
+  12% {
+    left: 30%;
+    top: 28%;
+  }
+  26% {
+    left: 23%;
+    top: 66%;
+  }
+  42% {
+    left: 47%;
+    top: 76%;
+  }
+  58% {
+    left: 63%;
+    top: 36%;
+  }
+  74% {
+    left: 84%;
+    top: 58%;
+  }
+  86% {
+    left: 96%;
+    top: 50%;
+    opacity: 1;
+  }
+  90% {
+    left: 99%;
+    top: 50%;
+    opacity: 0;
+  }
+  91% {
+    left: 50%;
+    top: 50%;
+    opacity: 0;
+  }
+  100% {
+    left: 50%;
+    top: 50%;
+    opacity: 1;
   }
 }
 
