@@ -51,6 +51,9 @@ export class FootballComponent implements OnInit {
     Sparta: 'Sparta Rotterdam',
     Groningen: 'FC Groningen',
     Utrecht: 'FC Utrecht',
+    'Man United': 'Manchester United',
+    'Man City': 'Manchester City',
+    Newcastle: 'Newcastle United',
   };
 
   displayTeamName(team: FootballTeam): string {
@@ -67,6 +70,9 @@ export class FootballComponent implements OnInit {
   readonly loading = signal(true);
   readonly error = signal<string | null>(null);
   readonly selectedMatch = signal<FootballMatch | null>(null);
+  readonly selectedClub = signal<FootballTeam | null>(null);
+  readonly returnClub = signal<FootballTeam | null>(null);
+  private readonly returnClubSourceMatch = signal<FootballMatch | null>(null);
   readonly selectedMatchday = linkedSignal(() => this.data()?.season.currentMatchday ?? 1);
 
   readonly matchdays = computed(() => {
@@ -80,6 +86,134 @@ export class FootballComponent implements OnInit {
   readonly selectedMatches = computed(() =>
     (this.data()?.matches ?? []).filter((match) => match.matchday === this.selectedMatchday()),
   );
+
+  readonly selectedClubStanding = computed(() => {
+    const club = this.selectedClub();
+
+    if (!club) {
+      return null;
+    }
+
+    return this.data()?.standings.find((standing) => standing.team.id === club.id) ?? null;
+  });
+
+  readonly selectedClubDetails = computed(() => {
+    const club = this.selectedClub();
+
+    if (!club) {
+      return null;
+    }
+
+    return this.data()?.clubs.find((details) => details.id === club.id) ?? null;
+  });
+
+  readonly selectedClubMatches = computed(() => {
+    const club = this.selectedClub();
+
+    if (!club) {
+      return [];
+    }
+
+    return (this.data()?.matches ?? []).filter(
+      (match) => match.homeTeam.id === club.id || match.awayTeam.id === club.id,
+    );
+  });
+
+  readonly selectedClubLiveMatch = computed(
+    () => this.selectedClubMatches().find((match) => this.isLive(match)) ?? null,
+  );
+
+  readonly selectedClubPreviousMatch = computed(() => {
+    return (
+      this.selectedClubMatches()
+        .filter((match) => this.isFinished(match))
+        .sort((first, second) => second.utcDate.localeCompare(first.utcDate))[0] ?? null
+    );
+  });
+
+  readonly selectedClubNextMatch = computed(() => {
+    return (
+      this.selectedClubMatches()
+        .filter((match) => match.status === 'SCHEDULED' || match.status === 'TIMED')
+        .sort((first, second) => first.utcDate.localeCompare(second.utcDate))[0] ?? null
+    );
+  });
+
+  readonly selectedClubMatchHighlights = computed(() => {
+    const highlights: Array<{
+      label: string;
+      match: FootballMatch;
+    }> = [];
+
+    const liveMatch = this.selectedClubLiveMatch();
+    const nextMatch = this.selectedClubNextMatch();
+    const previousMatch = this.selectedClubPreviousMatch();
+
+    if (previousMatch) {
+      highlights.push({
+        label: 'Previous match',
+        match: previousMatch,
+      });
+    }
+
+    if (liveMatch) {
+      highlights.push({
+        label: 'Live match',
+        match: liveMatch,
+      });
+    }
+
+    if (nextMatch) {
+      highlights.push({
+        label: 'Next match',
+        match: nextMatch,
+      });
+    }
+
+    return highlights;
+  });
+
+  readonly selectedClubStreak = computed(() => {
+    const club = this.selectedClub();
+
+    if (!club) {
+      return null;
+    }
+
+    const form = this.teamForm(club.id);
+
+    if (form.length === 0) {
+      return null;
+    }
+
+    const latestResult = form[form.length - 1] as 'W' | 'D' | 'L';
+    let length = 0;
+
+    for (let index = form.length - 1; index >= 0; index--) {
+      if (form[index] !== latestResult) {
+        break;
+      }
+
+      length++;
+    }
+
+    const singleResultLabels = {
+      W: 'Last match: win',
+      D: 'Last match: draw',
+      L: 'Last match: loss',
+    };
+
+    const streakLabels = {
+      W: `${length}-match winning streak`,
+      D: `${length}-match drawing streak`,
+      L: `${length}-match losing streak`,
+    };
+
+    return {
+      result: latestResult,
+      label: length === 1 ? singleResultLabels[latestResult] : streakLabels[latestResult],
+    };
+  });
 
   readonly formByTeam = computed(() => {
     const forms = new Map<number, string[]>();
@@ -184,7 +318,10 @@ export class FootballComponent implements OnInit {
     if (dialog?.open) {
       dialog.close();
     } else {
+      this.returnClub.set(null);
+      this.returnClubSourceMatch.set(null);
       this.selectedMatch.set(null);
+      this.selectedClub.set(null);
     }
 
     this.selectedCompetition.set(competitionCode);
@@ -216,11 +353,59 @@ export class FootballComponent implements OnInit {
   }
 
   openMatch(match: FootballMatch): void {
+    this.returnClub.set(null);
+    this.returnClubSourceMatch.set(null);
+    this.selectedClub.set(null);
     this.selectedMatch.set(match);
 
     const dialog = this.matchDialog?.nativeElement;
     if (dialog && !dialog.open) {
       dialog.showModal();
+    }
+  }
+
+  openMatchFromClub(match: FootballMatch): void {
+    const club = this.selectedClub();
+
+    if (!club) {
+      this.openMatch(match);
+      return;
+    }
+
+    this.returnClub.set(club);
+    this.returnClubSourceMatch.set(this.selectedMatch());
+    this.selectedClub.set(null);
+    this.selectedMatch.set(match);
+  }
+
+  backToClub(): void {
+    const club = this.returnClub();
+
+    if (!club) {
+      return;
+    }
+
+    this.selectedClub.set(club);
+    this.selectedMatch.set(this.returnClubSourceMatch());
+    this.returnClub.set(null);
+    this.returnClubSourceMatch.set(null);
+  }
+
+  openClub(team: FootballTeam, sourceMatch: FootballMatch | null = null): void {
+    this.returnClub.set(null);
+    this.returnClubSourceMatch.set(null);
+    this.selectedMatch.set(sourceMatch);
+    this.selectedClub.set(team);
+
+    const dialog = this.matchDialog?.nativeElement;
+    if (dialog && !dialog.open) {
+      dialog.showModal();
+    }
+  }
+
+  backToMatch(): void {
+    if (this.selectedMatch()) {
+      this.selectedClub.set(null);
     }
   }
 
@@ -230,6 +415,9 @@ export class FootballComponent implements OnInit {
 
   handleDialogClose(): void {
     this.selectedMatch.set(null);
+    this.selectedClub.set(null);
+    this.returnClub.set(null);
+    this.returnClubSourceMatch.set(null);
   }
 
   handleDialogBackdropClick(event: MouseEvent): void {

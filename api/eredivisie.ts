@@ -5,6 +5,7 @@ import { getFirestore, type Firestore } from 'firebase-admin/firestore';
 const FOOTBALL_DATA_BASE_URL = 'https://api.football-data.org/v4';
 const SUPPORTED_COMPETITION_CODES = new Set(['DED', 'PL']);
 const CACHE_MAX_AGE_MS = 15 * 60 * 1000;
+const CLUB_CACHE_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000;
 const LIVE_MATCH_STATUSES = new Set(['LIVE', 'IN_PLAY', 'PAUSED']);
 const nodeRuntime = globalThis as typeof globalThis & {
   process?: {
@@ -21,6 +22,7 @@ interface FirebaseServiceAccount {
 interface FootballCacheDocument {
   data?: any;
   cachedAt?: number;
+  clubsUpdatedAt?: number;
 }
 
 function getFootballDatabase(): Firestore {
@@ -77,6 +79,34 @@ const asTeam = (raw: any) => ({
   shortName: raw?.shortName ?? null,
   tla: raw?.tla ?? null,
   crest: raw?.crest ?? null,
+});
+
+const asClubDetails = (raw: any) => ({
+  ...asTeam(raw),
+  address: raw?.address ?? null,
+  website: raw?.website ?? null,
+  founded: typeof raw?.founded === 'number' ? raw.founded : null,
+  clubColors: raw?.clubColors ?? null,
+  venue: raw?.venue ?? null,
+
+  area: raw?.area
+    ? {
+        id: raw.area.id ?? 0,
+        name: raw.area.name ?? null,
+        code: raw.area.code ?? null,
+        flag: raw.area.flag ?? null,
+      }
+    : null,
+
+  runningCompetitions: Array.isArray(raw?.runningCompetitions)
+    ? raw.runningCompetitions.map((competition: any) => ({
+        id: competition?.id ?? 0,
+        name: competition?.name ?? 'Unknown',
+        code: competition?.code ?? null,
+        type: competition?.type ?? null,
+        emblem: competition?.emblem ?? null,
+      }))
+    : [],
 });
 
 const asScore = (raw: any) => ({
@@ -241,12 +271,19 @@ export async function GET(request: Request): Promise<Response> {
 
     const cachedAt = typeof cacheDocument?.cachedAt === 'number' ? cacheDocument.cachedAt : null;
 
-    const cacheIsFresh =
-      cachedData !== null && cachedAt !== null && Date.now() - cachedAt < CACHE_MAX_AGE_MS;
+    const clubsUpdatedAt =
+      typeof cacheDocument?.clubsUpdatedAt === 'number' ? cacheDocument.clubsUpdatedAt : null;
 
-    if (cacheIsFresh) {
-      return createFootballResponse(cachedData, 'HIT');
-    }
+    const clubCacheIsFresh =
+      Array.isArray(cachedData?.clubs) &&
+      clubsUpdatedAt !== null &&
+      Date.now() - clubsUpdatedAt < CLUB_CACHE_MAX_AGE_MS;
+
+    const cacheIsFresh =
+      cachedData !== null &&
+      cachedAt !== null &&
+      Date.now() - cachedAt < CACHE_MAX_AGE_MS &&
+      clubCacheIsFresh;
 
     const token = nodeRuntime.process?.env?.['FOOTBALL_DATA_TOKEN'];
 
@@ -258,9 +295,14 @@ export async function GET(request: Request): Promise<Response> {
       return Response.json({ error: 'FOOTBALL_DATA_TOKEN is not configured.' }, { status: 500 });
     }
 
-    const [standingsData, matchesData] = await Promise.all([
+    const shouldRefreshClubs = !clubCacheIsFresh;
+
+    const [standingsData, matchesData, teamsData] = await Promise.all([
       requestFootballData(`/competitions/${requestedCompetition}/standings`, token),
       requestFootballData(`/competitions/${requestedCompetition}/matches`, token),
+      shouldRefreshClubs
+        ? requestFootballData(`/competitions/${requestedCompetition}/teams`, token)
+        : Promise.resolve(null),
     ]);
 
     const totalStanding = standingsData.standings?.find(
@@ -281,6 +323,11 @@ export async function GET(request: Request): Promise<Response> {
           first.matchday - second.matchday || first.utcDate.localeCompare(second.utcDate),
       );
 
+    const clubs =
+      shouldRefreshClubs && Array.isArray(teamsData?.teams)
+        ? teamsData.teams.map(asClubDetails)
+        : (cachedData?.clubs ?? []);
+
     const refreshedData = {
       competition: {
         id: standingsData.competition.id,
@@ -296,6 +343,7 @@ export async function GET(request: Request): Promise<Response> {
       },
       standings,
       matches,
+      clubs,
       updatedAt: new Date().toISOString(),
     };
 
@@ -325,9 +373,12 @@ export async function GET(request: Request): Promise<Response> {
       hasLiveMatch && completedMatchStandings === null && !cachedData?.standings;
 
     if (!shouldBypassCache) {
+      const cacheWriteTime = Date.now();
+
       await cacheReference.set({
         data: responseData,
-        cachedAt: Date.now(),
+        cachedAt: cacheWriteTime,
+        clubsUpdatedAt: shouldRefreshClubs ? cacheWriteTime : clubsUpdatedAt,
       });
     }
 

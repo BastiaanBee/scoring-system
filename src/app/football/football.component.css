@@ -517,6 +517,28 @@ table[data-competition='DED'] tbody tr:nth-last-child(3) td {
   text-overflow: ellipsis;
 }
 
+.club-button {
+  width: 100%;
+  padding: 0 0 0 0.15rem;
+  border: 0;
+  border-radius: 3px;
+  background: none;
+  text-align: left;
+  appearance: none;
+  cursor: pointer;
+  transition:
+    color 140ms ease,
+    text-shadow 140ms ease;
+}
+
+.club-button:hover,
+.club-button:focus-visible,
+tbody tr[data-zone='champion'] .club-button:hover,
+tbody tr[data-zone='champion'] .club-button:focus-visible {
+  color: var(--cyan);
+  text-shadow: 0 0 12px rgba(53, 219, 232, 0.28);
+}
+
 /* Colour coding: each statistic keeps one hue in both header and cells */
 
 .stat-played {
@@ -700,6 +722,7 @@ thead .col-points {
   border-color: var(--cyan);
 }
 
+.match-card[data-status='LIVE'],
 .match-card[data-status='IN_PLAY'],
 .match-card[data-status='PAUSED'] {
   border-left-color: var(--amber);
@@ -722,6 +745,7 @@ thead .col-points {
   text-transform: uppercase;
 }
 
+.match-card[data-status='LIVE'] .status,
 .match-card[data-status='IN_PLAY'] .status,
 .match-card[data-status='PAUSED'] .status {
   color: var(--amber);
@@ -840,6 +864,145 @@ thead .col-points {
   padding: clamp(1rem, 3vw, 1.6rem);
 }
 
+.club-dialog-hero {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 1rem;
+  padding: 1rem;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: rgba(5, 9, 22, 0.62);
+}
+
+.club-dialog-identity {
+  min-width: 0;
+}
+
+.club-dialog-identity h3 {
+  margin: 0;
+  overflow: hidden;
+  font-size: 1.25rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.club-dialog-identity p {
+  margin: 0.3rem 0 0;
+  color: var(--muted);
+  font-family: var(--font-data);
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.club-information > div {
+  flex-basis: calc(33.333% - 1px);
+}
+
+.club-information .club-stadium,
+.club-information .club-website {
+  flex-basis: calc(50% - 1px);
+}
+
+.club-country {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.club-country img {
+  flex: 0 0 auto;
+  border-radius: 2px;
+  object-fit: cover;
+}
+
+.club-website a {
+  color: var(--cyan);
+  text-decoration: none;
+  transition:
+    color 140ms ease,
+    text-shadow 140ms ease;
+}
+
+.club-website a:hover,
+.club-website a:focus-visible {
+  color: var(--amber);
+  text-shadow: 0 0 12px rgba(255, 190, 77, 0.25);
+}
+
+.club-back-button {
+  margin-top: 1rem;
+}
+
+.club-form-panel {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 1rem;
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: rgba(5, 9, 22, 0.62);
+}
+
+.club-matches-panel {
+  margin-top: 1rem;
+}
+
+.club-match-list {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.club-match-card {
+  height: auto;
+  min-height: 3.7rem;
+}
+
+.club-section-label {
+  margin: 0 0 0.45rem;
+  color: var(--faint);
+  font-family: var(--font-data);
+  font-size: 0.56rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.club-form .form-result {
+  width: 1.35rem;
+  height: 1.35rem;
+  font-size: 0.62rem;
+}
+
+.club-form-empty {
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+
+.club-streak {
+  color: var(--muted);
+  font-family: var(--font-data);
+  font-size: 0.68rem;
+  font-weight: 600;
+  text-align: right;
+}
+
+.club-streak[data-result='W'] {
+  color: var(--win);
+}
+
+.club-streak[data-result='D'] {
+  color: var(--draw);
+}
+
+.club-streak[data-result='L'] {
+  color: var(--loss);
+}
+
 .match-dialog-header {
   display: flex;
   justify-content: space-between;
@@ -920,6 +1083,24 @@ thead .col-points {
   gap: 0.45rem;
   min-width: 0;
   text-align: center;
+}
+
+.dialog-team-button {
+  width: 100%;
+  padding: 0.45rem;
+  border: 0;
+  border-radius: 9px;
+  color: inherit;
+  background: transparent;
+  font: inherit;
+  appearance: none;
+  cursor: pointer;
+  transition: background 140ms ease;
+}
+
+.dialog-team-button:hover,
+.dialog-team-button:focus-visible {
+  background: rgba(53, 219, 232, 0.07);
 }
 
 .dialog-crest,

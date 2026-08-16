@@ -96,7 +96,14 @@
                   </td>
 
                   <td class="col-club">
-                    <span class="club-name">{{ displayTeamName(row.team) }}</span>
+                    <button
+                      type="button"
+                      class="club-button club-name"
+                      [attr.aria-label]="'Open club details for ' + displayTeamName(row.team)"
+                      (click)="openClub(row.team)"
+                    >
+                      {{ displayTeamName(row.team) }}
+                    </button>
                   </td>
 
                   <td class="stat-played">{{ row.playedGames }}</td>
@@ -257,12 +264,220 @@
   <dialog
     #matchDialog
     class="match-dialog"
-    aria-labelledby="match-dialog-title"
-    aria-describedby="match-dialog-summary"
+    [attr.aria-labelledby]="selectedClub() ? 'club-dialog-title' : 'match-dialog-title'"
+    [attr.aria-describedby]="selectedClub() ? null : 'match-dialog-summary'"
     (close)="handleDialogClose()"
     (click)="handleDialogBackdropClick($event)"
   >
-    @if (selectedMatch(); as match) {
+    @if (selectedClub(); as club) {
+      <article class="match-dialog-card">
+        <header class="match-dialog-header">
+          <div>
+            <p class="dialog-kicker">
+              {{ data()?.competition?.name ?? 'Competition' }} · Club profile
+            </p>
+            <h2 id="club-dialog-title">Club details</h2>
+          </div>
+
+          <button
+            type="button"
+            class="dialog-close"
+            aria-label="Close club details"
+            autofocus
+            (click)="closeMatch()"
+          >
+            ×
+          </button>
+        </header>
+
+        <section class="club-dialog-hero">
+          @if (club.crest) {
+            <img class="dialog-crest" [src]="club.crest" alt="" />
+          } @else {
+            <span class="crest-placeholder" aria-hidden="true">{{ club.tla ?? '?' }}</span>
+          }
+
+          <div class="club-dialog-identity">
+            <h3>{{ displayTeamName(club) }}</h3>
+            <p>{{ club.tla ?? 'Club' }}</p>
+          </div>
+        </section>
+
+        @if (selectedClubDetails(); as details) {
+          <dl class="match-facts club-information">
+            @if (details.founded !== null) {
+              <div>
+                <dt>Founded</dt>
+                <dd>{{ details.founded }}</dd>
+              </div>
+            }
+
+            @if (details.area; as area) {
+              <div>
+                <dt>Country</dt>
+                <dd class="club-country">
+                  @if (area.flag) {
+                    <img [src]="area.flag" width="20" height="14" alt="" />
+                  }
+                  {{ area.name }}
+                </dd>
+              </div>
+            }
+
+            @if (details.clubColors) {
+              <div>
+                <dt>Club colours</dt>
+                <dd>{{ details.clubColors }}</dd>
+              </div>
+            }
+
+            @if (details.venue) {
+              <div class="club-stadium">
+                <dt>Stadium</dt>
+                <dd [title]="details.venue">{{ details.venue }}</dd>
+              </div>
+            }
+
+            @if (details.website) {
+              <div class="club-website">
+                <dt>Website</dt>
+                <dd>
+                  <a [href]="details.website" target="_blank" rel="noopener noreferrer">
+                    Official website ↗
+                  </a>
+                </dd>
+              </div>
+            }
+          </dl>
+        }
+
+        @if (selectedClubStanding(); as standing) {
+          <dl class="match-facts club-stats">
+            <div>
+              <dt>Position</dt>
+              <dd>{{ standing.position }}</dd>
+            </div>
+
+            <div>
+              <dt>Points</dt>
+              <dd>{{ standing.points }}</dd>
+            </div>
+
+            <div>
+              <dt>Played</dt>
+              <dd>{{ standing.playedGames }}</dd>
+            </div>
+
+            <div>
+              <dt>Record</dt>
+              <dd>{{ standing.won }}–{{ standing.draw }}–{{ standing.lost }}</dd>
+            </div>
+
+            <div>
+              <dt>Goals</dt>
+              <dd>{{ standing.goalsFor }}–{{ standing.goalsAgainst }}</dd>
+            </div>
+
+            <div>
+              <dt>Goal difference</dt>
+              <dd>{{ standing.goalDifference > 0 ? '+' : '' }}{{ standing.goalDifference }}</dd>
+            </div>
+          </dl>
+
+          <section class="club-form-panel">
+            <div>
+              <p class="club-section-label">Recent form</p>
+
+              <div class="form club-form">
+                @for (result of teamForm(club.id); track $index) {
+                  <span class="form-result" [attr.data-result]="result">{{ result }}</span>
+                } @empty {
+                  <span class="club-form-empty">No completed matches yet</span>
+                }
+              </div>
+            </div>
+
+            @if (selectedClubStreak(); as streak) {
+              <span class="club-streak" [attr.data-result]="streak.result">
+                {{ streak.label }}
+              </span>
+            }
+          </section>
+
+          <section class="club-matches-panel">
+            <p class="club-section-label">Matches</p>
+
+            <div class="club-match-list">
+              @for (highlight of selectedClubMatchHighlights(); track highlight.match.id) {
+                <button
+                  type="button"
+                  class="match-card club-match-card"
+                  [attr.data-status]="highlight.match.status"
+                  [attr.aria-label]="
+                    'Open ' +
+                    highlight.label.toLowerCase() +
+                    ' between ' +
+                    displayTeamName(highlight.match.homeTeam) +
+                    ' and ' +
+                    displayTeamName(highlight.match.awayTeam)
+                  "
+                  (click)="openMatchFromClub(highlight.match)"
+                >
+                  <span class="match-meta">
+                    <span class="kickoff">
+                      {{ highlight.match.utcDate | date: 'EEE d MMM · HH:mm' }}
+                    </span>
+                    <span class="status">{{ highlight.label }}</span>
+                  </span>
+
+                  <span class="match-line">
+                    <span class="side home" [title]="highlight.match.homeTeam.name">
+                      <span class="side-name">
+                        {{ displayTeamName(highlight.match.homeTeam) }}
+                      </span>
+                    </span>
+
+                    @if (
+                      isFinished(highlight.match) &&
+                      highlight.match.score.fullTime.home !== null &&
+                      highlight.match.score.fullTime.away !== null
+                    ) {
+                      <span class="scoreline">
+                        <b>{{ highlight.match.score.fullTime.home }}</b>
+                        <i aria-hidden="true">:</i>
+                        <b>{{ highlight.match.score.fullTime.away }}</b>
+                      </span>
+                    } @else if (hasHalfTimeScore(highlight.match)) {
+                      <span class="scoreline live-half-time" title="Half-time score">
+                        <b>{{ highlight.match.score.halfTime?.home }}</b>
+                        <i aria-hidden="true">:</i>
+                        <b>{{ highlight.match.score.halfTime?.away }}</b>
+                      </span>
+                    } @else {
+                      <span class="scoreline pending">vs</span>
+                    }
+
+                    <span class="side away" [title]="highlight.match.awayTeam.name">
+                      <span class="side-name">
+                        {{ displayTeamName(highlight.match.awayTeam) }}
+                      </span>
+                    </span>
+                  </span>
+                </button>
+              } @empty {
+                <p class="club-form-empty">No matches are available for this club.</p>
+              }
+            </div>
+          </section>
+        }
+
+        @if (selectedMatch()) {
+          <button type="button" class="ghost-button club-back-button" (click)="backToMatch()">
+            ← Back to match
+          </button>
+        }
+      </article>
+    } @else if (selectedMatch(); as match) {
       <article class="match-dialog-card">
         <header class="match-dialog-header">
           <div>
@@ -288,8 +503,11 @@
         </p>
 
         <section class="dialog-score" [attr.data-status]="match.status">
-          <div
-            class="dialog-team"
+          <button
+            type="button"
+            class="dialog-team dialog-team-button"
+            [attr.aria-label]="'Open club details for ' + displayTeamName(match.homeTeam)"
+            (click)="openClub(match.homeTeam, match)"
             [class.is-winner]="isFinished(match) && match.score.winner === 'HOME_TEAM'"
             [class.is-loser]="isFinished(match) && match.score.winner === 'AWAY_TEAM'"
             [class.is-draw]="isFinished(match) && match.score.winner === 'DRAW'"
@@ -303,7 +521,7 @@
             }
             <h3>{{ displayTeamName(match.homeTeam) }}</h3>
             <span>Home</span>
-          </div>
+          </button>
 
           <div class="dialog-result">
             @if (isFinished(match)) {
@@ -318,8 +536,11 @@
             <span class="dialog-status">{{ statusLabel(match.status) }}</span>
           </div>
 
-          <div
-            class="dialog-team"
+          <button
+            type="button"
+            class="dialog-team dialog-team-button"
+            [attr.aria-label]="'Open club details for ' + displayTeamName(match.awayTeam)"
+            (click)="openClub(match.awayTeam, match)"
             [class.is-winner]="isFinished(match) && match.score.winner === 'AWAY_TEAM'"
             [class.is-loser]="isFinished(match) && match.score.winner === 'HOME_TEAM'"
             [class.is-draw]="isFinished(match) && match.score.winner === 'DRAW'"
@@ -333,7 +554,7 @@
             }
             <h3>{{ displayTeamName(match.awayTeam) }}</h3>
             <span>Away</span>
-          </div>
+          </button>
         </section>
 
         <dl class="match-facts">
@@ -366,6 +587,12 @@
             </div>
           }
         </dl>
+
+        @if (returnClub(); as club) {
+          <button type="button" class="ghost-button club-back-button" (click)="backToClub()">
+            ← Back to {{ displayTeamName(club) }}
+          </button>
+        }
       </article>
     }
   </dialog>

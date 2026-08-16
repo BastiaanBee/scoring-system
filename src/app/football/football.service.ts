@@ -11,6 +11,31 @@ export interface FootballTeam {
   crest: string | null;
 }
 
+export interface FootballArea {
+  id: number;
+  name: string | null;
+  code: string | null;
+  flag: string | null;
+}
+
+export interface FootballRunningCompetition {
+  id: number;
+  name: string;
+  code: string | null;
+  type: string | null;
+  emblem: string | null;
+}
+
+export interface FootballClubDetails extends FootballTeam {
+  address: string | null;
+  website: string | null;
+  founded: number | null;
+  clubColors: string | null;
+  venue: string | null;
+  area: FootballArea | null;
+  runningCompetitions: FootballRunningCompetition[];
+}
+
 export interface StandingRow {
   position: number;
   team: FootballTeam;
@@ -63,6 +88,7 @@ export interface CompetitionData {
   };
   standings: StandingRow[];
   matches: FootballMatch[];
+  clubs: FootballClubDetails[];
   updatedAt: string;
 }
 
