@@ -242,10 +242,23 @@ export class FootballComponent implements OnInit {
     return match.status === 'FINISHED' || match.status === 'AWARDED';
   }
 
+  isLive(match: FootballMatch): boolean {
+    return match.status === 'LIVE' || match.status === 'IN_PLAY' || match.status === 'PAUSED';
+  }
+
+  hasHalfTimeScore(match: FootballMatch): boolean {
+    const halfTime = match.score.halfTime;
+
+    return (
+      this.isLive(match) && typeof halfTime?.home === 'number' && typeof halfTime?.away === 'number'
+    );
+  }
+
   statusLabel(status: string): string {
     const labels: Record<string, string> = {
       FINISHED: 'Full time',
       AWARDED: 'Awarded',
+      LIVE: 'In progress',
       IN_PLAY: 'In progress',
       PAUSED: 'Half-time',
       POSTPONED: 'Postponed',
