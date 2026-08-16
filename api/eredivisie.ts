@@ -122,6 +122,86 @@ const asMatch = (raw: any) => ({
   lastUpdated: raw?.lastUpdated ?? null,
 });
 
+function createCompletedMatchStandings(standings: any[], matches: any[]): any[] | null {
+  const correctedStandings = standings.map((standing) => ({
+    ...standing,
+    team: { ...standing.team },
+    form: [...standing.form],
+  }));
+
+  const originalPositions = new Map(
+    correctedStandings.map((standing) => [standing.team.id, standing.position]),
+  );
+
+  const standingsByTeamId = new Map(
+    correctedStandings.map((standing) => [standing.team.id, standing]),
+  );
+
+  for (const match of matches) {
+    if (!LIVE_MATCH_STATUSES.has(match.status)) {
+      continue;
+    }
+
+    const homeStanding = standingsByTeamId.get(match.homeTeam.id);
+    const awayStanding = standingsByTeamId.get(match.awayTeam.id);
+    const homeGoals = match.score.fullTime.home;
+    const awayGoals = match.score.fullTime.away;
+
+    /*
+     * A live table can only be corrected safely when the provider supplies
+     * both teams and the current score. The caller will fall back to the
+     * previously cached standings if any of these values are unavailable.
+     */
+    if (
+      !homeStanding ||
+      !awayStanding ||
+      typeof homeGoals !== 'number' ||
+      typeof awayGoals !== 'number'
+    ) {
+      return null;
+    }
+
+    homeStanding.playedGames = Math.max(0, homeStanding.playedGames - 1);
+    awayStanding.playedGames = Math.max(0, awayStanding.playedGames - 1);
+
+    homeStanding.goalsFor = Math.max(0, homeStanding.goalsFor - homeGoals);
+    homeStanding.goalsAgainst = Math.max(0, homeStanding.goalsAgainst - awayGoals);
+    awayStanding.goalsFor = Math.max(0, awayStanding.goalsFor - awayGoals);
+    awayStanding.goalsAgainst = Math.max(0, awayStanding.goalsAgainst - homeGoals);
+
+    if (homeGoals > awayGoals) {
+      homeStanding.won = Math.max(0, homeStanding.won - 1);
+      homeStanding.points = Math.max(0, homeStanding.points - 3);
+      awayStanding.lost = Math.max(0, awayStanding.lost - 1);
+    } else if (homeGoals < awayGoals) {
+      homeStanding.lost = Math.max(0, homeStanding.lost - 1);
+      awayStanding.won = Math.max(0, awayStanding.won - 1);
+      awayStanding.points = Math.max(0, awayStanding.points - 3);
+    } else {
+      homeStanding.draw = Math.max(0, homeStanding.draw - 1);
+      awayStanding.draw = Math.max(0, awayStanding.draw - 1);
+      homeStanding.points = Math.max(0, homeStanding.points - 1);
+      awayStanding.points = Math.max(0, awayStanding.points - 1);
+    }
+
+    homeStanding.goalDifference = homeStanding.goalsFor - homeStanding.goalsAgainst;
+    awayStanding.goalDifference = awayStanding.goalsFor - awayStanding.goalsAgainst;
+  }
+
+  return correctedStandings
+    .sort(
+      (first, second) =>
+        second.points - first.points ||
+        second.goalDifference - first.goalDifference ||
+        second.goalsFor - first.goalsFor ||
+        (originalPositions.get(first.team.id) ?? 0) - (originalPositions.get(second.team.id) ?? 0),
+    )
+    .map((standing, index) => ({
+      ...standing,
+      position: index + 1,
+    }));
+}
+
 async function requestFootballData(path: string, token: string): Promise<any> {
   const response = await fetch(`${FOOTBALL_DATA_BASE_URL}${path}`, {
     headers: {
@@ -221,30 +301,37 @@ export async function GET(request: Request): Promise<Response> {
 
     const hasLiveMatch = matches.some((match: any) => LIVE_MATCH_STATUSES.has(match.status));
 
-    const responseData =
-      hasLiveMatch && cachedData?.standings
-        ? {
-            ...refreshedData,
-            standings: cachedData.standings,
-          }
-        : refreshedData;
+    const completedMatchStandings = hasLiveMatch
+      ? createCompletedMatchStandings(standings, matches)
+      : standings;
+
+    const responseStandings = completedMatchStandings ?? cachedData?.standings ?? standings;
+
+    const responseData = {
+      ...refreshedData,
+      standings: responseStandings,
+    };
 
     /*
      * While a match is live:
-     * - Preserve previously stored completed-match standings.
+     * - Remove only the provisional effect of the currently live matches.
+     * - Keep newly finished overlapping matches in the standings.
      * - Store newly refreshed match data.
      *
-     * If no cache exists yet during a live match, return the provider response
-     * without storing its provisional standings.
+     * If the live table cannot be corrected and no previous standings exist,
+     * return the provider response without storing its provisional standings.
      */
-    if (!hasLiveMatch || cachedData?.standings) {
+    const shouldBypassCache =
+      hasLiveMatch && completedMatchStandings === null && !cachedData?.standings;
+
+    if (!shouldBypassCache) {
       await cacheReference.set({
         data: responseData,
         cachedAt: Date.now(),
       });
     }
 
-    const cacheStatus = hasLiveMatch && !cachedData?.standings ? 'BYPASS' : 'MISS';
+    const cacheStatus = shouldBypassCache ? 'BYPASS' : 'MISS';
 
     return createFootballResponse(responseData, cacheStatus);
   } catch (error) {
