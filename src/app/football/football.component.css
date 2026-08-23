@@ -507,14 +507,28 @@ table[data-competition='DED'] tbody tr:nth-last-child(3) td {
 }
 
 .club-name {
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  width: 100%;
   overflow: hidden;
   padding-left: 0.15rem;
   color: var(--ink);
   font-family: var(--font-body);
   font-size: 0.86rem;
   font-weight: 600;
+  text-align: left;
+}
+
+.standings-club-crest {
+  flex: 0 0 16px;
+  object-fit: contain;
+}
+
+.club-name-text {
+  overflow: hidden;
   text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .club-button {

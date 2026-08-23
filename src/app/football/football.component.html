@@ -102,7 +102,17 @@
                       [attr.aria-label]="'Open club details for ' + displayTeamName(row.team)"
                       (click)="openClub(row.team)"
                     >
-                      {{ displayTeamName(row.team) }}
+                      @if (row.team.crest) {
+                        <img
+                          class="standings-club-crest"
+                          [src]="row.team.crest"
+                          width="16"
+                          height="16"
+                          alt=""
+                        />
+                      }
+
+                      <span class="club-name-text">{{ displayTeamName(row.team) }}</span>
                     </button>
                   </td>
 
