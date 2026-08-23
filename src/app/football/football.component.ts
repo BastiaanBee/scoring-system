@@ -216,11 +216,18 @@ export class FootballComponent implements OnInit {
   });
 
   readonly formByTeam = computed(() => {
-    const forms = new Map<number, string[]>();
+    const forms = new Map<
+      number,
+      Array<{
+        result: 'W' | 'D' | 'L';
+        label: string;
+      }>
+    >();
 
-    const addResult = (teamId: number, result: 'W' | 'D' | 'L'): void => {
+    const addResult = (teamId: number, result: 'W' | 'D' | 'L', label: string): void => {
       const currentForm = forms.get(teamId) ?? [];
-      forms.set(teamId, [...currentForm, result].slice(-5));
+
+      forms.set(teamId, [...currentForm, { result, label }].slice(-5));
     };
 
     const matches = [...(this.data()?.matches ?? [])].sort((first, second) =>
@@ -239,23 +246,32 @@ export class FootballComponent implements OnInit {
         continue;
       }
 
+      const label =
+        `${this.displayTeamName(match.homeTeam)} ` +
+        `${homeScore}-${awayScore} ` +
+        `${this.displayTeamName(match.awayTeam)}`;
+
       if (homeScore === awayScore) {
-        addResult(match.homeTeam.id, 'D');
-        addResult(match.awayTeam.id, 'D');
+        addResult(match.homeTeam.id, 'D', label);
+        addResult(match.awayTeam.id, 'D', label);
       } else if (homeScore > awayScore) {
-        addResult(match.homeTeam.id, 'W');
-        addResult(match.awayTeam.id, 'L');
+        addResult(match.homeTeam.id, 'W', label);
+        addResult(match.awayTeam.id, 'L', label);
       } else {
-        addResult(match.homeTeam.id, 'L');
-        addResult(match.awayTeam.id, 'W');
+        addResult(match.homeTeam.id, 'L', label);
+        addResult(match.awayTeam.id, 'W', label);
       }
     }
 
     return forms;
   });
 
-  teamForm(teamId: number): string[] {
+  teamFormEntries(teamId: number) {
     return this.formByTeam().get(teamId) ?? [];
+  }
+
+  teamForm(teamId: number): Array<'W' | 'D' | 'L'> {
+    return this.teamFormEntries(teamId).map((entry) => entry.result);
   }
 
   standingsZone(index: number, numberOfClubs: number): string | null {

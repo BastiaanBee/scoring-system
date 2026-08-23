@@ -135,8 +135,14 @@
 
                   <td class="form-column">
                     <div class="form">
-                      @for (result of teamForm(row.team.id); track $index) {
-                        <span class="form-result" [attr.data-result]="result">{{ result }}</span>
+                      @for (entry of teamFormEntries(row.team.id); track $index) {
+                        <span
+                          class="form-result"
+                          [attr.data-result]="entry.result"
+                          [title]="entry.label"
+                        >
+                          {{ entry.result }}
+                        </span>
                       }
                     </div>
                   </td>
@@ -405,8 +411,10 @@
               <p class="club-section-label">Recent form</p>
 
               <div class="form club-form">
-                @for (result of teamForm(club.id); track $index) {
-                  <span class="form-result" [attr.data-result]="result">{{ result }}</span>
+                @for (entry of teamFormEntries(club.id); track $index) {
+                  <span class="form-result" [attr.data-result]="entry.result" [title]="entry.label">
+                    {{ entry.result }}
+                  </span>
                 } @empty {
                   <span class="club-form-empty">No completed matches yet</span>
                 }
