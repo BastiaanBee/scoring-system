@@ -285,6 +285,10 @@ export async function GET(request: Request): Promise<Response> {
       Date.now() - cachedAt < CACHE_MAX_AGE_MS &&
       clubCacheIsFresh;
 
+    if (cacheIsFresh) {
+      return createFootballResponse(cachedData, 'HIT');
+    }
+
     const token = nodeRuntime.process?.env?.['FOOTBALL_DATA_TOKEN'];
 
     if (!token) {
