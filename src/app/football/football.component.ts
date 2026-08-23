@@ -35,6 +35,7 @@ export class FootballComponent implements OnInit {
   }> = [
     { code: 'DED', label: 'Eredivisie' },
     { code: 'PL', label: 'Premier League' },
+    { code: 'BL1', label: 'Bundesliga' },
   ];
 
   readonly selectedCompetition = signal<CompetitionCode>('DED');
@@ -289,6 +290,30 @@ export class FootballComponent implements OnInit {
       }
 
       if (index >= numberOfClubs - 3) {
+        return 'relegated';
+      }
+
+      return null;
+    }
+
+    if (this.selectedCompetition() === 'BL1') {
+      if (index <= 3) {
+        return 'europe';
+      }
+
+      if (index === 4) {
+        return 'europe-playoff';
+      }
+
+      if (index === 5) {
+        return 'conference';
+      }
+
+      if (index === numberOfClubs - 3) {
+        return 'relegation-playoff';
+      }
+
+      if (index >= numberOfClubs - 2) {
         return 'relegated';
       }
 

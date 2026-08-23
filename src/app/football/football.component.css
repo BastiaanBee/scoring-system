@@ -462,6 +462,10 @@ tbody tr:last-child td {
   color: var(--periwinkle);
 }
 
+[data-zone='conference'] {
+  color: #b458cc;
+}
+
 [data-zone='relegation-playoff'] {
   color: var(--ember);
 }

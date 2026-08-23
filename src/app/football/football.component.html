@@ -169,6 +169,26 @@
             >
             <span data-zone="relegated" title="Relegated to the Eerste Divisie">Relegated</span>
           </footer>
+        } @else if (selectedCompetition() === 'BL1') {
+          <footer class="zone-legend">
+            <span data-zone="champion" title="Bundesliga champion">Champion</span>
+            <span data-zone="europe" title="Qualifies for the UEFA Champions League">
+              Champions League
+            </span>
+            <span data-zone="europe-playoff" title="Qualifies for the UEFA Europa League">
+              Europa League
+            </span>
+            <span data-zone="conference" title="Qualifies for the UEFA Conference League">
+              Conference League
+            </span>
+            <span
+              data-zone="relegation-playoff"
+              title="Relegation play-off against a Bundesliga 2 club"
+            >
+              Play-off
+            </span>
+            <span data-zone="relegated" title="Relegated to Bundesliga 2">Relegated</span>
+          </footer>
         } @else {
           <footer class="zone-legend">
             <span data-zone="champion" title="Premier League champion">Champion</span>

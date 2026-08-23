@@ -3,7 +3,7 @@ import { cert, getApp, getApps, initializeApp } from 'firebase-admin/app';
 import { getFirestore, type Firestore } from 'firebase-admin/firestore';
 
 const FOOTBALL_DATA_BASE_URL = 'https://api.football-data.org/v4';
-const SUPPORTED_COMPETITION_CODES = new Set(['DED', 'PL']);
+const SUPPORTED_COMPETITION_CODES = new Set(['DED', 'PL', 'BL1']);
 const CACHE_MAX_AGE_MS = 15 * 60 * 1000;
 const CLUB_CACHE_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000;
 const LIVE_MATCH_STATUSES = new Set(['LIVE', 'IN_PLAY', 'PAUSED']);

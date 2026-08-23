@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 
-export type CompetitionCode = 'DED' | 'PL';
+export type CompetitionCode = 'DED' | 'PL' | 'BL1';
 
 export interface FootballTeam {
   id: number;
