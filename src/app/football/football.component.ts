@@ -264,7 +264,19 @@ export class FootballComponent implements OnInit {
     }
 
     if (this.selectedCompetition() === 'PL') {
-      return index >= numberOfClubs - 3 ? 'relegated' : null;
+      if (index <= 3) {
+        return 'europe';
+      }
+
+      if (index === 4) {
+        return 'europe-playoff';
+      }
+
+      if (index >= numberOfClubs - 3) {
+        return 'relegated';
+      }
+
+      return null;
     }
 
     if (index <= 2) {
