@@ -7,6 +7,18 @@ const SUPPORTED_COMPETITION_CODES = new Set(['DED', 'PL', 'BL1']);
 const CACHE_MAX_AGE_MS = 15 * 60 * 1000;
 const CLUB_CACHE_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000;
 const LIVE_MATCH_STATUSES = new Set(['LIVE', 'IN_PLAY', 'PAUSED']);
+const VALID_MATCH_STATUSES = new Set([
+  'SCHEDULED',
+  'TIMED',
+  'LIVE',
+  'IN_PLAY',
+  'PAUSED',
+  'FINISHED',
+  'AWARDED',
+  'POSTPONED',
+  'SUSPENDED',
+  'CANCELLED',
+]);
 const nodeRuntime = globalThis as typeof globalThis & {
   process?: {
     env?: Record<string, string | undefined>;
@@ -128,10 +140,33 @@ const asStanding = (raw: any) => ({
   goalDifference: raw?.goalDifference ?? 0,
 });
 
+const normalizeMatchStatus = (raw: any): string => {
+  const rawStatus = typeof raw?.status === 'string' ? raw.status : '';
+
+  if (VALID_MATCH_STATUSES.has(rawStatus)) {
+    return rawStatus;
+  }
+
+  const statusIsTimestamp = Number.isFinite(Date.parse(rawStatus));
+  const kickoffTime = Date.parse(raw?.utcDate ?? '');
+  const matchIsSafelyPast =
+    Number.isFinite(kickoffTime) && Date.now() - kickoffTime > 4 * 60 * 60 * 1000;
+
+  const hasFullTimeScore =
+    typeof raw?.score?.fullTime?.home === 'number' &&
+    typeof raw?.score?.fullTime?.away === 'number';
+
+  if (statusIsTimestamp && matchIsSafelyPast && hasFullTimeScore) {
+    return 'FINISHED';
+  }
+
+  return 'SCHEDULED';
+};
+
 const asMatch = (raw: any) => ({
   id: raw?.id ?? 0,
   utcDate: raw?.utcDate ?? '',
-  status: raw?.status ?? 'SCHEDULED',
+  status: normalizeMatchStatus(raw),
   matchday: raw?.matchday ?? null,
 
   venue: raw?.venue ?? null,
@@ -279,11 +314,16 @@ export async function GET(request: Request): Promise<Response> {
       clubsUpdatedAt !== null &&
       Date.now() - clubsUpdatedAt < CLUB_CACHE_MAX_AGE_MS;
 
+    const cachedMatchesHaveValidStatuses =
+      Array.isArray(cachedData?.matches) &&
+      cachedData.matches.every((match: any) => VALID_MATCH_STATUSES.has(match?.status));
+
     const cacheIsFresh =
       cachedData !== null &&
       cachedAt !== null &&
       Date.now() - cachedAt < CACHE_MAX_AGE_MS &&
-      clubCacheIsFresh;
+      clubCacheIsFresh &&
+      cachedMatchesHaveValidStatuses;
 
     if (cacheIsFresh) {
       return createFootballResponse(cachedData, 'HIT');
